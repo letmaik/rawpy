@@ -1,4 +1,4 @@
-_rawpy.c
+_rawpy.cpp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
