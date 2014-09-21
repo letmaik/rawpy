@@ -93,7 +93,7 @@ def windows_libraw_compile():
             print('Extracting', path, 'into', extractdir)
             z.extractall(extractdir)
     
-    # configure and compile lensfun
+    # configure and compile libraw
     cwd = os.getcwd()
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
@@ -169,7 +169,7 @@ if use_cython:
 setup(
       name = 'rawpy',
       version = '0.1.0',
-      description = 'Python wrapper for the libraw library',
+      description = 'Python wrapper for the LibRaw library',
       long_description = open('README.rst').read(),
       author = 'Maik Riechert',
       author_email = 'maik.riechert@arcor.de',
