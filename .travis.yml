@@ -13,11 +13,13 @@ env:
 install:
   - sudo apt-get install python-numpy
   - if [ $USE_LATEST_LIBRAW == true ]; then
+      sudo apt-get install cmake ;
       cd .. ;
       git clone $LIBRAW_GIT libraw ;
       cd libraw ;
       git checkout `git describe --abbrev=0 --tags` ;
-      ./configure ;
+      cmake . ;
+      make ;
       sudo make install ;
       cd ../rawpy ;
     else
