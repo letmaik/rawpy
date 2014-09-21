@@ -1,6 +1,11 @@
 First, read appveyor/run_with_env.cmd and see which Windows SDK (contains the compiler)
 you need to install.
 
-Compilation should work out of the box by running:
+Open a command shell, and set the following variables depending on which Python you use:
+
+set PYTHON_VERSION=2 # or 3
+set PYTHON_ARCH=32 # or 64
+
+Then you can compile with:
 
 cmd /E:ON /V:ON /C .\appveyor\run_with_env.cmd python setup.py bdist_wheel
