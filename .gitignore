@@ -1,4 +1,4 @@
-_libraw.c
+_rawpy.c
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -43,6 +43,8 @@ coverage.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.settings
+/MANIFEST
 
 # Rope
 .ropeproject
