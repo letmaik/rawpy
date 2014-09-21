@@ -1,0 +1,38 @@
+language: python
+
+virtualenv:
+  system_site_packages: true
+
+env:
+  global:
+    - LIBRAW_GIT="git://github.com/LibRaw/LibRaw.git"
+  matrix:
+    - USE_LATEST_LIBRAW=true
+    - USE_LATEST_LIBRAW=false
+
+install:
+  - sudo apt-get install python-numpy
+  - if [ $USE_LATEST_LIBRAW == true ]; then
+      cd .. ;
+      git clone $LIBRAW_GIT libraw ;
+      cd libraw ;
+      git checkout `git describe --abbrev=0 --tags` ;
+      ./configure ;
+      sudo make install ;
+      cd ../rawpy ;
+    else
+      sudo apt-get install libraw-dev ;
+    fi
+  - pip install cython
+
+script: python setup.py nosetests --verbosity=3
+
+deploy:
+  provider: pypi
+  user: neothemachine
+  password:
+    secure: "E7MMZ4ZdG+1ZsSPqQ5y8r8AC6/UR1AsH/cajeO1sD58QRXSojEzIgpfENIUS22a3I8jCn84k5V47pWBuELcJubk/G5fxLG2gAQ4skf1Pimwh+TGgzlNN7tE7NuM8xdtgXxFFH7GaZNp1e9TaE9ewya+sMGaqiC5EVRSA0BG5jM0="
+  on:
+    tags: true
+    all_branches: true
+    condition: $USE_LATEST_LIBRAW = false

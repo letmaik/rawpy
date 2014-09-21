@@ -1,0 +1,6 @@
+First, read appveyor/run_with_env.cmd and see which Windows SDK (contains the compiler)
+you need to install.
+
+Compilation should work out of the box by running:
+
+cmd /E:ON /V:ON /C .\appveyor\run_with_env.cmd python setup.py bdist_wheel
