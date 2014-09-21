@@ -18,9 +18,11 @@ install:
       git clone $LIBRAW_GIT libraw ;
       cd libraw ;
       git checkout `git describe --abbrev=0 --tags` ;
-      cmake . ;
+      cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ;
       make ;
       sudo make install ;
+      echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/99local.conf ;
+      sudo ldconfig ;
       cd ../rawpy ;
     else
       sudo apt-get install libraw-dev ;
