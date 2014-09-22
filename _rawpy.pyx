@@ -20,6 +20,7 @@ cdef extern from "libraw.h":
         ushort height, width
         ushort top_margin, left_margin
         ushort iheight, iwidth
+        unsigned raw_pitch
 
     ctypedef struct libraw_rawdata_t:
         ushort *raw_image
@@ -48,6 +49,7 @@ cdef extern from "libraw.h":
         LibRaw()
         int open_file(const char *fname)
         int unpack()
+        int COLOR(int row, int col)
         int subtract_black()
         int raw2image()
         int raw2image_ex(int do_subtract_black)
@@ -67,6 +69,7 @@ def enumKey(enu, val):
    
 cdef class RawPy:
     cdef LibRaw* p
+    cdef np.ndarray _raw_image
         
     def __cinit__(self):
         self.p = new LibRaw()
@@ -80,22 +83,58 @@ cdef class RawPy:
         
     def unpack(self):
         self.p.unpack()
-        
-    @property
-    def rawdata(self):
-        """Bayer-pattern RAW image, one channel."""
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
         shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
-        return np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+        self._raw_image = np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+        
+    @property
+    def raw_image(self):
+        """Bayer-pattern RAW image, one channel."""
+        return self._raw_image
     
-    def raw2image(self):
+    cpdef ushort rawvalue(self, int row, int column):
+        """
+        Return RAW value at given position relative to visible area of image
+        (see visible_size_raw()).        
+        """
+        cdef ushort* raw = self.p.imgdata.rawdata.raw_image
+        cdef ushort top_margin = self.p.imgdata.sizes.top_margin
+        cdef ushort left_margin = self.p.imgdata.sizes.left_margin
+        cdef ushort pitch = self.p.imgdata.sizes.raw_pitch/2
+        return raw[(row+top_margin)*pitch + column + left_margin]
+    
+    @property
+    def visible_size_raw(self):
+        return self.p.imgdata.sizes.height, self.p.imgdata.sizes.width
+    
+    cpdef int rawcolor(self, int row, int column):
+        return self.p.COLOR(row, column)
+    
+    def bench(self):
+        # just a small benchmark..
+        cdef int row, col, cnt
+        h,w = self.visible_size_raw
+        
+        for row in range(h):
+            for col in range(w):
+                if self.rawcolor(row,col) == 3 and self.rawvalue(row,col) > 100:
+                    cnt += 1
+        return cnt
+    
+    def raw2composite(self):
+        """
+        Creates a RAW composite image with RGBG channels, accessible via .image property.
+        """
         self.p.raw2image()
     
     @property
-    def image(self):
-        """RAW composite image with channels RGBR."""
+    def composite_image(self):
+        """
+        RAW composite image with RGBG channels. 
+        Note that this image contains duplicated pixels such that it
+        matches the visible RAW image size."""
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp> self.p.imgdata.sizes.iheight
         shape[1] = <np.npy_intp> self.p.imgdata.sizes.iwidth
