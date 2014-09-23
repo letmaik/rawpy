@@ -8,6 +8,8 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
+from enum import Enum
+
 cdef extern from "libraw.h":
     ctypedef unsigned short ushort
     
@@ -20,16 +22,84 @@ cdef extern from "libraw.h":
         ushort height, width
         ushort top_margin, left_margin
         ushort iheight, iwidth
-        unsigned raw_pitch
 
     ctypedef struct libraw_rawdata_t:
         ushort *raw_image
+        
+    ctypedef struct libraw_output_params_t:
+        unsigned    greybox[4]     # -A  x1 y1 x2 y2 
+        unsigned    cropbox[4]     # -B x1 y1 x2 y2 
+        double      aber[4]        # -C 
+        double      gamm[6]        # -g 
+        float       user_mul[4]    # -r mul0 mul1 mul2 mul3 
+        unsigned    shot_select    # -s 
+        float       bright         # -b 
+        float       threshold      #  -n 
+        int         half_size      # -h 
+        int         four_color_rgb # -f 
+        int         highlight      # -H 
+        int         use_auto_wb    # -a 
+        int         use_camera_wb  # -w 
+        int         use_camera_matrix # +M/-M 
+        int         output_color   # -o 
+        char        *output_profile # -o 
+        char        *camera_profile # -p 
+        char        *bad_pixels    # -P 
+        char        *dark_frame    # -K 
+        int         output_bps     # -4 
+        int         output_tiff    # -T 
+        int         user_flip      # -t 
+        int         user_qual      # -q 
+        int         user_black     # -k 
+        int        user_cblack[4]
+        int        sony_arw2_hack
+        int         user_sat       # -S 
+        int         med_passes     # -m 
+        float       auto_bright_thr 
+        float       adjust_maximum_thr
+        int         no_auto_bright # -W 
+        int         use_fuji_rotate# -j 
+        int         green_matching
+        # DCB parameters 
+        int         dcb_iterations
+        int         dcb_enhance_fl
+        int         fbdd_noiserd
+        # VCD parameters 
+        int         eeci_refine
+        int         es_med_passes
+        # AMaZE
+        int         ca_correc
+        float       cared
+        float    cablue
+        int cfaline
+        float linenoise
+        int cfa_clean
+        float lclean
+        float cclean
+        int cfa_green
+        float green_thresh
+        int exp_correc
+        float exp_shift
+        float exp_preser
+        # WF debanding 
+        int   wf_debanding
+        float wf_deband_treshold[4]
+        # Raw speed 
+        int use_rawspeed
+        # Disable Auto-scale 
+        int no_auto_scale
+        # Disable interpolation
+        int no_interpolation
+        # Disable sRAW YCC to RGB conversion 
+        int sraw_ycc
+        # Force use x3f data decoding either if demosaic pack GPL2 enabled 
+        int force_foveon_x3f
 
     ctypedef struct libraw_data_t:
         ushort                      (*image)[4]
         libraw_image_sizes_t        sizes
 #         libraw_iparams_t            idata
-#         libraw_output_params_t        params
+        libraw_output_params_t        params
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
 #         libraw_colordata_t          color
@@ -58,14 +128,6 @@ cdef extern from "libraw.h":
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode=NULL)
         void dcraw_clear_mem(libraw_processed_image_t* img)
         void free_image()
-        
-def enum(**enums):
-    return type('Enum', (), enums)
-
-def enumKey(enu, val):
-    # cython doesn't like tuple unpacking in lambdas ("Expected ')', found ','")
-    #return filter(lambda (k,v): v == val, enu.__dict__.items())[0][0]
-    return filter(lambda item: item[1] == val, enu.__dict__.items())[0][0]
    
 cdef class RawPy:
     cdef LibRaw* p
@@ -102,8 +164,8 @@ cdef class RawPy:
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         cdef ushort top_margin = self.p.imgdata.sizes.top_margin
         cdef ushort left_margin = self.p.imgdata.sizes.left_margin
-        cdef ushort pitch = self.p.imgdata.sizes.raw_pitch/2
-        return raw[(row+top_margin)*pitch + column + left_margin]
+        cdef ushort raw_width = self.p.imgdata.sizes.raw_width
+        return raw[(row+top_margin)*raw_width + column + left_margin]
     
     @property
     def visible_size_raw(self):
@@ -111,17 +173,6 @@ cdef class RawPy:
     
     cpdef int rawcolor(self, int row, int column):
         return self.p.COLOR(row, column)
-    
-    def bench(self):
-        # just a small benchmark..
-        cdef int row, col, cnt
-        h,w = self.visible_size_raw
-        
-        for row in range(h):
-            for col in range(w):
-                if self.rawcolor(row,col) == 3 and self.rawvalue(row,col) > 100:
-                    cnt += 1
-        return cnt
     
     def raw2composite(self):
         """
@@ -146,7 +197,8 @@ cdef class RawPy:
     def subtract_black(self):
         self.p.subtract_black()
         
-    def dcraw_process(self):
+    def dcraw_process(self, params=None):
+        self.applyParams(params)
         self.p.dcraw_process()
         
     def dcraw_make_mem_image(self):
@@ -157,10 +209,37 @@ cdef class RawPy:
         shape[0] = <np.npy_intp> img.height
         shape[1] = <np.npy_intp> img.width
         shape[2] = <np.npy_intp> img.colors
-        # FIXME memory leak, numpy doesn't own img.data! we have to free it later using dcraw_clear_mem()!
-        #       -> write wrapper class with __array__
-        return np.PyArray_SimpleNewFromData(3, shape, np.NPY_UINT8 if img.bits == 8 else np.NPY_UINT16, img.data)
-        
+        arr = np.PyArray_SimpleNewFromData(3, shape, np.NPY_UINT8 if img.bits == 8 else np.NPY_UINT16, img.data)
+        # FIXME call dcraw_clear_mem
+        return arr
+    
+    cdef applyParams(self, params):
+        if params is None:
+            return
+        p = self.p.imgdata.params
+        if params.user_qual is not None:
+            p.user_qual = params.user_qual
+            print 'set user_qual to ' + str(p.user_qual)
+
+class DemosaicAlgorithm(Enum):
+    LINEAR=0
+    VNG=1
+    PPG=2
+    AHD=3
+    DCB=4
+    # 5-9 only usable if demosaic pack GPL2 available
+    MODIFIED_AHD=5
+    AFD=6
+    VCD=7
+    VCD_MODIFIED_AHD=8
+    LMMSE=9
+    # 10 only usable if demosaic pack GPL3 available
+    AMAZE=10
+
+class Params(object):
+    def __init__(self, demosaic_algorithm=None):
+        self.user_qual = demosaic_algorithm        
+    
 cdef char* _chars(s):
     if isinstance(s, unicode):
         # convert unicode to chars

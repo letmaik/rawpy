@@ -100,7 +100,9 @@ def windows_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
-    cmds = [cmake + ' .. -G "NMake Makefiles" -DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=OFF -DENABLE_RAWSPEED=OFF',
+    cmds = [cmake + ' .. -G "NMake Makefiles" -DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=OFF -DENABLE_RAWSPEED=OFF ' +\
+                    '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
+                    '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3',
             'dir',
             'nmake raw_r' # build only thread-safe version ('raw'=non-thread-safe)
             ]
@@ -191,4 +193,5 @@ setup(
       packages = find_packages(),
       ext_modules = extensions,
       package_data = package_data,
+      install_requires=['enum34'],
 )

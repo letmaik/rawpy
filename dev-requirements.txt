@@ -1,0 +1,5 @@
+numpy
+cython
+nose
+wheel
+pillow

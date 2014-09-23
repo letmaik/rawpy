@@ -1,8 +1,10 @@
 from __future__ import division, print_function
 
+import time
 import os
 import numpy as np
 from numpy.testing.utils import assert_array_equal
+from PIL import Image
 
 import rawpy
 
@@ -17,21 +19,25 @@ def testFileOpen():
         for c in range(1000,1010):
             print(r,',',c,':',raw.rawvalue(r,c), raw.rawcolor(r,c))
     
-    print(raw.bench())
-    return
-    
+    # FIXME all files are identical, what's going on??
+    for alg in rawpy.DemosaicAlgorithm:
+        t0 = time.time()
+        params = rawpy.Params(demosaic_algorithm=alg.value)
+        raw.dcraw_process(params)
+        rgb = raw.dcraw_make_mem_image()
+        print(alg.name, 'demosaic:', time.time()-t0, 's')
+        
+        print(rgb.dtype, rgb.shape)
+        Image.fromarray(rgb).save('test_demosaic_' + alg.name + '.png')
+
+
+def _testComposite():
+    raw = rawpy.imread(rawTestPath)
     # composite RAW image with RGBR channels
     raw.raw2composite()
     for img_channel in raw.composite_image:
         print(img_channel.shape)
-        print(np.min(img_channel), np.max(img_channel), np.mean(img_channel))
-    
-    # run bayer interpolation and get the RGB image
-    raw.dcraw_process()
-    rgb = raw.dcraw_make_mem_image()
-    print(rgb.dtype, rgb.shape)
-    for i in range(rgb.shape[2]):
-        print(np.min(rgb[:,:,i]), np.max(rgb[:,:,i]), np.mean(rgb[:,:,i]))
+        print(np.min(img_channel), np.max(img_channel), np.mean(img_channel))    
         
 if __name__ == '__main__':
     testFileOpen()
