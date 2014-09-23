@@ -11,7 +11,8 @@ env:
     - USE_LATEST_LIBRAW=false
 
 install:
-  - sudo apt-get install python-numpy
+  # python-imaging=Pillow and is only used for tests 
+  - sudo apt-get install python-numpy python-imaging
   # latest version 0.16 has an error in the pkgconfig file
   # therefore we use master for now, until 0.17 is released
   # once 0.17 is release, put this line below git clone:
