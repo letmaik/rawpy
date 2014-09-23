@@ -1,3 +1,9 @@
 [submodule "external/LibRaw"]
 	path = external/LibRaw
 	url = git://github.com/LibRaw/LibRaw.git
+[submodule "external\\LibRaw-demosaic-pack-GPL2"]
+	path = external\\LibRaw-demosaic-pack-GPL2
+	url = git://github.com/LibRaw/LibRaw-demosaic-pack-GPL2.git
+[submodule "external\\LibRaw-demosaic-pack-GPL3"]
+	path = external\\LibRaw-demosaic-pack-GPL3
+	url = git://github.com/LibRaw/LibRaw-demosaic-pack-GPL3.git
