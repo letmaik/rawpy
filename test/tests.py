@@ -19,14 +19,13 @@ def testFileOpen():
         for c in range(1000,1010):
             print(r,',',c,':',raw.rawvalue(r,c), raw.rawcolor(r,c))
     
-    # FIXME all files are identical, what's going on??
     for alg in rawpy.DemosaicAlgorithm:
         t0 = time.time()
         params = rawpy.Params(demosaic_algorithm=alg.value)
         raw.dcraw_process(params)
         rgb = raw.dcraw_make_mem_image()
         print(alg.name, 'demosaic:', time.time()-t0, 's')
-        
+         
         print(rgb.dtype, rgb.shape)
         Image.fromarray(rgb).save('test_demosaic_' + alg.name + '.png')
 

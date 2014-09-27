@@ -2,12 +2,16 @@
 # cython: c_string_type=unicode, c_string_encoding=utf8
 # cython: embedsignature=True
 
+from __future__ import print_function
+
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 import numpy as np
 cimport numpy as np
 np.import_array()
 
+import os
+import sys
 from enum import Enum
 
 cdef extern from "libraw.h":
@@ -125,9 +129,10 @@ cdef extern from "libraw.h":
         int raw2image_ex(int do_subtract_black)
         void raw2image_start()
         int dcraw_process()
-        libraw_processed_image_t* dcraw_make_mem_image(int *errcode=NULL)
+        libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
         void dcraw_clear_mem(libraw_processed_image_t* img)
         void free_image()
+        const char* strerror(int p)
         
         # debugging:
         int                         dcraw_ppm_tiff_writer(const char *filename)
@@ -144,10 +149,10 @@ cdef class RawPy:
     
     def open_file(self, path):
         # TODO check error code and turn into exception
-        self.p.open_file(_chars(path))
+        self.handleError(self.p.open_file(_chars(path)))
         
     def unpack(self):
-        self.p.unpack()
+        self.handleError(self.p.unpack())
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
@@ -181,7 +186,7 @@ cdef class RawPy:
         """
         Creates a RAW composite image with RGBG channels, accessible via .image property.
         """
-        self.p.raw2image()
+        self.handleError(self.p.raw2image())
     
     @property
     def composite_image(self):
@@ -198,15 +203,17 @@ cdef class RawPy:
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
         
     def subtract_black(self):
-        self.p.subtract_black()
+        self.handleError(self.p.subtract_black())
         
     def dcraw_process(self, params=None):
         self.applyParams(params)
-        self.p.dcraw_process()
+        self.handleError(self.p.dcraw_process())
         
     def dcraw_make_mem_image(self):
         # TODO how can it be that unsigned char represent 16 bits?
-        cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image()
+        cdef int errcode = 0
+        cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
+        self.handleError(errcode)
         #assert img.type == LIBRAW_IMAGE_BITMAP
         cdef np.npy_intp shape[3]
         shape[0] = <np.npy_intp> img.height
@@ -217,18 +224,25 @@ cdef class RawPy:
         return arr
     
     def dcraw_ppm_tiff_writer(self, const char *filename):
-        self.p.dcraw_ppm_tiff_writer(filename)
-        
+        self.handleError(self.p.dcraw_ppm_tiff_writer(filename))        
     
     cdef applyParams(self, params):
         if params is None:
             return
-        p = self.p.imgdata.params
-        p.output_tiff = 1
+        cdef libraw_output_params_t* p = &self.p.imgdata.params
         if params.user_qual is not None:
             p.user_qual = params.user_qual
-        print 'user_qual=' + str(p.user_qual)
-        print 'half_size=' + str(p.half_size)
+            assert self.p.imgdata.params.user_qual == params.user_qual
+    
+    cdef handleError(self, int code):
+        if code > 0:
+            raise OSError((code, os.strerror(code))) 
+        elif code < 0:
+            errstr = self.p.strerror(code)
+            if code < -10000: # see macro LIBRAW_FATAL_ERROR in libraw_const.h
+                raise LibRawFatalError(errstr)
+            else:
+                print(repr(LibRawNonFatalError(errstr)), file=sys.stderr) 
 
 class DemosaicAlgorithm(Enum):
     LINEAR=0
@@ -249,8 +263,14 @@ class Params(object):
     def __init__(self, demosaic_algorithm=None):
         self.user_qual = demosaic_algorithm        
     
+class LibRawFatalError(Exception):
+    pass
+
+class LibRawNonFatalError(Exception):
+    pass                
+    
 cdef char* _chars(s):
     if isinstance(s, unicode):
         # convert unicode to chars
         s = (<unicode>s).encode('UTF-8')
-    return s
+    return s    
