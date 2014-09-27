@@ -15,6 +15,9 @@ except ImportError:
     # Python 2
     from urllib import urlretrieve
 
+if sys.version_info < (2, 7):
+    raise NotImplementedError('Minimum supported Python version is 2.7')
+
 isWindows = os.name == 'nt'
 is64Bit = sys.maxsize > 2**32
 
@@ -125,6 +128,7 @@ def windows_libraw_compile():
     # openmp dll
     isVS2008 = sys.version_info < (3, 3)
     isVS2010 = (3, 3) <= sys.version_info < (3, 5)
+    isVS2014 = (3, 5) <= sys.version_info
     
     libraw_configh = 'external/LibRaw/cmake_build/libraw_config.h'
     match = '#define LIBRAW_USE_OPENMP 1'
@@ -146,8 +150,8 @@ def windows_libraw_compile():
                 omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll']
             else:
                 omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll']
-    else:
-        raise NotImplementedError('Python 3.5 will likely target MSVC 2014, not supported yet')    
+    elif isVS2014:
+        raise NotImplementedError('Python 3.5 will likely target MSVC 2014, not supported yet')
     
     if hasOpenMpSupport:
         try:

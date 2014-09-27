@@ -96,10 +96,34 @@ function InstallPip ($python_home) {
 
 function DownloadMiniconda ($python_version, $platform_suffix) {
     $webclient = New-Object System.Net.WebClient
-    if ($python_version.StartsWith("3")) {
-        $filename = "Miniconda3-3.5.5-Windows-" + $platform_suffix + ".exe"
+    
+    # The idea is to directly load the miniconda distribution which has the right
+    # Python version, instead of downloading it later by creating a conda environment.
+    # This is to save resources and reduce build time.
+    
+    # miniconda -> Python version
+    # 2.2.8 to 3.5.2 -> 2.7.6  
+    # 3.5.5          -> 2.7.7
+    # 3.6.0 to 3.7.0 -> 2.7.8
+    
+    # miniconda3 -> Python version
+    # 2.2.8 to 3.0.0 -> 3.3.3
+    # 3.0.4 to 3.0.5 -> 3.3.4
+    # 3.3.0 to 3.4.2 -> 3.3.5
+    # 3.5.5 to 3.7.0 -> 3.4.1
+    
+    $miniconda_versions=@{
+     	"2.7.8"="3.7.0";
+    	"3.3.5"="3.4.2";
+    	"3.4.1"="3.7.0";
+  		}
+  		
+  	$miniconda_version = $miniconda_versions.$python_version
+    
+    if ($python_version.StartsWith("3")) {    	
+        $filename = "Miniconda3-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"
     } else {
-        $filename = "Miniconda-3.5.5-Windows-" + $platform_suffix + ".exe"
+        $filename = "Miniconda-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"
     }
     $url = $MINICONDA_URL + $filename
 

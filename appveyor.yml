@@ -18,6 +18,14 @@ environment:
       PYTHON_VERSION: "2.7.8"
       PYTHON_ARCH: "64"
 
+    - PYTHON: "C:\\Python33_32"
+      PYTHON_VERSION: "3.3.5"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python33_64"
+      PYTHON_VERSION: "3.3.5"
+      PYTHON_ARCH: "64"
+
     - PYTHON: "C:\\Python34_32"
       PYTHON_VERSION: "3.4.1"
       PYTHON_ARCH: "32"
@@ -36,8 +44,7 @@ install:
   - ECHO "Installed SDKs:"
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
-  # Install Python (from the official .msi of http://python.org) and pip when
-  # not already installed.
+  # Install Python and pip
   - "powershell ./appveyor/install.ps1"
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
