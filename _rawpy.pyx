@@ -128,6 +128,9 @@ cdef extern from "libraw.h":
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode=NULL)
         void dcraw_clear_mem(libraw_processed_image_t* img)
         void free_image()
+        
+        # debugging:
+        int                         dcraw_ppm_tiff_writer(const char *filename)
    
 cdef class RawPy:
     cdef LibRaw* p
@@ -213,13 +216,19 @@ cdef class RawPy:
         # FIXME call dcraw_clear_mem
         return arr
     
+    def dcraw_ppm_tiff_writer(self, const char *filename):
+        self.p.dcraw_ppm_tiff_writer(filename)
+        
+    
     cdef applyParams(self, params):
         if params is None:
             return
         p = self.p.imgdata.params
+        p.output_tiff = 1
         if params.user_qual is not None:
             p.user_qual = params.user_qual
-            print 'set user_qual to ' + str(p.user_qual)
+        print 'user_qual=' + str(p.user_qual)
+        print 'half_size=' + str(p.half_size)
 
 class DemosaicAlgorithm(Enum):
     LINEAR=0

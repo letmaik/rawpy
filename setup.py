@@ -100,7 +100,14 @@ def windows_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
-    cmds = [cmake + ' .. -G "NMake Makefiles" -DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=OFF -DENABLE_RAWSPEED=OFF ' +\
+    # TODO get OpenMP support working
+    # see http://msdn.microsoft.com/en-us/library/0h7x01y0.aspx
+    # see http://blog.codekills.net/2007/09/20/openmp-and-visual-c++-the-free-way-%28sorta%29/
+    # http://www.metaintegration.net/Products/License/Microsoft-VisualCpp2010-RedistributionLicense.txt
+    # http://blogs.msdn.com/b/vcblog/archive/2007/10/12/how-to-redistribute-the-visual-c-libraries-with-your-application.aspx?PageIndex=2
+    # -> Visual Studio must be installed and contains the dlls in <Visual Studio install dir>\VC\redist
+    cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
+                    '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3',
             'dir',
@@ -113,8 +120,28 @@ def windows_libraw_compile():
     os.chdir(cwd)
         
     # bundle runtime dlls
-    dll_runtime_libs = [('raw_r.dll', 'external/LibRaw/cmake_build'),
-                        ]    
+    dll_runtime_libs = [('raw_r.dll', 'external/LibRaw/cmake_build')]
+    
+    # openmp dll
+    if sys.version_info < (3, 3):
+        if is64Bit:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\vcomp90.dll',
+                   r'C:\Windows\winsxs\amd64_microsoft.vc90.openmp_1fc8b3b9a1e18e3b_9.0.21022.8_none_a5325551f9d85633\vcomp90.dll']
+        else:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\vcomp90.dll',
+                   r'C:\Windows\winsxs\x86_microsoft.vc90.openmp_1fc8b3b9a1e18e3b_9.0.21022.8_none_ecdf8c290e547f39\vcomp90.dll']
+    else:
+        # Note that since Visual C++ 2010 the dll files are not deployed as side-by-side assemblies (WinSxS folder) anymore.
+        if is64Bit:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll',
+                   r'C:\Windows\System32\vcomp100.dll']
+        else:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll',
+                   r'C:\Windows\SysWOW64\vcomp100.dll']
+    try:
+        dll_runtime_libs += [(os.path.basename(omp[0]), os.path.dirname(filter(os.path.exists, omp)[0]))]
+    except KeyError:
+        raise Exception('OpenMP DLL not found, please read WINDOWS_COMPILE')
     
     for filename, folder in dll_runtime_libs:
         src = os.path.join(folder, filename)
