@@ -120,12 +120,6 @@ def windows_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
-    # TODO get OpenMP support working
-    # see http://msdn.microsoft.com/en-us/library/0h7x01y0.aspx
-    # see http://blog.codekills.net/2007/09/20/openmp-and-visual-c++-the-free-way-%28sorta%29/
-    # http://www.metaintegration.net/Products/License/Microsoft-VisualCpp2010-RedistributionLicense.txt
-    # http://blogs.msdn.com/b/vcblog/archive/2007/10/12/how-to-redistribute-the-visual-c-libraries-with-your-application.aspx?PageIndex=2
-    # -> Visual Studio must be installed and contains the dlls in <Visual Studio install dir>\VC\redist
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
