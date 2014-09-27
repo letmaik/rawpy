@@ -126,8 +126,6 @@ cdef extern from "libraw.h":
         int COLOR(int row, int col)
         int subtract_black()
         int raw2image()
-        int raw2image_ex(int do_subtract_black)
-        void raw2image_start()
         int dcraw_process()
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
         void dcraw_clear_mem(libraw_processed_image_t* img)
@@ -148,7 +146,6 @@ cdef class RawPy:
         del self.p
     
     def open_file(self, path):
-        # TODO check error code and turn into exception
         self.handleError(self.p.open_file(_chars(path)))
         
     def unpack(self):
@@ -203,7 +200,7 @@ cdef class RawPy:
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
         
     def subtract_black(self):
-        self.handleError(self.p.subtract_black())
+        self.p.subtract_black()
         
     def dcraw_process(self, params=None):
         self.applyParams(params)
