@@ -73,6 +73,7 @@ def use_pkg_config():
 # matplotlib works around such problems by including external libraries as pure
 # Python extensions, partly rewriting their sources and removing any dependency
 # on a configure script, or cmake or other build infrastructure. 
+# A possible work-around could be to statically link against libraw.
 
 include_dirs += [numpy.get_include()]
 
@@ -99,9 +100,10 @@ def windows_libraw_compile():
     # the cmake zip contains a cmake-3.0.1-win32-x86 folder when extracted
     cmake_url = 'http://www.cmake.org/files/v3.0/cmake-3.0.1-win32-x86.zip'
     cmake = os.path.abspath('external/cmake-3.0.1-win32-x86/bin/cmake.exe')
-    files = [(cmake_url, 'cmake-3.0.1-win32-x86.zip', 'external', cmake)]
-    for url, path, extractdir, extractcheck in files:
+    files = [(cmake_url, 'external', cmake)]
+    for url, extractdir, extractcheck in files:
         if not os.path.exists(extractcheck):
+            path = 'external/' + os.path.basename(url)
             if not os.path.exists(path):
                 print('Downloading', url)
                 urlretrieve(url, path)
@@ -109,6 +111,9 @@ def windows_libraw_compile():
             with zipfile.ZipFile(path) as z:
                 print('Extracting', path, 'into', extractdir)
                 z.extractall(extractdir)
+            
+            if not os.path.exists(path):
+                raise RuntimeError(path + ' not found!')
     
     # configure and compile libraw
     cwd = os.getcwd()
