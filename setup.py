@@ -123,12 +123,15 @@ def windows_libraw_compile():
     dll_runtime_libs = [('raw_r.dll', 'external/LibRaw/cmake_build')]
     
     # openmp dll
+    isVS2008 = sys.version_info < (3, 3)
+    
     libraw_configh = 'external/LibRaw/cmake_build/libraw_config.h'
     match = '#define LIBRAW_USE_OPENMP 1'
-    if match not in open(libraw_configh).read():
-        raise Exception('OpenMP not available, see error messages above')
+    hasOpenMpSupport = match in open(libraw_configh).read()
     
-    if sys.version_info < (3, 3):
+    if isVS2008:
+        if not hasOpenMpSupport:
+            raise Exception('OpenMP not available but should be, see error messages above')
         if is64Bit:
             omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\vcomp90.dll',
                    r'C:\Windows\winsxs\amd64_microsoft.vc90.openmp_1fc8b3b9a1e18e3b_9.0.21022.8_none_a5325551f9d85633\vcomp90.dll']
@@ -136,20 +139,21 @@ def windows_libraw_compile():
             omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\vcomp90.dll',
                    r'C:\Windows\winsxs\x86_microsoft.vc90.openmp_1fc8b3b9a1e18e3b_9.0.21022.8_none_ecdf8c290e547f39\vcomp90.dll']
     else:
-        # Note that since Visual C++ 2010 the dll files are not deployed as side-by-side assemblies (WinSxS folder) anymore.
-        if is64Bit:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll',
-                   r'C:\Windows\System32\vcomp100.dll']
-        else:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll',
-                   r'C:\Windows\SysWOW64\vcomp100.dll']
-    try:
-        omp_dir = os.path.dirname(list(filter(os.path.exists, omp))[0])
-        dll_runtime_libs += [(os.path.basename(omp[0]), omp_dir)]
-    except KeyError:
-        raise Exception('OpenMP DLL not found, please read WINDOWS_COMPILE')
+        # Visual Studio 2010 Express and the free SDKs don't support OpenMP
+        if hasOpenMpSupport:
+            if is64Bit:
+                omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll']
+            else:
+                omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll']
     
-    # FIXME openmp doesn't work yet for VC2010
+    if hasOpenMpSupport:
+        try:
+            omp_dir = os.path.dirname(list(filter(os.path.exists, omp))[0])
+            dll_runtime_libs += [(os.path.basename(omp[0]), omp_dir)]
+        except KeyError:
+            raise Exception('OpenMP DLL not found, please read WINDOWS_COMPILE')
+    
+    # FIXME openmp in VC2010 is only supported for >= professional edition
     #  see https://ci.appveyor.com/project/neothemachine/rawpy/build/1.0.12/job/onmkqoha55by57qd
     
     for filename, folder in dll_runtime_libs:
