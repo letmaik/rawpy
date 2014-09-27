@@ -62,6 +62,18 @@ def use_pkg_config():
     _ask_pkg_config(extra_link_args,    '--libs-only-other')
     _ask_pkg_config(libraries,          '--libs-only-l', '-l')
 
+# Some thoughts on bundling LibRaw in Linux installs:
+# Compiling and bundling libraw.so like in the Windows wheels is likely not
+# easily possible for Linux. This is due to the fact that the dynamic linker ld
+# doesn't search for libraw.so in the directory where the Python extension is in.
+# The -rpath with $ORIGIN method can not be used in this case as $ORIGIN is always
+# relative to the executable and not the shared library, 
+# see https://stackoverflow.com/q/6323603.
+# But note that this was never tested and may actually still work somehow.
+# matplotlib works around such problems by including external libraries as pure
+# Python extensions, partly rewriting their sources and removing any dependency
+# on a configure script, or cmake or other build infrastructure. 
+
 include_dirs += [numpy.get_include()]
 
 if isWindows:
