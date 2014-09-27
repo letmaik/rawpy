@@ -124,6 +124,7 @@ def windows_libraw_compile():
     
     # openmp dll
     isVS2008 = sys.version_info < (3, 3)
+    isVS2010 = (3, 3) <= sys.version_info < (3, 5)
     
     libraw_configh = 'external/LibRaw/cmake_build/libraw_config.h'
     match = '#define LIBRAW_USE_OPENMP 1'
@@ -138,13 +139,15 @@ def windows_libraw_compile():
         else:
             omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\vcomp90.dll',
                    r'C:\Windows\winsxs\x86_microsoft.vc90.openmp_1fc8b3b9a1e18e3b_9.0.21022.8_none_ecdf8c290e547f39\vcomp90.dll']
-    else:
+    elif isVS2010:
         # Visual Studio 2010 Express and the free SDKs don't support OpenMP
         if hasOpenMpSupport:
             if is64Bit:
                 omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll']
             else:
                 omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll']
+    else:
+        raise NotImplementedError('Python 3.5 will likely target MSVC 2014, not supported yet')    
     
     if hasOpenMpSupport:
         try:
@@ -152,10 +155,7 @@ def windows_libraw_compile():
             dll_runtime_libs += [(os.path.basename(omp[0]), omp_dir)]
         except KeyError:
             raise Exception('OpenMP DLL not found, please read WINDOWS_COMPILE')
-    
-    # FIXME openmp in VC2010 is only supported for >= professional edition
-    #  see https://ci.appveyor.com/project/neothemachine/rawpy/build/1.0.12/job/onmkqoha55by57qd
-    
+        
     for filename, folder in dll_runtime_libs:
         src = os.path.join(folder, filename)
         dest = 'rawpy/' + filename
@@ -226,7 +226,7 @@ setup(
         'Programming Language :: Cython',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Software Development :: Libraries',
       ],
