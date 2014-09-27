@@ -123,6 +123,11 @@ def windows_libraw_compile():
     dll_runtime_libs = [('raw_r.dll', 'external/LibRaw/cmake_build')]
     
     # openmp dll
+    libraw_configh = 'external/LibRaw/cmake_build/libraw_config.h'
+    match = '#define LIBRAW_USE_OPENMP 1'
+    if match not in open(libraw_configh).read():
+        raise Exception('OpenMP not available, see error messages above')
+    
     if sys.version_info < (3, 3):
         if is64Bit:
             omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\vcomp90.dll',
@@ -139,9 +144,13 @@ def windows_libraw_compile():
             omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll',
                    r'C:\Windows\SysWOW64\vcomp100.dll']
     try:
-        dll_runtime_libs += [(os.path.basename(omp[0]), os.path.dirname(filter(os.path.exists, omp)[0]))]
+        omp_dir = os.path.dirname(list(filter(os.path.exists, omp))[0])
+        dll_runtime_libs += [(os.path.basename(omp[0]), omp_dir)]
     except KeyError:
         raise Exception('OpenMP DLL not found, please read WINDOWS_COMPILE')
+    
+    # FIXME openmp doesn't work yet for VC2010
+    #  see https://ci.appveyor.com/project/neothemachine/rawpy/build/1.0.12/job/onmkqoha55by57qd
     
     for filename, folder in dll_runtime_libs:
         src = os.path.join(folder, filename)
