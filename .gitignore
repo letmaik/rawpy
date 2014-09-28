@@ -58,5 +58,7 @@ docs/_build/
 
 *.zip
 *.dll
-/test/*.png
+*.png
+*.tiff
+*.jpg
 /external/cmake*

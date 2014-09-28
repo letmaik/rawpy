@@ -99,10 +99,23 @@ cdef extern from "libraw.h":
         # Force use x3f data decoding either if demosaic pack GPL2 enabled 
         int force_foveon_x3f
 
+    ctypedef struct libraw_iparams_t:
+        char        make[64]
+        char        model[64]
+    
+        unsigned    raw_count
+        unsigned    dng_version
+        unsigned    is_foveon
+        int         colors
+    
+        unsigned    filters
+        char        xtrans[6][6]
+        char        cdesc[5]
+
     ctypedef struct libraw_data_t:
         ushort                      (*image)[4]
         libraw_image_sizes_t        sizes
-#         libraw_iparams_t            idata
+        libraw_iparams_t            idata
         libraw_output_params_t        params
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
@@ -124,7 +137,6 @@ cdef extern from "libraw.h":
         int open_file(const char *fname)
         int unpack()
         int COLOR(int row, int col)
-        int subtract_black()
         int raw2image()
         int dcraw_process()
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
@@ -133,11 +145,10 @@ cdef extern from "libraw.h":
         const char* strerror(int p)
         
         # debugging:
-        int                         dcraw_ppm_tiff_writer(const char *filename)
+        int dcraw_ppm_tiff_writer(const char *filename)
    
 cdef class RawPy:
     cdef LibRaw* p
-    cdef np.ndarray _raw_image
         
     def __cinit__(self):
         self.p = new LibRaw()
@@ -150,17 +161,18 @@ cdef class RawPy:
         
     def unpack(self):
         self.handleError(self.p.unpack())
-        cdef ushort* raw = self.p.imgdata.rawdata.raw_image
-        cdef np.npy_intp shape[2]
-        shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
-        shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
-        self._raw_image = np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
         
     @property
     def raw_image(self):
         """Bayer-pattern RAW image, one channel."""
-        return self._raw_image
-    
+        cdef ushort* raw = self.p.imgdata.rawdata.raw_image
+        if raw == NULL:
+            return None
+        cdef np.npy_intp shape[2]
+        shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+        shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+        return np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+            
     cpdef ushort rawvalue(self, int row, int column):
         """
         Return RAW value at given position relative to visible area of image
@@ -179,18 +191,47 @@ cdef class RawPy:
     cpdef int rawcolor(self, int row, int column):
         return self.p.COLOR(row, column)
     
-    def raw2composite(self):
+    @property
+    def rawcolors(self):
+        if self.p.imgdata.idata.filters < 1000:
+            raise NotImplementedError
+        cdef int n = 4
+        cdef np.ndarray pattern = np.empty((n, n), dtype=np.uint8)
+        cdef int y, x
+        for y in range(n):
+            for x in range(n):
+                pattern[y,x] = self.p.COLOR(y, x)
+        cdef int height = self.p.imgdata.sizes.raw_height
+        cdef int width = self.p.imgdata.sizes.raw_width
+        return np.tile(pattern, (height/n, width/n))
+    
+    @property
+    def num_colors(self):
         """
-        Creates a RAW composite image with RGBG channels, accessible via .image property.
+        Number of colors, e.g. 3 for RGBR, and 4 for RGBE.
+        """
+        return self.p.imgdata.idata.colors
+    
+    @property
+    def color_desc(self):
+        """
+        String description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).
+        """
+        return self.p.imgdata.idata.cdesc
+    
+    def raw2image(self):
+        """
+        This function allocates buffer for postprocessing (self.image) and fills
+        it with data layout compatible with LibRaw 0.13/0.14 and below.
+        If the buffer is already allocated, it will be free()ed and allocated again.
+
+        This function should be called only if your code do postprocessing stage.
+        If you use LibRaw's postprocessing calls (see below) you don't need to call raw2image().
         """
         self.handleError(self.p.raw2image())
     
     @property
-    def composite_image(self):
-        """
-        RAW composite image with RGBG channels. 
-        Note that this image contains duplicated pixels such that it
-        matches the visible RAW image size."""
+    def image(self):
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp> self.p.imgdata.sizes.iheight
         shape[1] = <np.npy_intp> self.p.imgdata.sizes.iwidth
@@ -198,10 +239,7 @@ cdef class RawPy:
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[1]),
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[2]),
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
-        
-    def subtract_black(self):
-        self.p.subtract_black()
-        
+                
     def dcraw_process(self, params=None):
         self.applyParams(params)
         self.handleError(self.p.dcraw_process())
@@ -255,10 +293,13 @@ class DemosaicAlgorithm(Enum):
     LMMSE=9
     # 10 only usable if demosaic pack GPL3 available
     AMAZE=10
+    # 11-12 only usable for LibRaw >= 0.16
+    DHT=11
+    AAHD=12
 
 class Params(object):
     def __init__(self, demosaic_algorithm=None):
-        self.user_qual = demosaic_algorithm        
+        self.user_qual = demosaic_algorithm.value      
     
 class LibRawFatalError(Exception):
     pass
