@@ -17,6 +17,10 @@ from enum import Enum
 cdef extern from "libraw.h":
     ctypedef unsigned short ushort
     
+    cdef int LIBRAW_MAJOR_VERSION
+    cdef int LIBRAW_MINOR_VERSION
+    cdef int LIBRAW_PATCH_VERSION
+    
     cdef enum LibRaw_image_formats:
         LIBRAW_IMAGE_JPEG
         LIBRAW_IMAGE_BITMAP
@@ -146,6 +150,8 @@ cdef extern from "libraw.h":
         
         # debugging:
         int dcraw_ppm_tiff_writer(const char *filename)
+
+libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
    
 cdef class RawPy:
     cdef LibRaw* p
@@ -240,7 +246,8 @@ cdef class RawPy:
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[2]),
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
                 
-    def dcraw_process(self, params=None):
+    def dcraw_process(self, **kw):
+        params = Params(**kw)
         self.applyParams(params)
         self.handleError(self.p.dcraw_process())
         
@@ -259,15 +266,40 @@ cdef class RawPy:
         return arr
     
     def dcraw_ppm_tiff_writer(self, const char *filename):
-        self.handleError(self.p.dcraw_ppm_tiff_writer(filename))        
+        self.handleError(self.p.dcraw_ppm_tiff_writer(filename))
+        
+    def postprocess(self, **kw):
+        """
+        Return post-processed image as numpy array.  
+        """
+        self.dcraw_process(**kw)
+        return self.dcraw_make_mem_image()         
     
     cdef applyParams(self, params):
         if params is None:
             return
         cdef libraw_output_params_t* p = &self.p.imgdata.params
-        if params.user_qual is not None:
-            p.user_qual = params.user_qual
-            assert self.p.imgdata.params.user_qual == params.user_qual
+        p.user_qual = params.user_qual
+        p.use_camera_wb = params.use_camera_wb
+        p.use_auto_wb = params.use_auto_wb
+        if params.user_mul:
+            for i in range(4):
+                p.user_mul[i] = params.user_mul[i]
+        p.output_color = params.output_color
+        p.output_bps = params.output_bps
+        p.user_flip = params.user_flip
+        p.user_black = params.user_black
+        p.user_sat = params.user_sat
+        p.no_auto_bright = params.no_auto_bright
+        p.auto_bright_thr = params.auto_bright_thr
+        p.adjust_maximum_thr = params.adjust_maximum_thr
+        p.exp_correc = params.exp_correc
+        p.exp_shift = params.exp_shift
+        p.exp_preser = params.exp_preser
+        if params.bad_pixels:
+            p.bad_pixels = params.bad_pixels
+        else:
+            p.bad_pixels = NULL
     
     cdef handleError(self, int code):
         if code > 0:
@@ -296,10 +328,44 @@ class DemosaicAlgorithm(Enum):
     # 11-12 only usable for LibRaw >= 0.16
     DHT=11
     AAHD=12
-
+    
+class ColorSpace(Enum):
+    raw=0
+    sRGB=1
+    Adobe=2
+    Wide=3
+    ProPhoto=4
+    XYZ=5
+    
 class Params(object):
-    def __init__(self, demosaic_algorithm=None):
-        self.user_qual = demosaic_algorithm.value      
+    def __init__(self, demosaic_algorithm=None,
+                 use_camera_wb=False, use_auto_wb=False, user_wb=None,
+                 output_color=ColorSpace.sRGB, output_bps=8, 
+                 user_flip=None, user_black=None, user_sat=None,
+                 no_auto_bright=False, auto_bright_thr=0.001, adjust_maximum_thr=0.75,
+                 exp_shift=None, exp_preserve_highlights=0.0,
+                 bad_pixels_path=None):
+        self.user_qual = demosaic_algorithm.value if demosaic_algorithm else -1
+        self.use_camera_wb = use_camera_wb
+        self.use_auto_wb = use_auto_wb
+        assert user_wb is None or len(user_wb) == 4
+        self.user_mul = user_wb
+        self.output_color = output_color.value
+        self.output_bps = output_bps
+        self.user_flip = user_flip if user_flip is not None else -1
+        self.user_black = user_black if user_black is not None else -1
+        self.user_sat = user_sat if user_sat is not None else -1
+        self.no_auto_bright = no_auto_bright
+        self.auto_bright_thr = auto_bright_thr
+        self.adjust_maximum_thr = adjust_maximum_thr
+        if exp_shift is not None:
+            self.exp_correc = 1
+            self.exp_shift = exp_shift
+        else:
+            self.exp_correc = -1
+            self.exp_shift = 1.0
+        self.exp_preser = exp_preserve_highlights
+        self.bad_pixels = bad_pixels_path
     
 class LibRawFatalError(Exception):
     pass
