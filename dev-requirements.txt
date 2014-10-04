@@ -2,4 +2,4 @@ numpy
 cython
 nose
 wheel
-pillow
+scikit-image

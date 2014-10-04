@@ -17,9 +17,12 @@ from enum import Enum
 cdef extern from "libraw.h":
     ctypedef unsigned short ushort
     
+    # some #define's
     cdef int LIBRAW_MAJOR_VERSION
     cdef int LIBRAW_MINOR_VERSION
     cdef int LIBRAW_PATCH_VERSION
+    
+    cdef float LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
     
     cdef enum LibRaw_image_formats:
         LIBRAW_IMAGE_JPEG
@@ -115,6 +118,10 @@ cdef extern from "libraw.h":
         unsigned    filters
         char        xtrans[6][6]
         char        cdesc[5]
+        
+    ctypedef struct libraw_colordata_t:
+        float       cam_mul[4] 
+        float       pre_mul[4] 
 
     ctypedef struct libraw_data_t:
         ushort                      (*image)[4]
@@ -123,7 +130,7 @@ cdef extern from "libraw.h":
         libraw_output_params_t        params
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
-#         libraw_colordata_t          color
+        libraw_colordata_t          color
 #         libraw_imgother_t           other
 #         libraw_thumbnail_t          thumbnail
         libraw_rawdata_t            rawdata
@@ -147,9 +154,6 @@ cdef extern from "libraw.h":
         void dcraw_clear_mem(libraw_processed_image_t* img)
         void free_image()
         const char* strerror(int p)
-        
-        # debugging:
-        int dcraw_ppm_tiff_writer(const char *filename)
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
    
@@ -225,6 +229,28 @@ cdef class RawPy:
         """
         return self.p.imgdata.idata.cdesc
     
+    @property
+    def camera_whitebalance(self):
+        """
+        White balance coefficients (as shot). Either read from file or calculated.
+        """
+        return [self.p.imgdata.color.cam_mul[0],
+                self.p.imgdata.color.cam_mul[1],
+                self.p.imgdata.color.cam_mul[2],
+                self.p.imgdata.color.cam_mul[3]]
+        
+    @property
+    def daylight_whitebalance(self):
+        """
+        White balance coefficients for daylight (daylight balance). 
+        Either read from file, or calculated on the basis of file data, 
+        or taken from hardcoded constants.
+        """
+        return [self.p.imgdata.color.pre_mul[0],
+                self.p.imgdata.color.pre_mul[1],
+                self.p.imgdata.color.pre_mul[2],
+                self.p.imgdata.color.pre_mul[3]]
+    
     def raw2image(self):
         """
         This function allocates buffer for postprocessing (self.image) and fills
@@ -264,17 +290,14 @@ cdef class RawPy:
         arr = np.PyArray_SimpleNewFromData(3, shape, np.NPY_UINT8 if img.bits == 8 else np.NPY_UINT16, img.data)
         # FIXME call dcraw_clear_mem
         return arr
-    
-    def dcraw_ppm_tiff_writer(self, const char *filename):
-        self.handleError(self.p.dcraw_ppm_tiff_writer(filename))
-        
+            
     def postprocess(self, **kw):
         """
         Return post-processed image as numpy array.  
         """
         self.dcraw_process(**kw)
-        return self.dcraw_make_mem_image()         
-    
+        return self.dcraw_make_mem_image()
+        
     cdef applyParams(self, params):
         if params is None:
             return
@@ -300,6 +323,8 @@ cdef class RawPy:
             p.bad_pixels = params.bad_pixels
         else:
             p.bad_pixels = NULL
+        p.gamm[0] = params.gamm[0]
+        p.gamm[1] = params.gamm[1]
     
     cdef handleError(self, int code):
         if code > 0:
@@ -336,27 +361,50 @@ class ColorSpace(Enum):
     Wide=3
     ProPhoto=4
     XYZ=5
-    
+
+class NotSupportedError(Exception):
+    def __init__(self, message, min_version):
+        message = "{}, minimum required LibRaw version: {}.{}.{}, your version: {}.{}.{}".format(
+                      message, min_version[0], min_version[1], min_version[2],
+                      libraw_version[0], libraw_version[1], libraw_version[2])
+        Exception.__init__(self, message)
+
 class Params(object):
     def __init__(self, demosaic_algorithm=None,
                  use_camera_wb=False, use_auto_wb=False, user_wb=None,
                  output_color=ColorSpace.sRGB, output_bps=8, 
                  user_flip=None, user_black=None, user_sat=None,
-                 no_auto_bright=False, auto_bright_thr=0.001, adjust_maximum_thr=0.75,
+                 no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
                  exp_shift=None, exp_preserve_highlights=0.0,
+                 gamma=None,
                  bad_pixels_path=None):
+        """
+        If use_camera_wb and use_auto_wb are False and user_wb is None, then
+        daylight white balance correction is used.
+        If both use_camera_wb and use_auto_wb are True, then use_auto_wb has priority.
+        """
         self.user_qual = demosaic_algorithm.value if demosaic_algorithm else -1
         self.use_camera_wb = use_camera_wb
         self.use_auto_wb = use_auto_wb
-        assert user_wb is None or len(user_wb) == 4
-        self.user_mul = user_wb
+        if user_wb is not None:
+            assert len(user_wb) == 4
+            self.user_mul = user_wb
+        else:
+            self.user_mul = [0,0,0,0] 
         self.output_color = output_color.value
         self.output_bps = output_bps
         self.user_flip = user_flip if user_flip is not None else -1
         self.user_black = user_black if user_black is not None else -1
         self.user_sat = user_sat if user_sat is not None else -1
         self.no_auto_bright = no_auto_bright
-        self.auto_bright_thr = auto_bright_thr
+        if auto_bright_thr is not None:
+            min_version = (0,16,1)
+            if libraw_version < min_version:
+                # see https://github.com/LibRaw/LibRaw/commit/ea70421a518ba5a039fcc1dc1045b428159fb032
+                raise NotSupportedError('Parameter auto_bright_thr', min_version)
+            self.auto_bright_thr = auto_bright_thr
+        else:
+            self.auto_bright_thr = LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
         self.adjust_maximum_thr = adjust_maximum_thr
         if exp_shift is not None:
             self.exp_correc = 1
@@ -365,6 +413,11 @@ class Params(object):
             self.exp_correc = -1
             self.exp_shift = 1.0
         self.exp_preser = exp_preserve_highlights
+        if gamma is not None:
+            assert len(gamma) == 2
+            self.gamm = (1/gamma[0], gamma[1])
+        else:
+            self.gamm = (1/2.222, 4.5) # rec. BT.709
         self.bad_pixels = bad_pixels_path
     
 class LibRawFatalError(Exception):

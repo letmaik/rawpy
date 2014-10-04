@@ -57,7 +57,7 @@ install:
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # we use conda to prevent compiling extensions
-  - "conda install --yes numpy cython pillow"
+  - "conda install --yes numpy cython scikit-image"
   - "pip install wheel nose"
   
   # Install the build dependencies of the project. If some dependencies contain
@@ -79,9 +79,10 @@ after_test:
   - "%CMD_IN_ENV% python setup.py bdist_wheel"
   - ps: "ls dist"
 
-artifacts:
+# artifacts are big, and we don't really need to store them
+#artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.
-  - path: dist\*
+#  - path: dist\*
 
 deploy_script:
   - "powershell ./appveyor/pypi_deploy.ps1"
