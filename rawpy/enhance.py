@@ -104,7 +104,7 @@ def repairBadPixels(raw, coords):
 
 def colormasks(raw):
     colors = raw.rawcolors
-    if raw.color_desc == 'RGBG':
+    if raw.num_colors == 3 and raw.color_desc == 'RGBG':
         color_masks = [colors == 0,
                        (colors == 1) | (colors == 3),
                        colors == 2]

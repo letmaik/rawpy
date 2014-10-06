@@ -4,7 +4,8 @@
 
 from __future__ import print_function
 
-from cpython.mem cimport PyMem_Malloc, PyMem_Free
+from cpython.ref cimport PyObject, Py_INCREF
+from cython.operator cimport dereference as deref
 
 import numpy as np
 cimport numpy as np
@@ -33,9 +34,14 @@ cdef extern from "libraw.h":
         ushort height, width
         ushort top_margin, left_margin
         ushort iheight, iwidth
+        
+    ctypedef struct libraw_colordata_t:
+        float       cam_mul[4] 
+        float       pre_mul[4] 
 
     ctypedef struct libraw_rawdata_t:
         ushort *raw_image
+        libraw_colordata_t          color
         
     ctypedef struct libraw_output_params_t:
         unsigned    greybox[4]     # -A  x1 y1 x2 y2 
@@ -119,10 +125,6 @@ cdef extern from "libraw.h":
         char        xtrans[6][6]
         char        cdesc[5]
         
-    ctypedef struct libraw_colordata_t:
-        float       cam_mul[4] 
-        float       pre_mul[4] 
-
     ctypedef struct libraw_data_t:
         ushort                      (*image)[4]
         libraw_image_sizes_t        sizes
@@ -137,7 +139,7 @@ cdef extern from "libraw.h":
 #         void                *parent_class
 
     ctypedef struct libraw_processed_image_t:
-        #enum LibRaw_image_formats type
+        LibRaw_image_formats type
         ushort height, width, colors, bits
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
@@ -156,7 +158,7 @@ cdef extern from "libraw.h":
         const char* strerror(int p)
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
-   
+
 cdef class RawPy:
     cdef LibRaw* p
         
@@ -198,11 +200,36 @@ cdef class RawPy:
     def visible_size_raw(self):
         return self.p.imgdata.sizes.height, self.p.imgdata.sizes.width
     
+    @property
+    def num_colors(self):
+        """
+        Number of colors.
+        Note that e.g. for RGBG this can be 3 or 4, depending on the camera model,
+        as some use two different greens. 
+        """
+        return self.p.imgdata.idata.colors
+    
+    @property
+    def color_desc(self):
+        """
+        String description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).
+        Note that same letters may not refer strictly to the same color.
+        There are cameras with two different greens for example.
+        """
+        return self.p.imgdata.idata.cdesc
+    
     cpdef int rawcolor(self, int row, int column):
+        """
+        Return color index for the given RAW pixel location.
+        """
         return self.p.COLOR(row, column)
     
     @property
     def rawcolors(self):
+        """
+        An array of color indices for each pixel in the RAW image.
+        Equivalent to calling rawcolor(y,x) for each pixel.
+        """
         if self.p.imgdata.idata.filters < 1000:
             raise NotImplementedError
         cdef int n = 4
@@ -214,30 +241,16 @@ cdef class RawPy:
         cdef int height = self.p.imgdata.sizes.raw_height
         cdef int width = self.p.imgdata.sizes.raw_width
         return np.tile(pattern, (height/n, width/n))
-    
-    @property
-    def num_colors(self):
-        """
-        Number of colors, e.g. 3 for RGBR, and 4 for RGBE.
-        """
-        return self.p.imgdata.idata.colors
-    
-    @property
-    def color_desc(self):
-        """
-        String description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).
-        """
-        return self.p.imgdata.idata.cdesc
-    
+       
     @property
     def camera_whitebalance(self):
         """
         White balance coefficients (as shot). Either read from file or calculated.
         """
-        return [self.p.imgdata.color.cam_mul[0],
-                self.p.imgdata.color.cam_mul[1],
-                self.p.imgdata.color.cam_mul[2],
-                self.p.imgdata.color.cam_mul[3]]
+        return [self.p.imgdata.rawdata.color.cam_mul[0],
+                self.p.imgdata.rawdata.color.cam_mul[1],
+                self.p.imgdata.rawdata.color.cam_mul[2],
+                self.p.imgdata.rawdata.color.cam_mul[3]]
         
     @property
     def daylight_whitebalance(self):
@@ -246,10 +259,10 @@ cdef class RawPy:
         Either read from file, or calculated on the basis of file data, 
         or taken from hardcoded constants.
         """
-        return [self.p.imgdata.color.pre_mul[0],
-                self.p.imgdata.color.pre_mul[1],
-                self.p.imgdata.color.pre_mul[2],
-                self.p.imgdata.color.pre_mul[3]]
+        return [self.p.imgdata.rawdata.color.pre_mul[0],
+                self.p.imgdata.rawdata.color.pre_mul[1],
+                self.p.imgdata.rawdata.color.pre_mul[2],
+                self.p.imgdata.rawdata.color.pre_mul[3]]
     
     def raw2image(self):
         """
@@ -272,25 +285,23 @@ cdef class RawPy:
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[2]),
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
                 
-    def dcraw_process(self, **kw):
-        params = Params(**kw)
+    def dcraw_process(self, params=None, **kw):
+        if params is None:
+            params = Params(**kw)
         self.applyParams(params)
         self.handleError(self.p.dcraw_process())
         
     def dcraw_make_mem_image(self):
-        # TODO how can it be that unsigned char represent 16 bits?
         cdef int errcode = 0
         cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
         self.handleError(errcode)
-        #assert img.type == LIBRAW_IMAGE_BITMAP
-        cdef np.npy_intp shape[3]
-        shape[0] = <np.npy_intp> img.height
-        shape[1] = <np.npy_intp> img.width
-        shape[2] = <np.npy_intp> img.colors
-        arr = np.PyArray_SimpleNewFromData(3, shape, np.NPY_UINT8 if img.bits == 8 else np.NPY_UINT16, img.data)
-        # FIXME call dcraw_clear_mem
-        return arr
-            
+        if img.type != LIBRAW_IMAGE_BITMAP:
+            raise NotImplementedError
+        wrapped = processed_image_wrapper()
+        wrapped.set_data(self, img)
+        ndarr = wrapped.__array__()
+        return ndarr
+                
     def postprocess(self, **kw):
         """
         Return post-processed image as numpy array.  
@@ -426,8 +437,33 @@ class LibRawFatalError(Exception):
 class LibRawNonFatalError(Exception):
     pass                
     
+cdef class processed_image_wrapper:
+    cdef RawPy raw
+    cdef libraw_processed_image_t* processed_image
+
+    cdef set_data(self, RawPy raw, libraw_processed_image_t* processed_image):
+        self.raw = raw
+        self.processed_image = processed_image
+
+    def __array__(self):
+        cdef np.npy_intp shape[3]
+        shape[0] = <np.npy_intp> self.processed_image.height
+        shape[1] = <np.npy_intp> self.processed_image.width
+        shape[2] = <np.npy_intp> self.processed_image.colors
+        cdef np.ndarray ndarr
+        ndarr = np.PyArray_SimpleNewFromData(3, shape, 
+                                             np.NPY_UINT8 if self.processed_image.bits == 8 else np.NPY_UINT16,
+                                             self.processed_image.data)
+        ndarr.base = <PyObject*> self
+        # Python doesn't know about above assignment as it's in C-level 
+        Py_INCREF(self)
+        return ndarr
+
+    def __dealloc__(self):
+        self.raw.p.dcraw_clear_mem(self.processed_image)        
+    
 cdef char* _chars(s):
     if isinstance(s, unicode):
         # convert unicode to chars
         s = (<unicode>s).encode('UTF-8')
-    return s    
+    return s
