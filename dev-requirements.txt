@@ -2,4 +2,5 @@ numpy
 cython
 nose
 wheel
+six
 scikit-image
