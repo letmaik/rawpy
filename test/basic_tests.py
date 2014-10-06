@@ -9,7 +9,8 @@ import imageio
 
 rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
 
-print('using libraw', rawpy.libraw_version)
+def testVersion():
+    print('using libraw', rawpy.libraw_version)  
 
 def testFileOpenAndPostProcess():
     raw = rawpy.imread(rawTestPath)
