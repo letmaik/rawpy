@@ -29,10 +29,12 @@ install:
     else
       sudo apt-get install libraw-dev ;
     fi
+  # TODO libfreeimage depends on libraw
+  # what happens when we compile our own version? which one is used then?
   - sudo apt-get install python-numpy libfreeimage-dev
   - pip install -r dev-requirements.txt
 
-script: python setup.py nosetests --verbosity=3
+script: python setup.py nosetests --verbosity=3 --nocapture
 
 deploy:
   provider: pypi
