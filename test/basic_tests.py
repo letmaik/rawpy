@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing.utils import assert_array_equal
 
 import rawpy
-import skimage.io
+import imageio
 
 rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
 
@@ -43,9 +43,9 @@ def save(path, im):
     # see https://github.com/scikit-image/scikit-image/issues/1101
     # and https://github.com/imageio/imageio/issues/3
     from distutils.version import StrictVersion
-    if im.dtype == np.uint16 and StrictVersion(skimage.__version__) <= StrictVersion('0.10.1'):
+    if im.dtype == np.uint16 and StrictVersion(imageio.__version__) <= StrictVersion('0.5.1'):
         im = im[::-1,::-1]
-    skimage.io.imsave(path, im, plugin='freeimage')
+    imageio.imsave(path, im)
 
 def print_stats(rgb):
     print(rgb.dtype, 
