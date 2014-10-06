@@ -30,6 +30,8 @@ install:
       sudo apt-get install libraw-dev ;
     fi
   - sudo apt-get install python-numpy libfreeimage-dev
+  # remove six installation with skimage > 0.10.1 release
+  - pip install six
   - pip install -r dev-requirements.txt
 
 script: python setup.py nosetests --verbosity=3
