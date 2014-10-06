@@ -31,7 +31,7 @@ install:
     else
       sudo apt-get install libraw-dev ;
     fi
-  - pip install cython
+  - pip install -r dev-requirements.txt
 
 script: python setup.py nosetests --verbosity=3
 
