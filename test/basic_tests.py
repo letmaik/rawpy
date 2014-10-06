@@ -9,6 +9,8 @@ import imageio
 
 rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
 
+print('using libraw', rawpy.libraw_version)
+
 def testFileOpenAndPostProcess():
     raw = rawpy.imread(rawTestPath)
     assert_array_equal(raw.raw_image.shape, [2844, 4288])   
