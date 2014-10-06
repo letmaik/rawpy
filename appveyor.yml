@@ -57,8 +57,8 @@ install:
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # we use conda to prevent compiling extensions
-  - "conda install --yes numpy cython scikit-image"
-  - "pip install wheel nose"
+  - "conda install --yes numpy cython"
+  - "pip install -r dev-requirements.txt"
   
   # Install the build dependencies of the project. If some dependencies contain
   # compiled extensions and are not provided as pre-built wheel packages,
