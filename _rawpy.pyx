@@ -16,6 +16,11 @@ import sys
 from enum import Enum
 
 cdef extern from "def_helper.h":
+    cdef int LIBRAW_USE_DNGLOSSYCODEC
+    cdef int LIBRAW_USE_OPENMP
+    cdef int LIBRAW_USE_LCMS
+    cdef int LIBRAW_USE_REDCINECODEC
+    cdef int LIBRAW_USE_RAWSPEED
     cdef int LIBRAW_USE_DEMOSAIC_PACK_GPL2
     cdef int LIBRAW_USE_DEMOSAIC_PACK_GPL3
 
@@ -163,6 +168,15 @@ cdef extern from "libraw.h":
         void recycle()
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
+
+flags = {'DNGLOSSYCODEC': bool(LIBRAW_USE_DNGLOSSYCODEC),
+         'OPENMP': bool(LIBRAW_USE_OPENMP),
+         'LCMS': bool(LIBRAW_USE_LCMS),
+         'REDCINECODEC': bool(LIBRAW_USE_REDCINECODEC),
+         'RAWSPEED': bool(LIBRAW_USE_RAWSPEED),
+         'DEMOSAIC_PACK_GPL2': bool(LIBRAW_USE_DEMOSAIC_PACK_GPL2),
+         'DEMOSAIC_PACK_GPL3': bool(LIBRAW_USE_DEMOSAIC_PACK_GPL3),
+         }
 
 cdef class RawPy:
     cdef LibRaw* p

@@ -1,6 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import os
+from pprint import pprint
 import numpy as np
 from numpy.testing.utils import assert_array_equal
 
@@ -11,8 +12,9 @@ rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
 
 def testVersion():
     print('using libraw', rawpy.libraw_version)
+    pprint(rawpy.flags)
     for d in rawpy.DemosaicAlgorithm:
-        print(d.name, 'NOT' if not d.isSupported else '', 'supported') 
+        print(d.name, 'NOT' if not d.isSupported else '', 'supported')
 
 def testFileOpenAndPostProcess():
     raw = rawpy.imread(rawTestPath)
