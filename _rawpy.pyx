@@ -15,6 +15,10 @@ import os
 import sys
 from enum import Enum
 
+cdef extern from "def_helper.h":
+    cdef int LIBRAW_USE_DEMOSAIC_PACK_GPL2
+    cdef int LIBRAW_USE_DEMOSAIC_PACK_GPL3
+
 cdef extern from "libraw.h":
     ctypedef unsigned short ushort
     
@@ -302,11 +306,11 @@ cdef class RawPy:
         ndarr = wrapped.__array__()
         return ndarr
                 
-    def postprocess(self, **kw):
+    def postprocess(self, params=None, **kw):
         """
         Return post-processed image as numpy array.  
         """
-        self.dcraw_process(**kw)
+        self.dcraw_process(params, **kw)
         return self.dcraw_make_mem_image()
         
     cdef applyParams(self, params):
@@ -345,7 +349,7 @@ cdef class RawPy:
             if code < -10000: # see macro LIBRAW_FATAL_ERROR in libraw_const.h
                 raise LibRawFatalError(errstr)
             else:
-                print(repr(LibRawNonFatalError(errstr)), file=sys.stderr) 
+                print(repr(LibRawNonFatalError(errstr)), file=sys.stderr)
 
 class DemosaicAlgorithm(Enum):
     LINEAR=0
@@ -365,6 +369,31 @@ class DemosaicAlgorithm(Enum):
     DHT=11
     AAHD=12
     
+    @property
+    def isSupported(self):
+        try:
+            self.checkSupported()
+        except NotSupportedError:
+            return False
+        else:
+            return True
+        
+    def checkSupported(self):
+        c = DemosaicAlgorithm
+       
+        if self in [c.MODIFIED_AHD, c.AFD, c.VCD, c.VCD_MODIFIED_AHD, c.LMMSE] and \
+           not LIBRAW_USE_DEMOSAIC_PACK_GPL2:
+            raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL2 demosaic pack')
+            
+        if self in [c.AMAZE] and \
+           not LIBRAW_USE_DEMOSAIC_PACK_GPL3:
+            raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL3 demosaic pack')
+        
+        min_version_dht_aahd = (0,16)
+        if self in [c.DHT, c.AAHD] and \
+           libraw_version < min_version_dht_aahd:
+            raise NotSupportedError('Demosaic algorithm ' + self.name, min_version_dht_aahd)
+    
 class ColorSpace(Enum):
     raw=0
     sRGB=1
@@ -374,10 +403,11 @@ class ColorSpace(Enum):
     XYZ=5
 
 class NotSupportedError(Exception):
-    def __init__(self, message, min_version):
-        message = "{}, minimum required LibRaw version: {}.{}.{}, your version: {}.{}.{}".format(
-                      message, min_version[0], min_version[1], min_version[2],
-                      libraw_version[0], libraw_version[1], libraw_version[2])
+    def __init__(self, message, min_version=None):
+        if min_version is not None:
+            message = "{}, minimum required LibRaw version: {}.{}.{}, your version: {}.{}.{}".format(
+                          message, min_version[0], min_version[1], min_version[2],
+                          libraw_version[0], libraw_version[1], libraw_version[2])
         Exception.__init__(self, message)
 
 class Params(object):
@@ -394,7 +424,11 @@ class Params(object):
         daylight white balance correction is used.
         If both use_camera_wb and use_auto_wb are True, then use_auto_wb has priority.
         """
-        self.user_qual = demosaic_algorithm.value if demosaic_algorithm else -1
+        if demosaic_algorithm:
+            demosaic_algorithm.checkSupported()
+            self.user_qual = demosaic_algorithm.value
+        else:
+            self.user_qual = -1
         self.use_camera_wb = use_camera_wb
         self.use_auto_wb = use_auto_wb
         if user_wb is not None:

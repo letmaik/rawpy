@@ -80,9 +80,10 @@ include_dirs += [numpy.get_include()]
 if isWindows:
     cmake_build = 'external/LibRaw/cmake_build'
     librawh_dir = 'external/LibRaw/libraw'
+    librawconfigh_dir = cmake_build 
     librawlib_dir = cmake_build
     
-    include_dirs += [librawh_dir]
+    include_dirs += [librawh_dir, librawconfigh_dir]
     library_dirs += [librawlib_dir]
     libraries = ['raw_r']
     extra_compile_args += ['/DWIN32']

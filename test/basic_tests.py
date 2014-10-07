@@ -10,7 +10,9 @@ import imageio
 rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
 
 def testVersion():
-    print('using libraw', rawpy.libraw_version)  
+    print('using libraw', rawpy.libraw_version)
+    for d in rawpy.DemosaicAlgorithm:
+        print(d.name, 'NOT' if not d.isSupported else '', 'supported') 
 
 def testFileOpenAndPostProcess():
     raw = rawpy.imread(rawTestPath)
@@ -20,9 +22,9 @@ def testFileOpenAndPostProcess():
     assert_array_equal(rgb.shape, [2844, 4284, 3])
     print_stats(rgb)
     save('test_8daylight.tiff', rgb)
-
+ 
     print('daylight white balance multipliers:', raw.daylight_whitebalance)
-    
+     
     rgb = raw.postprocess(no_auto_bright=True, user_wb=raw.daylight_whitebalance)
     print_stats(rgb)
     save('test_8daylight2.tiff', rgb)
@@ -56,6 +58,7 @@ def print_stats(rgb):
           [len(np.unique(rgb[:,:,0])), len(np.unique(rgb[:,:,1])), len(np.unique(rgb[:,:,2]))], # unique values
           np.sum(rgb==np.iinfo(rgb.dtype).max, axis=(0,1))) # number of saturated pixels
         
-if __name__ == '__main__':   
+if __name__ == '__main__':
+    testVersion()
     testFileOpenAndPostProcess()
     
