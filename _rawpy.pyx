@@ -160,6 +160,7 @@ cdef extern from "libraw.h":
         void dcraw_clear_mem(libraw_processed_image_t* img)
         void free_image()
         const char* strerror(int p)
+        void recycle()
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 
@@ -174,6 +175,11 @@ cdef class RawPy:
     
     def open_file(self, path):
         self.handleError(self.p.open_file(_chars(path)))
+        if libraw_version < (0,15):
+            self.path = path
+            # libraw < 0.15 requires calling open_file & unpack for multiple calls to dcraw_process
+            # with different parameters, therefore we remember the fact that this is freshly opened
+            self.needs_reopening = False
         
     def unpack(self):
         self.handleError(self.p.unpack())
@@ -310,6 +316,12 @@ cdef class RawPy:
         """
         Return post-processed image as numpy array.  
         """
+        if libraw_version < (0,15):
+            if self.needs_reopening:
+                self.p.recycle()
+                self.open_file(self.path)
+                self.unpack()
+            self.needs_reopening = True
         self.dcraw_process(params, **kw)
         return self.dcraw_make_mem_image()
         
