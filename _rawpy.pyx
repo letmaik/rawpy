@@ -187,6 +187,7 @@ else:
 
 cdef class RawPy:
     cdef LibRaw* p
+    cdef bint needs_reopening
         
     def __cinit__(self):
         self.p = new LibRaw()
@@ -197,9 +198,9 @@ cdef class RawPy:
     def open_file(self, path):
         self.handleError(self.p.open_file(_chars(path)))
         if libraw_version < (0,15):
-            self.path = path
             # libraw < 0.15 requires calling open_file & unpack for multiple calls to dcraw_process
             # with different parameters, therefore we remember the fact that this is freshly opened
+            # and issue a warning in postprocess if needed
             self.needs_reopening = False
         
     def unpack(self):
@@ -317,6 +318,10 @@ cdef class RawPy:
                 np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
                 
     def dcraw_process(self, params=None, **kw):
+        if libraw_version < (0,15):
+            if self.needs_reopening:
+                warnings.warn('Repeated postprocessing with libraw<0.15 may require reopening/unpacking')
+            self.needs_reopening = True
         if params is None:
             params = Params(**kw)
         self.applyParams(params)
@@ -337,12 +342,6 @@ cdef class RawPy:
         """
         Return post-processed image as numpy array.  
         """
-        if libraw_version < (0,15):
-            if self.needs_reopening:
-                self.p.recycle()
-                self.open_file(self.path)
-                self.unpack()
-            self.needs_reopening = True
         self.dcraw_process(params, **kw)
         return self.dcraw_make_mem_image()
         
