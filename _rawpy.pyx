@@ -13,9 +13,13 @@ np.import_array()
 
 import os
 import sys
+import warnings
 from enum import Enum
 
 cdef extern from "def_helper.h":
+    cdef int _LIBRAW_HAS_FLAGS
+    # the following flags are only usable if _LIBRAW_HAS_FLAGS is 1
+    # (this is the case for libraw >= 0.15.4)
     cdef int _LIBRAW_USE_DNGLOSSYCODEC
     cdef int _LIBRAW_USE_OPENMP
     cdef int _LIBRAW_USE_LCMS
@@ -169,14 +173,17 @@ cdef extern from "libraw.h":
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 
-flags = {'DNGLOSSYCODEC': bool(_LIBRAW_USE_DNGLOSSYCODEC),
-         'OPENMP': bool(_LIBRAW_USE_OPENMP),
-         'LCMS': bool(_LIBRAW_USE_LCMS),
-         'REDCINECODEC': bool(_LIBRAW_USE_REDCINECODEC),
-         'RAWSPEED': bool(_LIBRAW_USE_RAWSPEED),
-         'DEMOSAIC_PACK_GPL2': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL2),
-         'DEMOSAIC_PACK_GPL3': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL3),
-         }
+if _LIBRAW_HAS_FLAGS:
+    flags = {'DNGLOSSYCODEC': bool(_LIBRAW_USE_DNGLOSSYCODEC),
+             'OPENMP': bool(_LIBRAW_USE_OPENMP),
+             'LCMS': bool(_LIBRAW_USE_LCMS),
+             'REDCINECODEC': bool(_LIBRAW_USE_REDCINECODEC),
+             'RAWSPEED': bool(_LIBRAW_USE_RAWSPEED),
+             'DEMOSAIC_PACK_GPL2': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL2),
+             'DEMOSAIC_PACK_GPL3': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL3),
+             }
+else:
+    flags = None
 
 cdef class RawPy:
     cdef LibRaw* p
@@ -406,14 +413,24 @@ class DemosaicAlgorithm(Enum):
         
     def checkSupported(self):
         c = DemosaicAlgorithm
+        
+        min_version_flags = (0,15,4)
        
-        if self in [c.MODIFIED_AHD, c.AFD, c.VCD, c.VCD_MODIFIED_AHD, c.LMMSE] and \
-           not _LIBRAW_USE_DEMOSAIC_PACK_GPL2:
-            raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL2 demosaic pack')
+        if self in [c.MODIFIED_AHD, c.AFD, c.VCD, c.VCD_MODIFIED_AHD, c.LMMSE]:
+            if flags is None:
+                e = NotSupportedError('Cannot check whether GPL2 demosaic algorithm ' + self.name + ' is supported', 
+                                      min_version_flags)
+                warnings.warn(e.message)
+            elif not _LIBRAW_USE_DEMOSAIC_PACK_GPL2:
+                raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL2 demosaic pack')
             
-        if self in [c.AMAZE] and \
-           not _LIBRAW_USE_DEMOSAIC_PACK_GPL3:
-            raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL3 demosaic pack')
+        if self in [c.AMAZE]:
+            if flags is None:
+                e = NotSupportedError('Cannot check whether GPL3 demosaic algorithm ' + self.name + ' is supported', 
+                                      min_version_flags)
+                warnings.warn(e.message)
+            elif not _LIBRAW_USE_DEMOSAIC_PACK_GPL3:
+                raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL3 demosaic pack')
         
         min_version_dht_aahd = (0,16)
         if self in [c.DHT, c.AAHD] and \

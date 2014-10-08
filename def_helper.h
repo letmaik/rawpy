@@ -1,4 +1,13 @@
+#include "libraw_version.h"
+
+// libraw_config.h only exists since 0.15.4
+// hence all values defined below are irrelevant if < 0.15.4
+#if LIBRAW_VERSION >= LIBRAW_MAKE_VERSION(0,15,4)
 #include "libraw_config.h"
+#define _LIBRAW_HAS_FLAGS 1
+#else
+#define _LIBRAW_HAS_FLAGS 0
+#endif
 
 /* libraw only defines these to 1, not to 0, but for Cython we
    need a definition in either case */
