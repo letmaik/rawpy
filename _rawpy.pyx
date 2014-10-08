@@ -415,6 +415,7 @@ class DemosaicAlgorithm(Enum):
         c = DemosaicAlgorithm
         
         min_version_flags = (0,15,4)
+        min_version_dht_aahd = (0,16)
        
         if self in [c.MODIFIED_AHD, c.AFD, c.VCD, c.VCD_MODIFIED_AHD, c.LMMSE]:
             if flags is None:
@@ -424,7 +425,7 @@ class DemosaicAlgorithm(Enum):
             elif not _LIBRAW_USE_DEMOSAIC_PACK_GPL2:
                 raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL2 demosaic pack')
             
-        if self in [c.AMAZE]:
+        elif self in [c.AMAZE]:
             if flags is None:
                 e = NotSupportedError('Cannot check whether GPL3 demosaic algorithm ' + self.name + ' is supported', 
                                       min_version_flags)
@@ -432,8 +433,7 @@ class DemosaicAlgorithm(Enum):
             elif not _LIBRAW_USE_DEMOSAIC_PACK_GPL3:
                 raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL3 demosaic pack')
         
-        min_version_dht_aahd = (0,16)
-        if self in [c.DHT, c.AAHD] and \
+        elif self in [c.DHT, c.AAHD] and \
            libraw_version < min_version_dht_aahd:
             raise NotSupportedError('Demosaic algorithm ' + self.name, min_version_dht_aahd)
     
