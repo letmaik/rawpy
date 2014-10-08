@@ -2,10 +2,16 @@ from __future__ import division, print_function, absolute_import
 
 import time
 import os
+import warnings
 import numpy as np
 
+from skimage.filter.rank import median
+try:
+    import bottleneck
+except ImportError:
+    warnings.warn('"bottleneck" package not found, you cannot use method="mean" in repairBadPixels')
+
 import rawpy
-from skimage.filter.rank import median, mean
 
 def findBadPixels(paths, find_hot=True, find_dead=True):
     assert find_hot or find_dead
@@ -37,12 +43,10 @@ def findBadPixels(paths, find_hot=True, find_dead=True):
             # There exist O(log(r)) and O(1) algorithms, see https://nomis80.org/ctmf.pdf.
             # Also, we only need the median values for the masked pixels.
             # Currently, they are calculated for all pixels for each color.
-            # TODO test with mean instead of median
             med = median(rawimg, kernel, mask=mask)
             print('median:', time.time()-t1, 's')
             
             # step 3: detect possible bad pixels
-            t1 = time.time()
             if find_hot and find_dead:
                 candidates = (np.abs(rawimg - med) > thresh) & mask
             elif find_hot:
@@ -74,8 +78,19 @@ def findBadPixels(paths, find_hot=True, find_dead=True):
     print(len(bad_coords), 'bad pixels remaining after cross-checking images')
     
     return bad_coords
+    
+def mean(A, mask, kernel_size):
+    """
+    A faster alternative to skimage's mean filter.
+    """
+    dtype = A.dtype
+    A = np.require(A, np.float)
+    A[mask] = np.nan
+    res = bottleneck.move_nanmean(A, kernel_size)
+    np.round(res, out=res)
+    return res.astype(dtype)
 
-def repairBadPixels(raw, coords):
+def repairBadPixels(raw, coords, method='mean'):
     print('repairing', len(coords), 'bad pixels')
     
     # TODO this can be done way more efficiently
@@ -83,21 +98,33 @@ def repairBadPixels(raw, coords):
     #  -> cython? would likely involve for-loops
     #  see libraw/internal/dcraw_fileio.cpp
     
+    t0 = time.time()
+    
     color_masks = colormasks(raw)
         
     rawimg = raw.raw_image
     r = 5
     kernel = np.ones((r,r))
     for color_mask in color_masks:       
-        badpixel_mask = np.zeros_like(color_mask)
-        badpixel_mask[coords[:,0],coords[:,1]] = True
+        mask = np.zeros_like(color_mask)
+        mask[coords[:,0],coords[:,1]] = True
+        mask &= color_mask
         
         # interpolate all bad pixels belonging to this color
-        # TODO should this be the mean instead of median?
-        #      skimage's mean filter is 10x slower than median!
-        med = median(rawimg, kernel, mask=color_mask)
-        badpixel_mask &= color_mask
-        rawimg[badpixel_mask] = med[badpixel_mask]        
+        if method == 'mean':
+            # FIXME could lead to invalid values if bad pixels are clustered
+            smooth = mean(rawimg, mask, r)
+        elif method == 'median':
+            # bad pixels won't influence the median and just using
+            # the color mask prevents bad pixel clusters from producing
+            # bad interpolated values (NaNs)
+            smooth = median(rawimg, kernel, mask=color_mask)
+        else:
+            raise ValueError
+        
+        rawimg[mask] = smooth[mask]
+    
+    print('badpixel repair:', time.time()-t0, 's')  
     
     # TODO check how many detected bad pixels are false positives
     #raw.raw_image[coords[:,0], coords[:,1]] = 0
@@ -129,14 +156,12 @@ if __name__ == '__main__':
     coords = findBadPixels(paths)
     print(coords)
     
-    from PIL import Image
+    import imageio
     raw = rawpy.imread(paths[0])
     if not os.path.exists('test_original.png'):
-        raw.dcraw_process()
-        rgb = raw.dcraw_make_mem_image()
-        Image.fromarray(rgb).save('test_original.png')
+        rgb = raw.postprocess()
+        imageio.imsave('test_original.png', rgb)
     repairBadPixels(raw, coords)
-    raw.dcraw_process()
-    rgb = raw.dcraw_make_mem_image()
-    Image.fromarray(rgb).save('test_hotpixels_repaired.png')
+    rgb = raw.postprocess()
+    imageio.imsave('test_hotpixels_repaired.png', rgb)
     
