@@ -404,38 +404,40 @@ class DemosaicAlgorithm(Enum):
     
     @property
     def isSupported(self):
+        """
+        True=supported 
+        False=not supported
+        None=check impossible because libraw version too old (< 0.15.4)
+        """
         try:
-            self.checkSupported()
+            supported = self.checkSupported()
         except NotSupportedError:
             return False
         else:
-            return True
+            return supported
         
     def checkSupported(self):
         c = DemosaicAlgorithm
         
         min_version_flags = (0,15,4)
-        min_version_dht_aahd = (0,16)
+        min_version_dht_aahd = (0,16,0)
        
         if self in [c.MODIFIED_AHD, c.AFD, c.VCD, c.VCD_MODIFIED_AHD, c.LMMSE]:
             if flags is None:
-                e = NotSupportedError('Cannot check whether GPL2 demosaic algorithm ' + self.name + ' is supported', 
-                                      min_version_flags)
-                warnings.warn(e.message)
+                return None
             elif not _LIBRAW_USE_DEMOSAIC_PACK_GPL2:
                 raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL2 demosaic pack')
             
         elif self in [c.AMAZE]:
             if flags is None:
-                e = NotSupportedError('Cannot check whether GPL3 demosaic algorithm ' + self.name + ' is supported', 
-                                      min_version_flags)
-                warnings.warn(e.message)
+                return None
             elif not _LIBRAW_USE_DEMOSAIC_PACK_GPL3:
                 raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL3 demosaic pack')
         
         elif self in [c.DHT, c.AAHD] and \
            libraw_version < min_version_dht_aahd:
             raise NotSupportedError('Demosaic algorithm ' + self.name, min_version_dht_aahd)
+        return True
     
 class ColorSpace(Enum):
     raw=0
