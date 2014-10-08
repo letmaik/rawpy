@@ -14,7 +14,8 @@ def testVersion():
     print('using libraw', rawpy.libraw_version)
     pprint(rawpy.flags)
     for d in rawpy.DemosaicAlgorithm:
-        print(d.name, 'NOT' if not d.isSupported else '', 'supported')
+        print(d.name, 'NOT' if d.isSupported is False 
+                      else 'possibly' if d.isSupported is None else '', 'supported')
 
 def testFileOpenAndPostProcess():
     raw = rawpy.imread(rawTestPath)
