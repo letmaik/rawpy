@@ -16,13 +16,13 @@ import sys
 from enum import Enum
 
 cdef extern from "def_helper.h":
-    cdef int LIBRAW_USE_DNGLOSSYCODEC
-    cdef int LIBRAW_USE_OPENMP
-    cdef int LIBRAW_USE_LCMS
-    cdef int LIBRAW_USE_REDCINECODEC
-    cdef int LIBRAW_USE_RAWSPEED
-    cdef int LIBRAW_USE_DEMOSAIC_PACK_GPL2
-    cdef int LIBRAW_USE_DEMOSAIC_PACK_GPL3
+    cdef int _LIBRAW_USE_DNGLOSSYCODEC
+    cdef int _LIBRAW_USE_OPENMP
+    cdef int _LIBRAW_USE_LCMS
+    cdef int _LIBRAW_USE_REDCINECODEC
+    cdef int _LIBRAW_USE_RAWSPEED
+    cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL2
+    cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL3
 
 cdef extern from "libraw.h":
     ctypedef unsigned short ushort
@@ -169,13 +169,13 @@ cdef extern from "libraw.h":
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 
-flags = {'DNGLOSSYCODEC': bool(LIBRAW_USE_DNGLOSSYCODEC),
-         'OPENMP': bool(LIBRAW_USE_OPENMP),
-         'LCMS': bool(LIBRAW_USE_LCMS),
-         'REDCINECODEC': bool(LIBRAW_USE_REDCINECODEC),
-         'RAWSPEED': bool(LIBRAW_USE_RAWSPEED),
-         'DEMOSAIC_PACK_GPL2': bool(LIBRAW_USE_DEMOSAIC_PACK_GPL2),
-         'DEMOSAIC_PACK_GPL3': bool(LIBRAW_USE_DEMOSAIC_PACK_GPL3),
+flags = {'DNGLOSSYCODEC': bool(_LIBRAW_USE_DNGLOSSYCODEC),
+         'OPENMP': bool(_LIBRAW_USE_OPENMP),
+         'LCMS': bool(_LIBRAW_USE_LCMS),
+         'REDCINECODEC': bool(_LIBRAW_USE_REDCINECODEC),
+         'RAWSPEED': bool(_LIBRAW_USE_RAWSPEED),
+         'DEMOSAIC_PACK_GPL2': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL2),
+         'DEMOSAIC_PACK_GPL3': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL3),
          }
 
 cdef class RawPy:
@@ -408,11 +408,11 @@ class DemosaicAlgorithm(Enum):
         c = DemosaicAlgorithm
        
         if self in [c.MODIFIED_AHD, c.AFD, c.VCD, c.VCD_MODIFIED_AHD, c.LMMSE] and \
-           not LIBRAW_USE_DEMOSAIC_PACK_GPL2:
+           not _LIBRAW_USE_DEMOSAIC_PACK_GPL2:
             raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL2 demosaic pack')
             
         if self in [c.AMAZE] and \
-           not LIBRAW_USE_DEMOSAIC_PACK_GPL3:
+           not _LIBRAW_USE_DEMOSAIC_PACK_GPL3:
             raise NotSupportedError('Demosaic algorithm ' + self.name + ' requires GPL3 demosaic pack')
         
         min_version_dht_aahd = (0,16)
