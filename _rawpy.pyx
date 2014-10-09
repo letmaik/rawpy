@@ -261,6 +261,17 @@ cdef class RawPy:
         An array of color indices for each pixel in the RAW image.
         Equivalent to calling rawcolor(y,x) for each pixel.
         """
+        cdef np.ndarray pattern = self.rawpattern
+        cdef int n = pattern.shape[0]
+        cdef int height = self.p.imgdata.sizes.raw_height
+        cdef int width = self.p.imgdata.sizes.raw_width
+        return np.tile(pattern, (height/n, width/n))
+    
+    @property
+    def rawpattern(self):
+        """
+        The smallest possible Bayer pattern of this image.
+        """
         if self.p.imgdata.idata.filters < 1000:
             raise NotImplementedError
         cdef int n = 4
@@ -269,9 +280,11 @@ cdef class RawPy:
         for y in range(n):
             for x in range(n):
                 pattern[y,x] = self.p.COLOR(y, x)
-        cdef int height = self.p.imgdata.sizes.raw_height
-        cdef int width = self.p.imgdata.sizes.raw_width
-        return np.tile(pattern, (height/n, width/n))
+        if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
+           np.all(pattern[:2,:2] == pattern[2:,2:]) and \
+           np.all(pattern[:2,:2] == pattern[2:,:2]):
+            pattern = pattern[:2,:2]
+        return pattern
        
     @property
     def camera_whitebalance(self):
