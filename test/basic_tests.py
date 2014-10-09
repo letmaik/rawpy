@@ -19,8 +19,8 @@ def testVersion():
 
 def testFileOpenAndPostProcess():
     raw = rawpy.imread(rawTestPath)
-    assert_array_equal(raw.raw_image.shape, [2844, 4288])   
-    
+    assert_array_equal(raw.raw_image.shape, [2844, 4288])
+        
     rgb = raw.postprocess(no_auto_bright=True, user_wb=raw.daylight_whitebalance)
     assert_array_equal(rgb.shape, [2844, 4284, 3])
     print_stats(rgb)
