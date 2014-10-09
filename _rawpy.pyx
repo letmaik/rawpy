@@ -1,5 +1,4 @@
 # distutils: language = c++
-# cython: c_string_type=unicode, c_string_encoding=utf8
 # cython: embedsignature=True
 
 from __future__ import print_function
