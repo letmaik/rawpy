@@ -183,7 +183,7 @@ package_data = {}
 # evil hack, check cmd line for relevant commands
 # custom cmdclasses didn't work out in this case
 cmdline = ''.join(sys.argv[1:])
-if isWindows and any(s in cmdline for s in ['bdist', 'build_ext', 'nosetests']):
+if isWindows and any(s in cmdline for s in ['install', 'bdist', 'build_ext', 'nosetests']):
     windows_libraw_compile()
         
     package_data['rawpy'] = ['*.dll']
