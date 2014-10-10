@@ -15,7 +15,7 @@ except ImportError:
 
 import rawpy
 
-# TODO handle non-Bayer images
+# TODO handle non-Bayer images, add test image
 
 def _isCandidate(rawarr, med, find_hot, find_dead, thresh):
     if find_hot and find_dead:
@@ -38,6 +38,7 @@ def findBadPixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     :param find_dead: whether to find dead pixels
     :param confirm_ratio: ratio of how many out of all given images
                           must contain a bad pixel to confirm it as such
+    :rtype: ndarray of shape (n,2) with y,x coordinates relative to full RAW size
     """
     assert find_hot or find_dead
     coords = []
@@ -219,10 +220,13 @@ def repairBadPixels(raw, coords, method='median'):
         
         # interpolate all bad pixels belonging to this color
         if method == 'mean':
+            # With mean filtering we have to ignore the bad pixels as they
+            # would influence the mean too much.
             # FIXME could lead to invalid values if bad pixels are clustered
+            #       such that no valid pixels are left in a block
             raise NotImplementedError
         elif method == 'median':
-            # bad pixels won't influence the median and just using
+            # bad pixels won't influence the median in most cases and just using
             # the color mask prevents bad pixel clusters from producing
             # bad interpolated values (NaNs)
             smooth = median(rawimg, kernel, mask=color_mask)
@@ -261,20 +265,54 @@ def _groupcount(values):
     res[:,1] = cnt
     return res
 
+def saveDCRawBadPixels(path, raw, bad_pixels):
+    """
+    
+    :param path:
+    :param bad_pixels: array of shape (n,2) with y,x coordinates
+    """
+    # Format is: pixel column, pixel row, UNIX time of death
+    # coordinates are relative to visible image area
+    dc = np.zeros((len(bad_pixels),3), dtype=int)
+    dc[:,0] = bad_pixels[:,1]
+    dc[:,0] -= raw.sizes.left_margin
+    dc[:,1] = bad_pixels[:,0] 
+    dc[:,1] -= raw.sizes.top_margin
+    np.savetxt(path, dc, fmt='%1i')
+
 if __name__ == '__main__':
     prefix = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'test')
     testfiles = ['iss030e122639.NEF', 'iss030e122659.NEF', 'iss030e122679.NEF',
                  'iss030e122699.NEF', 'iss030e122719.NEF']
     paths = [os.path.join(prefix, f) for f in testfiles]
     coords = findBadPixels(paths)
-    print(coords)
         
-#     import imageio
-#     raw = rawpy.imread(paths[0])
-#     if not os.path.exists('test_original.png'):
-#         rgb = raw.postprocess()
-#         imageio.imsave('test_original.png', rgb)
-#     repairBadPixels(raw, coords)
-#     rgb = raw.postprocess()
-#     imageio.imsave('test_hotpixels_repaired.png', rgb)
+    import imageio
+    raw = rawpy.imread(paths[0])
+    if not os.path.exists('test_original.png'):
+        rgb = raw.postprocess()
+        imageio.imsave('test_original.png', rgb)
+    
+    # A. use dcraw repair
+    # Note that this method fails when two bad pixels are direct neighbors.
+    # This is because it corrects each bad pixel separately and uses the
+    # mean of the surrounding pixels.
+    t0 = time.time()
+    bad_pixels_path = os.path.abspath('bad_pixels.txt')
+    saveDCRawBadPixels(bad_pixels_path, raw, coords)
+    rgb = raw.postprocess(bad_pixels_path=bad_pixels_path)
+    print('badpixel dcraw repair+postprocessing:', time.time()-t0, 's')
+    imageio.imsave('test_hotpixels_repaired_dcraw.png', rgb)
+    
+    # B. use own repair function
+    # With method='median' we still consider each bad pixel separately
+    # but the median prevents neighboring bad pixels to have an influence.
+    t0 = time.time()
+    repairBadPixels(raw, coords, method='median')
+    rgb = raw.postprocess()
+    print('badpixel repair+postprocessing:', time.time()-t0, 's')
+    imageio.imsave('test_hotpixels_repaired.png', rgb)
+    
+    # TODO method 'mean' not implemented yet
+    
     
