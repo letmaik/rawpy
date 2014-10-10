@@ -17,7 +17,28 @@ import rawpy
 
 # TODO handle non-Bayer images
 
-def findBadPixels(paths, find_hot=True, find_dead=True):
+def _isCandidate(rawarr, med, find_hot, find_dead, thresh):
+    if find_hot and find_dead:
+        np.subtract(rawarr, med, out=med)
+        np.abs(med, out=med)
+        candidates = med > thresh
+    elif find_hot:
+        med += thresh
+        candidates = rawarr > med
+    elif find_dead:
+        med -= thresh
+        candidates = rawarr < med
+    return candidates
+
+def findBadPixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
+    """
+    
+    :param paths: paths to RAW images shot with the same camera
+    :param find_hot: whether to find hot pixels
+    :param find_dead: whether to find dead pixels
+    :param confirm_ratio: ratio of how many out of all given images
+                          must contain a bad pixel to confirm it as such
+    """
     assert find_hot or find_dead
     coords = []
     width = None
@@ -27,99 +48,22 @@ def findBadPixels(paths, find_hot=True, find_dead=True):
         raw = rawpy.imread(path)
         if width is None:
             # we need the width later for counting
-            width = raw.raw_image.shape[1]
+            width = raw.sizes.raw_width
         print('imread:', time.time()-t0, 's')
-    
-        # TODO ignore border pixels
-        
-        rawimg = raw.raw_image
-        thresh = max(np.max(rawimg)//150, 20)
+            
+        thresh = max(np.max(raw.raw_image)//150, 20)
         print('threshold:', thresh)
         
-        t0 = time.time()
-        
-        def isCandidate(rawarr, med):
-            if find_hot and find_dead:
-                np.subtract(rawarr, med, out=med)
-                np.abs(med, out=med)
-                candidates = med > thresh
-            elif find_hot:
-                med += thresh
-                candidates = rawarr > med
-            elif find_dead:
-                med -= thresh
-                candidates = rawarr < med
-            return candidates
-        
-        pattern = raw.rawpattern
-        if pattern.shape[0] == 2:
-            # optimized code path for common 2x2 pattern
-            # create a view for each color, do 3x3 median on it, find bad pixels, correct coordinates          
-            r = 3
-            
-            if cv2 is not None:
-                median_ = partial(cv2.medianBlur, ksize=r)
-            else:
-                kernel = np.ones((r,r))
-                median_ = median(selem=kernel)
-            
-            # we have 4 colors (two greens are always seen as two colors)
-            for offset_y in [0,1]:
-                for offset_x in [0,1]:
-                    rawslice = rawimg[offset_y::2,offset_x::2]
-
-                    t1 = time.time()
-                    med = median_(rawslice)
-                    print('median:', time.time()-t1, 's')
-                    
-                    # detect possible bad pixels
-                    candidates = isCandidate(rawslice, med)
-                    
-                    # convert to coordinates and correct for slicing
-                    y,x = np.nonzero(candidates)
-                    # note: the following is much faster than np.transpose((y,x))
-                    candidates = np.empty((len(y),2), dtype=y.dtype)
-                    candidates[:,0] = y
-                    candidates[:,1] = x
-
-                    candidates *= 2
-                    candidates[:,0] += offset_y
-                    candidates[:,1] += offset_x
-                    
-                    coords.append(candidates)                    
-        else:
-            # step 1: get color mask for each color
-            color_masks = colormasks(raw)
-            
-            # step 2: median filtering for each channel    
-            r = 5
-            kernel = np.ones((r,r))
-            for mask in color_masks:
-                t1 = time.time()
-                # skimage's median is quite slow, it uses an O(r) filtering algorithm.
-                # There exist O(log(r)) and O(1) algorithms, see https://nomis80.org/ctmf.pdf.
-                # Also, we only need the median values for the masked pixels.
-                # Currently, they are calculated for all pixels for each color.
-                med = median(rawimg, kernel, mask=mask)
-                print('median:', time.time()-t1, 's')
-                
-                # step 3: detect possible bad pixels
-                candidates = isCandidate(rawimg, med)
-                candidates &= mask
-                
-                y,x = np.nonzero(candidates)
-                # note: the following is much faster than np.transpose((y,x))
-                candidates = np.empty((len(y),2), dtype=y.dtype)
-                candidates[:,0] = y
-                candidates[:,1] = x
-                
-                coords.append(candidates)
-                
-        print('badpixel candidates:', time.time()-t0, 's')
+        isCandidate = partial(_isCandidate, find_hot=find_hot, find_dead=find_dead, thresh=thresh)        
+        coords.extend(_findBadPixelCandidates(raw, isCandidate))
     
-    # step 4: select candidates that appear on most input images
-    # count how many times a coordinate appears
     coords = np.vstack(coords)
+    
+    if len(paths) == 1:
+        return coords
+    
+    # select candidates that appear on most input images
+    # count how many times a coordinate appears
     
     # first we convert y,x to array offset such that we have an array of integers
     offset = coords[:,0]*width
@@ -127,13 +71,13 @@ def findBadPixels(paths, find_hot=True, find_dead=True):
     
     # now we count how many times each offset occurs
     t0 = time.time()
-    counts = groupcount(offset)
+    counts = _groupcount(offset)
     print('groupcount:', time.time()-t0, 's')
     
     print('found', len(counts), 'bad pixel candidates, cross-checking images..')
     
     # we select the ones whose count is high
-    is_bad = counts[:,1] >= 0.9*len(paths)
+    is_bad = counts[:,1] >= confirm_ratio*len(paths)
         
     # and convert back to y,x
     bad_offsets = counts[is_bad,0]
@@ -142,6 +86,116 @@ def findBadPixels(paths, find_hot=True, find_dead=True):
     print(len(bad_coords), 'bad pixels remaining after cross-checking images')
     
     return bad_coords
+
+def _findBadPixelCandidates(raw, isCandidateFn):
+    t0 = time.time()
+    
+    if raw.rawpattern.shape[0] == 2:
+        coords = _findBadPixelCandidatesBayer2x2(raw, isCandidateFn)
+    else:
+        coords = _findBadPixelCandidatesGeneric(raw, isCandidateFn)
+            
+    print('badpixel candidates:', time.time()-t0, 's')
+    
+    return coords
+
+def _findBadPixelCandidatesGeneric(raw, isCandidateFn):
+    # first, get color mask for each color
+    color_masks = _colormasks(raw)
+    
+    # exclude non-visible areas from contributing to the medians and from
+    # being considered as containing bad pixels
+    s = raw.sizes
+    for mask in color_masks:
+        mask[:s.top_margin] = False
+        mask[:,:s.left_margin] = False
+        mask[s.top_margin+s.height:] = False
+        mask[:,s.left_margin+s.width:] = False
+    
+    rawimg = raw.raw_image
+    
+    coords = []
+    
+    # median filtering for each channel    
+    r = 5
+    kernel = np.ones((r,r))
+    for mask in color_masks:
+        t1 = time.time()
+        # skimage's median is quite slow, it uses an O(r) filtering algorithm.
+        # There exist O(log(r)) and O(1) algorithms, see https://nomis80.org/ctmf.pdf.
+        # Also, we only need the median values for the masked pixels.
+        # Currently, they are calculated for all pixels for each color.
+        med = median(rawimg, kernel, mask=mask)
+        print('median:', time.time()-t1, 's')
+        
+        # detect possible bad pixels
+        candidates = isCandidateFn(rawimg, med)
+        candidates &= mask
+        
+        y,x = np.nonzero(candidates)
+        # note: the following is much faster than np.transpose((y,x))
+        candidates = np.empty((len(y),2), dtype=y.dtype)
+        candidates[:,0] = y
+        candidates[:,1] = x
+        
+        coords.append(candidates)
+        
+    return coords
+
+def _findBadPixelCandidatesBayer2x2(raw, isCandidateFn):
+    assert raw.rawpattern.shape[0] == 2
+    
+    # optimized code path for common 2x2 pattern
+    # create a view for each color, do 3x3 median on it, find bad pixels, correct coordinates
+    # This shortcut allows to do median filtering without using a mask, which means
+    # that OpenCV's extremely fast median filter algorithm can be used.    
+    r = 3
+    
+    rawimg = raw.raw_image
+    
+    if cv2 is not None:
+        median_ = partial(cv2.medianBlur, ksize=r)
+    else:
+        kernel = np.ones((r,r))
+        median_ = median(selem=kernel)
+        
+    s = raw.sizes
+    # the following assertions are probably always true
+    # if not, then we go this road once someone complains..
+    assert s.top_margin % 2 == 0, 'top_margin must be divisible by 2, is: {}'.format(s.top_margin)
+    assert s.left_margin % 2 == 0, 'left_margin must be divisible by 2, is: {}'.format(s.left_margin)            
+    assert s.top_margin*2 + s.height == s.raw_height, 'vertical margins are not symmetric'
+    assert s.left_margin*2 + s.width == s.raw_width, 'horizontal margins are not symmetric'            
+    
+    coords = []
+    
+    # we have 4 colors (two greens are always seen as two colors)
+    for offset_y in [0,1]:
+        for offset_x in [0,1]:
+            rawslice = rawimg[s.top_margin+offset_y:s.raw_height-s.top_margin:2,
+                              s.left_margin+offset_x:s.raw_width-s.left_margin:2]
+
+            t1 = time.time()
+            med = median_(rawslice)
+            print('median:', time.time()-t1, 's')
+            
+            # detect possible bad pixels
+            candidates = isCandidateFn(rawslice, med)
+            
+            # convert to coordinates and correct for slicing
+            y,x = np.nonzero(candidates)
+            # note: the following is much faster than np.transpose((y,x))
+            candidates = np.empty((len(y),2), dtype=y.dtype)
+            candidates[:,0] = y
+            candidates[:,1] = x
+
+            candidates *= 2
+            candidates[:,0] += offset_y + s.top_margin
+            candidates[:,1] += offset_x + s.left_margin
+            
+            coords.append(candidates)
+            
+    return coords
 
 def repairBadPixels(raw, coords, method='median'):
     print('repairing', len(coords), 'bad pixels')
@@ -153,7 +207,7 @@ def repairBadPixels(raw, coords, method='median'):
     
     t0 = time.time()
     
-    color_masks = colormasks(raw)
+    color_masks = _colormasks(raw)
         
     rawimg = raw.raw_image
     r = 5
@@ -182,7 +236,7 @@ def repairBadPixels(raw, coords, method='median'):
     # TODO check how many detected bad pixels are false positives
     #raw.raw_image[coords[:,0], coords[:,1]] = 0
 
-def colormasks(raw):
+def _colormasks(raw):
     colors = raw.rawcolors
     if raw.num_colors == 3 and raw.color_desc == 'RGBG':
         color_masks = [colors == 0,
@@ -192,7 +246,7 @@ def colormasks(raw):
         color_masks = [colors == i for i in range(len(raw.color_desc))]
     return color_masks
 
-def groupcount(values):
+def _groupcount(values):
     """
     :see: https://stackoverflow.com/a/4652265
     """
@@ -214,7 +268,7 @@ if __name__ == '__main__':
     paths = [os.path.join(prefix, f) for f in testfiles]
     coords = findBadPixels(paths)
     print(coords)
-    
+        
 #     import imageio
 #     raw = rawpy.imread(paths[0])
 #     if not os.path.exists('test_original.png'):

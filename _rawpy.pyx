@@ -7,6 +7,7 @@ from cpython.ref cimport PyObject, Py_INCREF
 from cython.operator cimport dereference as deref
 
 import numpy as np
+from collections import namedtuple
 cimport numpy as np
 np.import_array()
 
@@ -46,6 +47,8 @@ cdef extern from "libraw.h":
         ushort height, width
         ushort top_margin, left_margin
         ushort iheight, iwidth
+        double pixel_aspect
+        int flip
         
     ctypedef struct libraw_colordata_t:
         float       cam_mul[4] 
@@ -184,6 +187,12 @@ if _LIBRAW_HAS_FLAGS:
 else:
     flags = None
 
+ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width', 
+                                       'height', 'width', 
+                                       'top_margin', 'left_margin',
+                                       'iheight', 'iwidth',
+                                       'pixel_aspect', 'flip'])
+
 cdef class RawPy:
     cdef LibRaw* p
     cdef bint needs_reopening
@@ -230,6 +239,15 @@ cdef class RawPy:
     @property
     def visible_size_raw(self):
         return self.p.imgdata.sizes.height, self.p.imgdata.sizes.width
+    
+    @property
+    def sizes(self):
+        cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
+        return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
+                          height=s.height, width=s.width,
+                          top_margin=s.top_margin, left_margin=s.left_margin,
+                          iheight=s.iheight, iwidth=s.iwidth,
+                          pixel_aspect=s.pixel_aspect, flip=s.flip)
     
     @property
     def num_colors(self):
