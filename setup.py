@@ -131,7 +131,9 @@ def windows_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
-    cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug ' +\
+    # Important: always use Release build type, otherwise the library will depend on a
+    #            debug version of OpenMP which is not what we bundle it with, and then it would fail
+    cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
@@ -197,7 +199,7 @@ def mac_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
-    cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-arch i386 -arch x86_64" ' +\
+    cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-arch i386 -arch x86_64" ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
