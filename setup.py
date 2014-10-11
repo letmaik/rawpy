@@ -18,8 +18,6 @@ except ImportError:
 if sys.version_info < (2, 7):
     raise NotImplementedError('Minimum supported Python version is 2.7')
 
-print('os.name:', os.name)
-print('sys.platform:', sys.platform)
 isWindows = os.name == 'nt'
 isMac = sys.platform == 'darwin'
 is64Bit = sys.maxsize > 2**32
@@ -138,8 +136,7 @@ def windows_libraw_compile():
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
-            'dir',
-            'nmake install' # build only thread-safe version ('raw'=non-thread-safe)
+            'nmake install'
             ]
     for cmd in cmds:
         print(cmd)
@@ -204,8 +201,8 @@ def mac_libraw_compile():
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
-            'dir',
-            'nmake install' # build only thread-safe version ('raw'=non-thread-safe)
+            'make',
+            'make install'
             ]
     for cmd in cmds:
         print(cmd)
