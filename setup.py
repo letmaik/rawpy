@@ -18,6 +18,8 @@ except ImportError:
 if sys.version_info < (2, 7):
     raise NotImplementedError('Minimum supported Python version is 2.7')
 
+print('os.name:', os.name)
+print('sys.platform:', sys.platform)
 isWindows = os.name == 'nt'
 isMac = sys.platform == 'darwin'
 is64Bit = sys.maxsize > 2**32
