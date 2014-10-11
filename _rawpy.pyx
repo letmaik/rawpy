@@ -216,7 +216,7 @@ cdef class RawPy:
         
     @property
     def raw_image(self):
-        """Bayer-pattern RAW image, one channel."""
+        """Bayer-pattern RAW image, one channel. Includes margin."""
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
             return None
@@ -233,8 +233,15 @@ cdef class RawPy:
             
     cpdef ushort raw_value(self, int row, int column):
         """
-        Return RAW value at given position relative to visible area of image
-        (see visible_size_raw()).        
+        Return RAW value at given position relative to the full RAW image.        
+        """
+        cdef ushort* raw = self.p.imgdata.rawdata.raw_image
+        cdef ushort raw_width = self.p.imgdata.sizes.raw_width
+        return raw[row*raw_width + column]
+            
+    cpdef ushort raw_value_visible(self, int row, int column):
+        """
+        Return RAW value at given position relative to visible area of image.        
         """
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         cdef ushort top_margin = self.p.imgdata.sizes.top_margin
@@ -271,7 +278,7 @@ cdef class RawPy:
     
     cpdef int raw_color(self, int row, int column):
         """
-        Return color index for the given RAW pixel location.
+        Return color index for the given coordinates relative to the full RAW size.
         """
         return self.p.COLOR(row, column)
     
