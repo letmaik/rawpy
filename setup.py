@@ -19,6 +19,7 @@ if sys.version_info < (2, 7):
     raise NotImplementedError('Minimum supported Python version is 2.7')
 
 isWindows = os.name == 'nt'
+isMac = sys.platform == 'darwin'
 is64Bit = sys.maxsize > 2**32
 
 # adapted from cffi's setup.py
@@ -75,28 +76,34 @@ def use_pkg_config():
 # on a configure script, or cmake or other build infrastructure. 
 # A possible work-around could be to statically link against libraw.
 
-if isWindows:
+if isWindows or isMac:
     cmake_build = 'external/LibRaw/cmake_build'
-    librawh_dir = 'external/LibRaw/libraw'
-    librawconfigh_dir = cmake_build 
-    librawlib_dir = cmake_build
+    install_dir = os.path.join(cmake_build, 'install')
     
-    include_dirs += [librawh_dir, librawconfigh_dir]
-    library_dirs += [librawlib_dir]
+    # This is a bit odd. libraw's pgkconfig file defines 'include/libraw' which
+    # means that programs should import headers as just #include "libraw.h".
+    # On the other hand, the examples include it as libraw/libraw.h.
+    include_dirs += [os.path.join(install_dir, 'include', 'libraw')]
+    library_dirs += [os.path.join(install_dir, 'lib')]
     libraries = ['raw_r']
-    extra_compile_args += ['/DWIN32']
 else:
     use_pkg_config()
+
+if isWindows:
+    extra_compile_args += ['/DWIN32']
     
 # this must be after use_pkg_config()!
 include_dirs += [numpy.get_include()]
 
-def windows_libraw_compile():
+def clone_submodules():
     # check that lensfun git submodule is cloned
     if not os.path.exists('external/LibRaw/README'):
         print('LibRaw git submodule is not cloned yet, will invoke "git submodule update --init" now')
         if os.system('git submodule update --init') != 0:
             raise Exception('git failed')
+
+def windows_libraw_compile():
+    clone_submodules()
     
     # download cmake to compile libraw
     # the cmake zip contains a cmake-3.0.1-win32-x86 folder when extracted
@@ -122,28 +129,29 @@ def windows_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
-    cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
+    cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
-                    '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3',
+                    '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
+                    '-DCMAKE_INSTALL_PREFIX:PATH=install',
             'dir',
-            'nmake raw_r' # build only thread-safe version ('raw'=non-thread-safe)
+            'nmake install' # build only thread-safe version ('raw'=non-thread-safe)
             ]
     for cmd in cmds:
         print(cmd)
         if os.system(cmd) != 0:
             sys.exit()   
     os.chdir(cwd)
-        
+            
     # bundle runtime dlls
-    dll_runtime_libs = [('raw_r.dll', 'external/LibRaw/cmake_build')]
+    dll_runtime_libs = [('raw_r.dll', os.path.join(install_dir, 'bin'))]
     
     # openmp dll
     isVS2008 = sys.version_info < (3, 3)
     isVS2010 = (3, 3) <= sys.version_info < (3, 5)
     isVS2014 = (3, 5) <= sys.version_info
     
-    libraw_configh = 'external/LibRaw/cmake_build/libraw_config.h'
+    libraw_configh = os.path.join(install_dir, 'include', 'libraw', 'libraw_config.h')
     match = '#define LIBRAW_USE_OPENMP 1'
     hasOpenMpSupport = match in open(libraw_configh).read()
     
@@ -179,15 +187,40 @@ def windows_libraw_compile():
         print('copying', src, '->', dest)
         shutil.copyfile(src, dest)
         
+def mac_libraw_compile():
+    clone_submodules()
+        
+    # configure and compile libraw
+    cwd = os.getcwd()
+    if not os.path.exists(cmake_build):
+        os.mkdir(cmake_build)
+    os.chdir(cmake_build)
+    cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-arch i386 -arch x86_64" ' +\
+                    '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
+                    '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
+                    '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
+                    '-DCMAKE_INSTALL_PREFIX:PATH=install',
+            'dir',
+            'nmake install' # build only thread-safe version ('raw'=non-thread-safe)
+            ]
+    for cmd in cmds:
+        print(cmd)
+        if os.system(cmd) != 0:
+            sys.exit()
+    os.chdir(cwd)
+        
 package_data = {}
 
 # evil hack, check cmd line for relevant commands
 # custom cmdclasses didn't work out in this case
 cmdline = ''.join(sys.argv[1:])
-if isWindows and any(s in cmdline for s in ['install', 'bdist', 'build_ext', 'nosetests']):
-    windows_libraw_compile()
-        
+needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext', 'nosetests'])
+if isWindows and needsCompile:
+    windows_libraw_compile()        
     package_data['rawpy'] = ['*.dll']
+
+elif isMac and needsCompile:
+    mac_libraw_compile()        
     
 if any(s in cmdline for s in ['clean', 'sdist']):
     # When running sdist after a previous run of bdist or build_ext
