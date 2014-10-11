@@ -75,8 +75,6 @@ def use_pkg_config():
 # on a configure script, or cmake or other build infrastructure. 
 # A possible work-around could be to statically link against libraw.
 
-include_dirs += [numpy.get_include()]
-
 if isWindows:
     cmake_build = 'external/LibRaw/cmake_build'
     librawh_dir = 'external/LibRaw/libraw'
@@ -89,6 +87,9 @@ if isWindows:
     extra_compile_args += ['/DWIN32']
 else:
     use_pkg_config()
+    
+# this must be after use_pkg_config()!
+include_dirs += [numpy.get_include()]
 
 def windows_libraw_compile():
     # check that lensfun git submodule is cloned

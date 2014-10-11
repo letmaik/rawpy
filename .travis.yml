@@ -9,6 +9,9 @@ env:
   matrix:
     - USE_LATEST_LIBRAW=true
     - USE_LATEST_LIBRAW=false
+    
+git:
+  submodules: false
 
 install:
   # latest version 0.16 has an error in the pkgconfig file
