@@ -224,8 +224,14 @@ cdef class RawPy:
         shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
         shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
         return np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+    
+    @property
+    def raw_image_visible(self):
+        """Like raw_image but without margin."""
+        s = self.sizes
+        return self.raw_image[s.top_margin:s.height,s.left_margin:s.width]        
             
-    cpdef ushort rawvalue(self, int row, int column):
+    cpdef ushort raw_value(self, int row, int column):
         """
         Return RAW value at given position relative to visible area of image
         (see visible_size_raw()).        
@@ -235,11 +241,7 @@ cdef class RawPy:
         cdef ushort left_margin = self.p.imgdata.sizes.left_margin
         cdef ushort raw_width = self.p.imgdata.sizes.raw_width
         return raw[(row+top_margin)*raw_width + column + left_margin]
-    
-    @property
-    def visible_size_raw(self):
-        return self.p.imgdata.sizes.height, self.p.imgdata.sizes.width
-    
+        
     @property
     def sizes(self):
         cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
@@ -267,26 +269,32 @@ cdef class RawPy:
         """
         return self.p.imgdata.idata.cdesc
     
-    cpdef int rawcolor(self, int row, int column):
+    cpdef int raw_color(self, int row, int column):
         """
         Return color index for the given RAW pixel location.
         """
         return self.p.COLOR(row, column)
     
     @property
-    def rawcolors(self):
+    def raw_colors(self):
         """
         An array of color indices for each pixel in the RAW image.
         Equivalent to calling rawcolor(y,x) for each pixel.
         """
-        cdef np.ndarray pattern = self.rawpattern
+        cdef np.ndarray pattern = self.raw_pattern
         cdef int n = pattern.shape[0]
         cdef int height = self.p.imgdata.sizes.raw_height
         cdef int width = self.p.imgdata.sizes.raw_width
         return np.tile(pattern, (height/n, width/n))
     
     @property
-    def rawpattern(self):
+    def raw_colors_visible(self):
+        """Like raw_colors but without margin."""
+        s = self.sizes
+        return self.raw_colors[s.top_margin:s.height,s.left_margin:s.width] 
+    
+    @property
+    def raw_pattern(self):
         """
         The smallest possible Bayer pattern of this image.
         """
