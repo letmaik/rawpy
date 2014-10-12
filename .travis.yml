@@ -39,7 +39,7 @@ install:
 
 script: python setup.py nosetests --verbosity=3 --nocapture
 
-on_success:
+after_success:
   - if [ $USE_LATEST_LIBRAW == true ]; then
       pip install travispy ;
       python -c "\
