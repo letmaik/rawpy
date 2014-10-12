@@ -140,8 +140,9 @@ def windows_libraw_compile():
             ]
     for cmd in cmds:
         print(cmd)
-        if os.system(cmd) != 0:
-            sys.exit()   
+        code = os.system(cmd)
+        if code != 0:
+            sys.exit(code)  
     os.chdir(cwd)
             
     # bundle runtime dlls
@@ -206,8 +207,9 @@ def mac_libraw_compile():
             ]
     for cmd in cmds:
         print(cmd)
-        if os.system(cmd) != 0:
-            sys.exit()
+        code = os.system(cmd)
+        if code != 0:
+            sys.exit(code)
     os.chdir(cwd)
         
 package_data = {}
