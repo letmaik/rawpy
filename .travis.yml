@@ -42,11 +42,7 @@ script: python setup.py nosetests --verbosity=3 --nocapture
 after_success:
   - if [ $USE_LATEST_LIBRAW == true ]; then
       pip install travispy ;
-      python -c "\
-        import os;\
-        from travispy import TravisPy;\
-        t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']);\
-        t.build(t.repo('neothemachine/rawpy-mac-wheels').last_build_id).restart()" ;
+      python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.repo('neothemachine/rawpy-mac-wheels').last_build_id).restart()"
     fi
 
 deploy:
