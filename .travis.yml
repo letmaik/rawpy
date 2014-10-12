@@ -34,7 +34,7 @@ install:
     else
       sudo apt-get install libraw-dev ;
     fi
-  - sudo apt-get install python-numpy libfreeimage-dev
+  - sudo apt-get install libfreeimage-dev
   - pip install -r dev-requirements.txt
 
 script: python setup.py nosetests --verbosity=3 --nocapture
@@ -42,7 +42,7 @@ script: python setup.py nosetests --verbosity=3 --nocapture
 after_success:
   - if [ $USE_LATEST_LIBRAW == true ]; then
       pip install travispy ;
-      python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.repo('neothemachine/rawpy-mac-wheels').last_build_id).restart()"
+      python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.repo('neothemachine/rawpy-mac-wheels').last_build_id).restart()" ;
     fi
 
 deploy:
