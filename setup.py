@@ -80,9 +80,6 @@ if isWindows or isMac:
     cmake_build = 'external/LibRaw/cmake_build'
     install_dir = os.path.join(cmake_build, 'install')
     
-    # This is a bit odd. libraw's pgkconfig file defines 'include/libraw' which
-    # means that programs should import headers as just #include "libraw.h".
-    # On the other hand, the examples include it as libraw/libraw.h.
     include_dirs += [os.path.join(install_dir, 'include', 'libraw')]
     library_dirs += [os.path.join(install_dir, 'lib')]
     libraries = ['raw_r']
