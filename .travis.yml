@@ -21,7 +21,6 @@ install:
   # once 0.17 is release, put this line below git clone:
   # git checkout `git describe --abbrev=0 --tags` ;
   - if [ $USE_LATEST_LIBRAW == true ]; then
-      sudo apt-get install cmake ;
       cd .. ;
       git clone $LIBRAW_GIT libraw ;
       cd libraw ;
