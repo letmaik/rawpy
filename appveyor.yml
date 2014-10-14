@@ -65,19 +65,20 @@ install:
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
   #- "%CMD_IN_ENV% pip install -r dev-requirements.txt"
+  
+  # Build the compiled extension and install wheel.
+  # -u disables output buffering which caused intermixing of lines
+  #  when the external tools were started  
+  - "%CMD_IN_ENV% python -u setup.py bdist_wheel"
+  - ps: "ls dist/*.whl | % { pip install $_ }"
 
-build: false  # Not a C# project, build stuff at the test step instead.
+build: false  # Not a C# project, build stuff at the install step instead.
 
 test_script:
-  # Build the compiled extension and run the project tests
-  # -u disables output buffering which caused intermixing of lines
-  #  when the external tools were started
-  - "%CMD_IN_ENV% python -u setup.py nosetests --verbosity=3 --nocapture"
-
-after_test:
-  # If tests are successful, create a whl package for the project.
-  - "%CMD_IN_ENV% python setup.py bdist_wheel"
-  - ps: "ls dist"
+  - mkdir tmp_for_test
+  - cd tmp_for_test
+  - nosetests --verbosity=3 --nocapture ../test
+  - cd ..
 
 # artifacts are big, and we don't really need to store them
 #artifacts:
