@@ -1,1 +1,2 @@
 include README.rst
+include def_helper.h
