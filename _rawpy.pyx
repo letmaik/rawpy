@@ -38,6 +38,8 @@ cdef extern from "libraw.h":
     
     cdef float LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
     
+    cdef int LIBRAW_XTRANS
+    
     cdef enum LibRaw_image_formats:
         LIBRAW_IMAGE_JPEG
         LIBRAW_IMAGE_BITMAP
@@ -55,7 +57,9 @@ cdef extern from "libraw.h":
         float       pre_mul[4] 
 
     ctypedef struct libraw_rawdata_t:
-        ushort *raw_image
+        ushort *raw_image # 1 component per pixel, for b/w and Bayer type sensors
+        ushort        (*color4_image)[4] # 4 components per pixel, the 4th component can be void
+        ushort        (*color3_image)[3] # 3 components per pixel, sRAW/mRAW files, RawSpeed decoding
         libraw_colordata_t          color
         
     ctypedef struct libraw_output_params_t:
@@ -193,6 +197,13 @@ ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width',
                                        'iheight', 'iwidth',
                                        'pixel_aspect', 'flip'])
 
+class RawType(Enum):
+    Flat = 0
+    """ Bayer type or black and white """
+    
+    Stack = 1
+    """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
+
 cdef class RawPy:
     cdef LibRaw* p
     cdef bint needs_reopening
@@ -213,12 +224,22 @@ cdef class RawPy:
         
     def unpack(self):
         self.handleError(self.p.unpack())
-        
+    
+    @property
+    def raw_type(self):
+        if self.p.imgdata.rawdata.raw_image != NULL:
+            return RawType.Flat
+        elif self.p.imgdata.rawdata.color4_image != NULL or self.p.imgdata.rawdata.color3_image != NULL:
+            return RawType.Stack
+        else:
+            raise NotImplementedError
+    
     @property
     def raw_image(self):
-        """Bayer-pattern RAW image, one channel. Includes margin."""
+        """View of Bayer-pattern RAW image, one channel. Includes margin."""
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
+            # TODO test for color3_image and color4_image
             return None
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
@@ -228,22 +249,31 @@ cdef class RawPy:
     @property
     def raw_image_visible(self):
         """Like raw_image but without margin."""
+        raw_image = self.raw_image
+        if raw_image is None:
+            return None
         s = self.sizes
-        return self.raw_image[s.top_margin:s.height,s.left_margin:s.width]        
+        return raw_image[s.top_margin:s.height,s.left_margin:s.width]        
             
     cpdef ushort raw_value(self, int row, int column):
         """
-        Return RAW value at given position relative to the full RAW image.        
+        Return RAW value at given position relative to the full RAW image.
+        Only usable for flat RAW images (see raw_type property).
         """
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
+        if raw == NULL:
+            raise RuntimeError('RAW image is not flat')
         cdef ushort raw_width = self.p.imgdata.sizes.raw_width
         return raw[row*raw_width + column]
             
     cpdef ushort raw_value_visible(self, int row, int column):
         """
-        Return RAW value at given position relative to visible area of image.        
+        Return RAW value at given position relative to visible area of image.
+        Only usable for flat RAW images (see raw_type property).        
         """
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
+        if raw == NULL:
+            raise RuntimeError('RAW image is not flat')
         cdef ushort top_margin = self.p.imgdata.sizes.top_margin
         cdef ushort left_margin = self.p.imgdata.sizes.left_margin
         cdef ushort raw_width = self.p.imgdata.sizes.raw_width
@@ -279,15 +309,21 @@ cdef class RawPy:
     cpdef int raw_color(self, int row, int column):
         """
         Return color index for the given coordinates relative to the full RAW size.
+        Only usable for flat RAW images (see raw_type property).
         """
+        if self.p.imgdata.rawdata.raw_image == NULL:
+            raise RuntimeError('RAW image is not flat')
         return self.p.COLOR(row, column)
     
     @property
     def raw_colors(self):
         """
         An array of color indices for each pixel in the RAW image.
-        Equivalent to calling rawcolor(y,x) for each pixel.
+        Equivalent to calling raw_color(y,x) for each pixel.
+        Only usable for flat RAW images (see raw_type property).
         """
+        if self.p.imgdata.rawdata.raw_image == NULL:
+            raise RuntimeError('RAW image is not flat')
         cdef np.ndarray pattern = self.raw_pattern
         cdef int n = pattern.shape[0]
         cdef int height = self.p.imgdata.sizes.raw_height
@@ -304,19 +340,37 @@ cdef class RawPy:
     def raw_pattern(self):
         """
         The smallest possible Bayer pattern of this image.
+        :rtype: ndarray, or None if not a flat RAW image
         """
+        if self.p.imgdata.rawdata.raw_image == NULL:
+            return None
+        cdef np.ndarray pattern
+        cdef int n
         if self.p.imgdata.idata.filters < 1000:
-            raise NotImplementedError
-        cdef int n = 4
-        cdef np.ndarray pattern = np.empty((n, n), dtype=np.uint8)
+            if self.p.imgdata.idata.filters == 0:
+                # black and white
+                n = 1
+            if self.p.imgdata.idata.filters == 1:
+                # Leaf Catchlight
+                n = 16
+            elif self.p.imgdata.idata.filters == LIBRAW_XTRANS:
+                n = 6
+            else:
+                print(self.p.imgdata.idata.filters)
+                raise NotImplementedError
+        else:
+            n = 4
+        
+        pattern = np.empty((n, n), dtype=np.uint8)
         cdef int y, x
         for y in range(n):
             for x in range(n):
                 pattern[y,x] = self.p.COLOR(y, x)
-        if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
-           np.all(pattern[:2,:2] == pattern[2:,2:]) and \
-           np.all(pattern[:2,:2] == pattern[2:,:2]):
-            pattern = pattern[:2,:2]
+        if n == 4:
+            if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
+               np.all(pattern[:2,:2] == pattern[2:,2:]) and \
+               np.all(pattern[:2,:2] == pattern[2:,:2]):
+                pattern = pattern[:2,:2]
         return pattern
        
     @property
