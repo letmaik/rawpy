@@ -108,8 +108,13 @@ def windows_libraw_compile():
     # the cmake zip contains a cmake-3.0.1-win32-x86 folder when extracted
     cmake_url = 'http://www.cmake.org/files/v3.0/cmake-3.0.1-win32-x86.zip'
     cmake = os.path.abspath('external/cmake-3.0.1-win32-x86/bin/cmake.exe')
+    # libjpeg needed for lossy DNG support (and later rawspeed support)
+    libjpeg_url = 'https://github.com/neothemachine/libjpeg-turbo-vc-binaries/releases/download/' +\
+                  '1.3.1/libjpeg-turbo-1.3.1-vc' + ('64' if is64Bit else '') + '.zip'
+    libjpeg_dir = os.path.join(external_dir, 'libjpeg-turbo')
     
-    files = [(cmake_url, 'external', cmake)]
+    files = [(cmake_url, 'external', cmake),
+             (libjpeg_url, libjpeg_dir, os.path.join(libjpeg_dir, 'lib/turbojpeg.lib'))]
     
     # libraw's rawspeed support is based on the master branch which still requires libxml2
     # the develop branch has this dependency removed
@@ -121,13 +126,7 @@ def windows_libraw_compile():
         
         # dependencies for rawspeed
         pthreads_url = 'http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip'
-        
-        libjpeg_url = 'https://github.com/neothemachine/libjpeg-turbo-vc-binaries/releases/download/' +\
-                      '1.3.1/libjpeg-turbo-1.3.1-vc' + ('64' if is64Bit else '') + '.zip'
-        libjpeg_dir = os.path.join(external_dir, 'libjpeg-turbo')
-    
-        files.extend([(pthreads_url, 'external/pthreads', 'external/pthreads/Pre-built.2'),
-                      (libjpeg_url, libjpeg_dir, os.path.join(libjpeg_dir, 'lib/turbojpeg.lib'))])
+        files.extend([(pthreads_url, 'external/pthreads', 'external/pthreads/Pre-built.2')])
     
     for url, extractdir, extractcheck in files:
         if not os.path.exists(extractcheck):
@@ -157,11 +156,11 @@ def windows_libraw_compile():
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
-                    ('-DENABLE_RAWSPEED=ON -DRAWSPEED_RPATH=../rawspeed/RawSpeed ' +\
-                    '-DPTHREADS_INCLUDE_DIR=' + os.path.join(pthreads_dir, 'include') + ' ' +\
-                    '-DPTHREADS_LIBRARY=' + os.path.join(pthreads_dir, 'lib', arch, 'pthreadVC2.lib') + ' ' +\
                     '-DJPEG_INCLUDE_DIR=' + os.path.join(libjpeg_dir, 'include') + ' ' +\
-                    '-DJPEG_LIBRARY=' + os.path.join(libjpeg_dir, 'lib', 'turbojpeg.lib') + ' '
+                    '-DJPEG_LIBRARY=' + os.path.join(libjpeg_dir, 'lib', 'turbojpeg.lib') + ' ' +\
+                    ('-DENABLE_RAWSPEED=ON -DRAWSPEED_RPATH=../rawspeed/RawSpeed ' +\
+                     '-DPTHREADS_INCLUDE_DIR=' + os.path.join(pthreads_dir, 'include') + ' ' +\
+                     '-DPTHREADS_LIBRARY=' + os.path.join(pthreads_dir, 'lib', arch, 'pthreadVC2.lib') + ' '
                      if use_rawspeed else '') +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
             'nmake install'
@@ -174,11 +173,12 @@ def windows_libraw_compile():
     os.chdir(cwd)
     
     # bundle runtime dlls
-    dll_runtime_libs = [('raw_r.dll', os.path.join(install_dir, 'bin'))]
+    dll_runtime_libs = [('raw_r.dll', os.path.join(install_dir, 'bin')),
+                        ('turbojpeg.dll', os.path.join(libjpeg_dir, 'bin'))]
     if use_rawspeed:
         dll_runtime_libs.extend([
-            ('pthreadVC2.dll', os.path.join(pthreads_dir, 'lib', arch)),
-            ('turbojpeg.dll', os.path.join(libjpeg_dir, 'bin'))])
+            ('pthreadVC2.dll', os.path.join(pthreads_dir, 'lib', arch))
+            ])
     
     # openmp dll
     isVS2008 = sys.version_info < (3, 3)
