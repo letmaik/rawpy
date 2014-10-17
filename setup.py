@@ -8,6 +8,7 @@ import os
 import shutil
 import sys
 import zipfile
+import tarfile
 try:
     # Python 3
     from urllib.request import urlretrieve
@@ -77,7 +78,8 @@ def use_pkg_config():
 # A possible work-around could be to statically link against libraw.
 
 if isWindows or isMac:
-    cmake_build = os.path.abspath('external/LibRaw/cmake_build')
+    external_dir = os.path.abspath('external')
+    cmake_build = os.path.join(external_dir, 'LibRaw', 'cmake_build')
     install_dir = os.path.join(cmake_build, 'install')
     
     include_dirs += [os.path.join(install_dir, 'include', 'libraw')]
@@ -106,14 +108,29 @@ def windows_libraw_compile():
     # the cmake zip contains a cmake-3.0.1-win32-x86 folder when extracted
     cmake_url = 'http://www.cmake.org/files/v3.0/cmake-3.0.1-win32-x86.zip'
     cmake = os.path.abspath('external/cmake-3.0.1-win32-x86/bin/cmake.exe')
+    
     files = [(cmake_url, 'external', cmake)]
+    
+    use_rawspeed = False
+    if use_rawspeed:
+        # dependencies for rawspeed
+        pthreads_url = 'http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip'
+        
+        # FIXME zipfile module can't handle .exe files 
+        libjpeg_url = 'http://ftp.ie.vim.org/mirrors/download.sourceforge.net/pub/sourceforge/l/li/' +\
+                      'libjpeg-turbo/1.3.1/libjpeg-turbo-1.3.1-vc' + ('64' if is64Bit else '') + '.exe'
+        libjpeg_dir = os.path.join(external_dir, 'libjpeg-turbo')
+    
+        files.extend([(pthreads_url, 'external/pthreads', 'external/pthreads/Pre-built.2'),
+                      (libjpeg_url, libjpeg_dir, os.path.join(libjpeg_dir, 'lib/turbojpeg.lib'))])
+    
     for url, extractdir, extractcheck in files:
         if not os.path.exists(extractcheck):
             path = 'external/' + os.path.basename(url)
             if not os.path.exists(path):
                 print('Downloading', url)
                 urlretrieve(url, path)
-        
+            
             with zipfile.ZipFile(path) as z:
                 print('Extracting', path, 'into', extractdir)
                 z.extractall(extractdir)
@@ -128,10 +145,19 @@ def windows_libraw_compile():
     os.chdir(cmake_build)
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
+    ext = lambda p: os.path.join(external_dir, p)
+    pthreads_dir = ext('pthreads/Pre-built.2')
+    arch = 'x64' if is64Bit else 'x86'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
+                    ('-DENABLE_RAWSPEED=ON -DRAWSPEED_RPATH=../rawspeed/RawSpeed ' +\
+                    '-DPTHREADS_INCLUDE_DIR=' + os.path.join(pthreads_dir, 'include') + ' ' +\
+                    '-DPTHREADS_LIBRARY=' + os.path.join(pthreads_dir, 'lib', arch, 'pthreadVC2.lib') + ' ' +\
+                    '-DJPEG_INCLUDE_DIR=' + os.path.join(libjpeg_dir, 'include') + ' ' +\
+                    '-DJPEG_LIBRARY=' + os.path.join(libjpeg_dir, 'lib', 'turbojpeg.lib') + ' '
+                     if use_rawspeed else '') +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
             'nmake install'
             ]
@@ -139,11 +165,15 @@ def windows_libraw_compile():
         print(cmd)
         code = os.system(cmd)
         if code != 0:
-            sys.exit(code)  
+            sys.exit(code)
     os.chdir(cwd)
-            
+    
     # bundle runtime dlls
     dll_runtime_libs = [('raw_r.dll', os.path.join(install_dir, 'bin'))]
+    if use_rawspeed:
+        dll_runtime_libs.extend([
+            ('pthreadVC2.dll', os.path.join(pthreads_dir, 'lib', arch)),
+            ('turbojpeg.dll', os.path.join(libjpeg_dir, 'bin'))])
     
     # openmp dll
     isVS2008 = sys.version_info < (3, 3)

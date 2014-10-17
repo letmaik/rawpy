@@ -10,3 +10,7 @@
 	path = external/LibRaw-demosaic-pack-GPL3
 	url = git://github.com/LibRaw/LibRaw-demosaic-pack-GPL3.git
 	ignore = dirty
+[submodule "external/rawspeed"]
+	path = external/rawspeed
+	url = git://github.com/klauspost/rawspeed.git
+	ignore = dirty

@@ -48,6 +48,8 @@ def findBadPixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
         # TODO this is a bit slow, try RawSpeed
         raw = rawpy.imread(path)
         if width is None:
+            if raw.raw_type != rawpy.RawType.flat:
+                raise NotImplementedError('Only Bayer-type images are currently supported')
             # we need the width later for counting
             width = raw.sizes.width
         print('imread:', time.time()-t0, 's')
