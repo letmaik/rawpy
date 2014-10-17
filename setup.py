@@ -111,14 +111,19 @@ def windows_libraw_compile():
     
     files = [(cmake_url, 'external', cmake)]
     
+    # libraw's rawspeed support is based on the master branch which still requires libxml2
+    # the develop branch has this dependency removed
+    # -> let's wait until rawspeed develop is merged into master and libraw catches up
+    # see https://github.com/LibRaw/LibRaw/issues/40
     use_rawspeed = False
     if use_rawspeed:
+        # FIXME probably have to apply rawspeed patches 
+        
         # dependencies for rawspeed
         pthreads_url = 'http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip'
         
-        # FIXME zipfile module can't handle .exe files 
-        libjpeg_url = 'http://ftp.ie.vim.org/mirrors/download.sourceforge.net/pub/sourceforge/l/li/' +\
-                      'libjpeg-turbo/1.3.1/libjpeg-turbo-1.3.1-vc' + ('64' if is64Bit else '') + '.exe'
+        libjpeg_url = 'https://github.com/neothemachine/libjpeg-turbo-vc-binaries/releases/download/' +\
+                      '1.3.1/libjpeg-turbo-1.3.1-vc' + ('64' if is64Bit else '') + '.zip'
         libjpeg_dir = os.path.join(external_dir, 'libjpeg-turbo')
     
         files.extend([(pthreads_url, 'external/pthreads', 'external/pthreads/Pre-built.2'),
