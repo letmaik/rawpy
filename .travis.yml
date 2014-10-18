@@ -47,7 +47,7 @@ script:
 after_success:
   - if [ $USE_LATEST_LIBRAW == true ]; then
       pip install travispy ;
-      python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.branch('mac-wheels', 'neothemachine/rawpy').id).restart()" ;
+      travis_retry python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.branch('mac-wheels', 'neothemachine/rawpy').id).restart()" ;
     fi
 
 deploy:
