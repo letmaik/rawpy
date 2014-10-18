@@ -48,10 +48,10 @@ Find bad pixels using multiple RAW files and repair them:
 	bad_pixels = rawpy.enhance.findBadPixels(paths)
 	
 	for path in paths:
-		raw = rawpy.imread(path)
-		rawpy.enhance.repairBadPixels(raw, bad_pixels, method='median')
-		rgb = raw.postprocess()
-		imageio.imsave(path + '.tiff', rgb)
+	    raw = rawpy.imread(path)
+	    rawpy.enhance.repairBadPixels(raw, bad_pixels, method='median')
+	    rgb = raw.postprocess()
+	    imageio.imsave(path + '.tiff', rgb)
 
 Installation on Linux
 ---------------------
