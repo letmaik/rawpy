@@ -15,8 +15,6 @@ except ImportError:
 
 import rawpy
 
-# TODO handle non-Bayer images, add test image
-
 def _isCandidate(rawarr, med, find_hot, find_dead, thresh):
     if find_hot and find_dead:
         np.subtract(rawarr, med, out=med)

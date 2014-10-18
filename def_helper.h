@@ -1,4 +1,12 @@
 #include "libraw_version.h"
+#include "libraw_const.h"
+
+// xtrans supported since 0.16.0
+#ifndef LIBRAW_XTRANS
+#define LIBRAW_XTRANS 9
+#endif
+
+// the following define's are prepended with _ as they are either new or have different semantics
 
 // libraw_config.h only exists since 0.15.4
 // hence all values defined below are irrelevant if < 0.15.4

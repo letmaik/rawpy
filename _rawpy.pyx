@@ -17,6 +17,8 @@ import warnings
 from enum import Enum
 
 cdef extern from "def_helper.h":
+    cdef int LIBRAW_XTRANS
+    
     cdef int _LIBRAW_HAS_FLAGS
     # the following flags are only usable if _LIBRAW_HAS_FLAGS is 1
     # (this is the case for libraw >= 0.15.4)
@@ -37,9 +39,7 @@ cdef extern from "libraw.h":
     cdef int LIBRAW_PATCH_VERSION
     
     cdef float LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
-    
-    cdef int LIBRAW_XTRANS
-    
+        
     cdef enum LibRaw_image_formats:
         LIBRAW_IMAGE_JPEG
         LIBRAW_IMAGE_BITMAP
@@ -58,8 +58,11 @@ cdef extern from "libraw.h":
 
     ctypedef struct libraw_rawdata_t:
         ushort *raw_image # 1 component per pixel, for b/w and Bayer type sensors
-        ushort        (*color4_image)[4] # 4 components per pixel, the 4th component can be void
-        ushort        (*color3_image)[3] # 3 components per pixel, sRAW/mRAW files, RawSpeed decoding
+        # color4_image and color3_image supported since 0.15
+        # There is no easy way to include these conditionally, so for now (as we support 0.14)
+        # we don't support them.
+        #ushort        (*color4_image)[4] # 4 components per pixel, the 4th component can be void
+        #ushort        (*color3_image)[3] # 3 components per pixel, sRAW/mRAW files, RawSpeed decoding
         libraw_colordata_t          color
         
     ctypedef struct libraw_output_params_t:
@@ -229,18 +232,15 @@ cdef class RawPy:
     def raw_type(self):
         if self.p.imgdata.rawdata.raw_image != NULL:
             return RawType.Flat
-        elif self.p.imgdata.rawdata.color4_image != NULL or self.p.imgdata.rawdata.color3_image != NULL:
-            return RawType.Stack
         else:
-            raise NotImplementedError
+            return RawType.Stack
     
     @property
     def raw_image(self):
         """View of Bayer-pattern RAW image, one channel. Includes margin."""
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
-            # TODO test for color3_image and color4_image
-            return None
+            raise NotImplementedError('3 or 4 channel RAW images currently not supported')
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
         shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
@@ -356,8 +356,7 @@ cdef class RawPy:
             elif self.p.imgdata.idata.filters == LIBRAW_XTRANS:
                 n = 6
             else:
-                print(self.p.imgdata.idata.filters)
-                raise NotImplementedError
+                raise NotImplementedError('filters: {}'.format(self.p.imgdata.idata.filters))
         else:
             n = 4
         
