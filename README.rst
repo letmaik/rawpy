@@ -3,20 +3,55 @@ rawpy
 
 .. image:: https://travis-ci.org/neothemachine/rawpy.svg?branch=master
     :target: https://travis-ci.org/neothemachine/rawpy
-    :alt: Build Status
+    :alt: Linux Build Status
+
+.. image:: https://travis-ci.org/neothemachine/rawpy.svg?branch=mac-wheels
+    :target: https://travis-ci.org/neothemachine/rawpy
+    :alt: Mac OS X Build Status
     
 .. image:: https://ci.appveyor.com/api/projects/status/f8ibd8mejxs9xq5w/branch/master
     :target: https://ci.appveyor.com/project/neothemachine/rawpy/branch/master
-    :alt: Build Status
+    :alt: Windows Build Status
 
 rawpy is an easy-to-use Python wrapper for the LibRaw_ library.
-
-NOTE: This is a work-in-progress and not usable yet!
+It also contains some extra functionality for finding and repairing hot/dead pixels.
 
 Sample code
 -----------
 
-TODO
+Load a RAW file and save the postprocessed image using default parameters:
+
+.. code-block:: python
+
+	import rawpy
+	import imageio
+	
+	path = 'image.nef'
+	raw = rawpy.imread(path)
+	rgb = raw.postprocess()
+	imageio.imsave('default.tiff', rgb)
+	
+Save as 16-bit linear image:
+
+.. code-block:: python
+	
+	rgb = raw.postprocess(gamma=(1,1), no_auto_bright=True, output_bps=16)
+	imageio.imsave('linear.tiff', rgb)
+
+Find bad pixels using multiple RAW files and repair them:
+
+.. code-block:: python
+
+	import rawpy.enhance
+	
+	paths = ['image1.nef', 'image2.nef', 'image3.nef']
+	bad_pixels = rawpy.enhance.findBadPixels(paths)
+	
+	for path in paths:
+		raw = rawpy.imread(path)
+		rawpy.enhance.repairBadPixels(raw, bad_pixels, method='median')
+		rgb = raw.postprocess()
+		imageio.imsave(path + '.tiff', rgb)
 
 Installation on Linux
 ---------------------
@@ -51,8 +86,8 @@ when trying to use rawpy, then do the following:
 The LibRaw library is installed in /usr/local/lib and apparently this folder is not searched
 for libraries by default in some Linux distributions.
 
-Installation on Windows
------------------------
+Installation on Windows and Mac OS X
+------------------------------------
 
 Binaries are provided for Python 2.7, 3.3 and 3.4 for both 32 and 64 bit.
 These can be installed with a simple ``pip install --use-wheel rawpy`` 
