@@ -8,7 +8,7 @@ import os
 import shutil
 import sys
 import zipfile
-import tarfile
+import re
 try:
     # Python 3
     from urllib.request import urlretrieve
@@ -95,11 +95,25 @@ if isWindows:
 include_dirs += [numpy.get_include()]
 
 def clone_submodules():
-    # check that lensfun git submodule is cloned
     if not os.path.exists('external/LibRaw/README'):
         print('LibRaw git submodule is not cloned yet, will invoke "git submodule update --init" now')
         if os.system('git submodule update --init') != 0:
             raise Exception('git failed')
+        
+def patch_cmakelists():
+    """Makes 'raw' target OPTIONAL during installation."""
+    cmakelists_path = os.path.join(external_dir, 'LibRaw', 'CMakeLists.txt')
+    def add_optional(m):
+        if 'OPTIONAL' in m.group(1):
+            return m.group(0)
+        else:
+            return 'INSTALL(TARGETS raw OPTIONAL {})'.format(m.group(1))
+    with open(cmakelists_path, 'r') as fp:
+        cmakelists = fp.read()
+        cmakelists_patched = re.sub(r'INSTALL\(TARGETS raw(.*?)\)', add_optional, cmakelists, count=1, flags=re.DOTALL)
+    if cmakelists != cmakelists_patched:
+        with open(cmakelists_path, 'w') as fp:
+            fp.write(cmakelists_patched)
 
 def windows_libraw_compile():
     clone_submodules()
@@ -147,6 +161,14 @@ def windows_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
+    
+    # We only want to build and install the raw_r target (to make builds faster).
+    # To do that we set CMAKE_SKIP_INSTALL_ALL_DEPENDENCY=1 so that 'install' doesn't depend
+    # on raw and raw_r targets.
+    # For the install target to finish successfully, we need to set the raw target to optional,
+    # which unfortunately can only be done in the CMakeLists.txt file. Therefore we patch it.
+    patch_cmakelists()
+    
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
     ext = lambda p: os.path.join(external_dir, p)
@@ -162,7 +184,9 @@ def windows_libraw_compile():
                      '-DPTHREADS_INCLUDE_DIR=' + os.path.join(pthreads_dir, 'include') + ' ' +\
                      '-DPTHREADS_LIBRARY=' + os.path.join(pthreads_dir, 'lib', arch, 'pthreadVC2.lib') + ' '
                      if use_rawspeed else '') +\
+                    '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
+            'nmake raw_r',
             'nmake install'
             ]
     for cmd in cmds:
@@ -220,7 +244,7 @@ def windows_libraw_compile():
         dest = 'rawpy/' + filename
         print('copying', src, '->', dest)
         shutil.copyfile(src, dest)
-        
+ 
 def mac_libraw_compile():
     clone_submodules()
         
@@ -229,13 +253,17 @@ def mac_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
+    
+    patch_cmakelists()
+    
     install_name_dir = os.path.join(install_dir, 'lib')
     cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
+                    '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install -DCMAKE_MACOSX_RPATH=0 -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
-            'make',
+            'make raw_r',
             'make install'
             ]
     for cmd in cmds:
