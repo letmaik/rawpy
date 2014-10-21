@@ -19,6 +19,19 @@ except ImportError:
 if sys.version_info < (2, 7):
     raise NotImplementedError('Minimum supported Python version is 2.7')
 
+# As rawpy is distributed under the MIT license, it cannot use or distribute
+# GPL'd code. This is relevant for the Windows and Mac binary wheels which
+# include a self-compiled version of LibRaw that is dynamically linked against.
+# Under Linux, the source distribution dynamically links against whatever
+# variant of LibRaw is installed on the users system. Common Linux distributions
+# such as Ubuntu don't compile LibRaw with the GPL'd code parts, therefore
+# it is safe to assume that the standard installed version is LGPL.
+# If a user compiles his own version of LibRaw including the GPL'd code
+# (either by flipping the switch below for Mac or Windows, or by manually
+# compiling under Linux) then the software produced by the user would have to
+# be released under GPL as well.
+buildGPLCode = False
+
 isWindows = os.name == 'nt'
 isMac = sys.platform == 'darwin'
 is64Bit = sys.maxsize > 2**32
@@ -176,8 +189,9 @@ def windows_libraw_compile():
     arch = 'x64' if is64Bit else 'x86'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
-                    '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
-                    '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
+                    ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
+                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
+                     if buildGPLCode else '') +\
                     '-DJPEG_INCLUDE_DIR=' + os.path.join(libjpeg_dir, 'include') + ' ' +\
                     '-DJPEG_LIBRARY=' + os.path.join(libjpeg_dir, 'lib', 'turbojpeg.lib') + ' ' +\
                     ('-DENABLE_RAWSPEED=ON -DRAWSPEED_RPATH=../rawspeed/RawSpeed ' +\
@@ -259,8 +273,9 @@ def mac_libraw_compile():
     install_name_dir = os.path.join(install_dir, 'lib')
     cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ' +\
-                    '-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
-                    '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 ' +\
+                    ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
+                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
+                     if buildGPLCode else '') +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install -DCMAKE_MACOSX_RPATH=0 -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
             'make raw_r',
