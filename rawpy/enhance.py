@@ -46,7 +46,7 @@ def findBadPixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
         # TODO this is a bit slow, try RawSpeed
         raw = rawpy.imread(path)
         if width is None:
-            if raw.raw_type != rawpy.RawType.flat:
+            if raw.raw_type != rawpy.RawType.Flat:
                 raise NotImplementedError('Only Bayer-type images are currently supported')
             # we need the width later for counting
             width = raw.sizes.width
@@ -133,6 +133,7 @@ def _findBadPixelCandidatesGeneric(raw, isCandidateFn):
 
 def _findBadPixelCandidatesBayer2x2(raw, isCandidateFn):
     assert raw.raw_pattern.shape[0] == 2
+    _checkMarginsForOptimizedAlgorithm(raw.sizes)
     
     # optimized code path for common 2x2 pattern
     # create a view for each color, do 3x3 median on it, find bad pixels, correct coordinates
@@ -148,14 +149,6 @@ def _findBadPixelCandidatesBayer2x2(raw, isCandidateFn):
         kernel = np.ones((r,r))
         median_ = median(selem=kernel)
         
-    s = raw.sizes
-    # the following assertions are probably always true
-    # if not, then we go this road once someone complains..
-    assert s.top_margin % 2 == 0, 'top_margin must be divisible by 2, is: {}'.format(s.top_margin)
-    assert s.left_margin % 2 == 0, 'left_margin must be divisible by 2, is: {}'.format(s.left_margin)            
-    assert s.top_margin*2 + s.height == s.raw_height, 'vertical margins are not symmetric'
-    assert s.left_margin*2 + s.width == s.raw_width, 'horizontal margins are not symmetric'            
-    
     coords = []
     
     # we have 4 colors (two greens are always seen as two colors)
@@ -188,13 +181,22 @@ def _findBadPixelCandidatesBayer2x2(raw, isCandidateFn):
 def repairBadPixels(raw, coords, method='median'):
     print('repairing', len(coords), 'bad pixels')
     
-    # TODO this can be done way more efficiently
-    #  -> only interpolate at bad pixels instead of whole image
-    #  -> cython? would likely involve for-loops
-    #  see libraw/internal/dcraw_fileio.cpp
+    # For small numbers of bad pixels this could be done more efficiently
+    # by only interpolating the bad pixels instead of the whole image.
     
     t0 = time.time()
+   
+    if raw.raw_pattern.shape[0] == 2:
+        _repairBadPixelsBayer2x2(raw, coords, method)
+    else:
+        _repairBadPixelsGeneric(raw, coords, method)
     
+    print('badpixel repair:', time.time()-t0, 's')  
+    
+    # TODO check how many detected bad pixels are false positives
+    #raw.raw_image_visible[coords[:,0], coords[:,1]] = 0
+
+def _repairBadPixelsGeneric(raw, coords, method='median'):
     color_masks = _colormasks(raw)
         
     rawimg = raw.raw_image_visible
@@ -220,12 +222,59 @@ def repairBadPixels(raw, coords, method='median'):
         else:
             raise ValueError
         
-        rawimg[mask] = smooth[mask]
+        rawimg[mask] = smooth[mask]   
     
-    print('badpixel repair:', time.time()-t0, 's')  
+def _repairBadPixelsBayer2x2(raw, coords, method='median'):
+    assert raw.raw_pattern.shape[0] == 2
+    if method != 'median':
+        raise NotImplementedError
+    _checkMarginsForOptimizedAlgorithm(raw.sizes)
     
-    # TODO check how many detected bad pixels are false positives
-    #raw.raw_image_visible[coords[:,0], coords[:,1]] = 0
+    r = 3    
+    rawimg = raw.raw_image_visible
+    
+    if cv2 is not None:
+        median_ = partial(cv2.medianBlur, ksize=r)
+    else:
+        kernel = np.ones((r,r))
+        median_ = median(selem=kernel)
+            
+    # we have 4 colors (two greens are always seen as two colors)
+    for offset_y in [0,1]:
+        for offset_x in [0,1]:
+            rawslice = rawimg[offset_y::2,offset_x::2]
+
+            t1 = time.time()
+            smooth = median_(rawslice)
+            print('median:', time.time()-t1, 's')
+            
+            # determine which bad pixels belong to this color slice
+            sliced_y = coords[:,0]-offset_y
+            sliced_y %= 2
+            sliced_x = coords[:,1]-offset_x
+            sliced_x %= 2            
+            matches_slice = sliced_y == 0
+            matches_slice &= sliced_x == 0
+                        
+            coords_color = coords[matches_slice]
+            
+            # convert the full-size coordinates to the color slice coordinates
+            coords_color[:,0] -= offset_y
+            coords_color[:,1] -= offset_x
+            coords_color /= 2            
+            
+            mask = np.zeros_like(rawslice, dtype=bool)
+            mask[coords_color[:,0],coords_color[:,1]] = True
+
+            rawslice[mask] = smooth[mask]
+
+def _checkMarginsForOptimizedAlgorithm(s):
+    # the following assertions are probably always true
+    # if not, then we go this road once someone complains..
+    assert s.top_margin % 2 == 0, 'top_margin must be divisible by 2, is: {}'.format(s.top_margin)
+    assert s.left_margin % 2 == 0, 'left_margin must be divisible by 2, is: {}'.format(s.left_margin)            
+    assert s.top_margin*2 + s.height == s.raw_height, 'vertical margins are not symmetric'
+    assert s.left_margin*2 + s.width == s.raw_width, 'horizontal margins are not symmetric' 
 
 def _colormasks(raw):
     colors = raw.raw_colors_visible
@@ -268,7 +317,7 @@ def saveDCRawBadPixels(path, bad_pixels):
 if __name__ == '__main__':
     prefix = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'test')
     testfiles = ['iss030e122639.NEF', 'iss030e122659.NEF', 'iss030e122679.NEF',
-                 'iss030e122699.NEF', 'iss030e122719.NEF']
+                 'iss030e122699.NEF', 'iss030e122719.NEF'][0:1]
     paths = [os.path.join(prefix, f) for f in testfiles]
     coords = findBadPixels(paths)
         
