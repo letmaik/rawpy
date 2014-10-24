@@ -112,6 +112,12 @@ def clone_submodules():
         print('LibRaw git submodule is not cloned yet, will invoke "git submodule update --init" now')
         if os.system('git submodule update --init') != 0:
             raise Exception('git failed')
+    
+    # copy cmake files into LibRaw root directory
+    if not os.path.exists('external/LibRaw/CMakeLists.txt'):
+        print('copying CMake scripts from LibRaw-cmake repository')
+        shutil.copy('external/LibRaw-cmake/CMakeLists.txt', 'external/LibRaw/CMakeLists.txt')
+        shutil.copytree('external/LibRaw-cmake/cmake', 'external/LibRaw/cmake')
         
 def patch_cmakelists():
     """Makes 'raw' target OPTIONAL during installation."""
