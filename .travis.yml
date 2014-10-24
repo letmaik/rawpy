@@ -6,6 +6,7 @@ virtualenv:
 env:
   global:
     - LIBRAW_GIT="git://github.com/LibRaw/LibRaw.git"
+    - LIBRAW_CMAKE_GIT="git://github.com/LibRaw/LibRaw-cmake.git"
     # GitHub Access Token to trigger rawpy-mac-wheels builds
     - secure: "LQky6eiSVVGr8o4qaB6B7rM5U87KTAFUiHQdfPlys0VnQC774rP5rc6kssXN8e8HOhYjZ9P8zqypCZcD7HPG3Y8JF6ef/+NrdLPawc41lxNKMojg6k/NIBkK3IUnrr/7A9hfcO89P3iBKZpTDcJesigQ8dVKhVGOMqPx7ZDdD2Y="
   matrix:
@@ -22,8 +23,10 @@ install:
   # git checkout `git describe --abbrev=0 --tags` ;
   - if [ $USE_LATEST_LIBRAW == true ]; then
       cd .. ;
-      git clone $LIBRAW_GIT libraw ;
-      cd libraw ;
+      git clone $LIBRAW_GIT ;
+      git clone $LIBRAW_CMAKE_GIT ;
+      cp -R LibRaw-cmake/* LibRaw ;
+      cd LibRaw ;
       cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ;
       make ;
       sudo make install ;
