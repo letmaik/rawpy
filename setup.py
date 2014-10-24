@@ -345,14 +345,25 @@ extensions = [Extension("rawpy._rawpy",
 if use_cython:
     extensions = cythonize(extensions)
 
+# version handling from https://stackoverflow.com/a/7071358
+VERSIONFILE="rawpy/_version.py"
+verstrline = open(VERSIONFILE, "rt").read()
+VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+mo = re.search(VSRE, verstrline, re.M)
+if mo:
+    verstr = mo.group(1)
+else:
+    raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
+
 setup(
       name = 'rawpy',
-      version = '0.1.0',
+      version = verstr,
       description = 'Python wrapper for the LibRaw library',
       long_description = open('README.rst').read(),
       author = 'Maik Riechert',
       author_email = 'maik.riechert@arcor.de',
       url = 'https://github.com/neothemachine/rawpy',
+      license = 'MIT',
       classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
