@@ -14,3 +14,6 @@
 	path = external/rawspeed
 	url = git://github.com/klauspost/rawspeed.git
 	ignore = dirty
+[submodule "external/LibRaw-cmake"]
+	path = external/LibRaw-cmake
+	url = git://github.com/LibRaw/LibRaw-cmake
