@@ -363,7 +363,6 @@ setup(
       author = 'Maik Riechert',
       author_email = 'maik.riechert@arcor.de',
       url = 'https://github.com/neothemachine/rawpy',
-      license = 'MIT',
       classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
