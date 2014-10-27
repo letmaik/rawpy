@@ -15,7 +15,7 @@ except ImportError:
 
 import rawpy
 
-def _isCandidate(rawarr, med, find_hot, find_dead, thresh):
+def _is_candidate(rawarr, med, find_hot, find_dead, thresh):
     if find_hot and find_dead:
         np.subtract(rawarr, med, out=med)
         np.abs(med, out=med)
@@ -28,7 +28,7 @@ def _isCandidate(rawarr, med, find_hot, find_dead, thresh):
         candidates = rawarr < med
     return candidates
 
-def findBadPixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
+def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     """
     
     :param paths: paths to RAW images shot with the same camera
@@ -55,8 +55,8 @@ def findBadPixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
         thresh = max(np.max(raw.raw_image_visible)//150, 20)
         print('threshold:', thresh)
         
-        isCandidate = partial(_isCandidate, find_hot=find_hot, find_dead=find_dead, thresh=thresh)        
-        coords.extend(_findBadPixelCandidates(raw, isCandidate))
+        isCandidate = partial(_is_candidate, find_hot=find_hot, find_dead=find_dead, thresh=thresh)        
+        coords.extend(_find_bad_pixel_candidates(raw, isCandidate))
     
     coords = np.vstack(coords)
     
@@ -88,19 +88,19 @@ def findBadPixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     
     return bad_coords
 
-def _findBadPixelCandidates(raw, isCandidateFn):
+def _find_bad_pixel_candidates(raw, isCandidateFn):
     t0 = time.time()
     
     if raw.raw_pattern.shape[0] == 2:
-        coords = _findBadPixelCandidatesBayer2x2(raw, isCandidateFn)
+        coords = _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn)
     else:
-        coords = _findBadPixelCandidatesGeneric(raw, isCandidateFn)
+        coords = _find_bad_pixel_candidates_generic(raw, isCandidateFn)
             
     print('badpixel candidates:', time.time()-t0, 's')
     
     return coords
 
-def _findBadPixelCandidatesGeneric(raw, isCandidateFn):
+def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
     color_masks = _colormasks(raw)   
     rawimg = raw.raw_image_visible    
     coords = []
@@ -131,9 +131,9 @@ def _findBadPixelCandidatesGeneric(raw, isCandidateFn):
         
     return coords
 
-def _findBadPixelCandidatesBayer2x2(raw, isCandidateFn):
+def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
     assert raw.raw_pattern.shape[0] == 2
-    _checkMarginsForOptimizedAlgorithm(raw.sizes)
+    _check_margins_for_optimized_algorithm(raw.sizes)
     
     # optimized code path for common 2x2 pattern
     # create a view for each color, do 3x3 median on it, find bad pixels, correct coordinates
@@ -178,7 +178,7 @@ def _findBadPixelCandidatesBayer2x2(raw, isCandidateFn):
             
     return coords
 
-def repairBadPixels(raw, coords, method='median'):
+def repair_bad_pixels(raw, coords, method='median'):
     print('repairing', len(coords), 'bad pixels')
     
     # For small numbers of bad pixels this could be done more efficiently
@@ -187,16 +187,16 @@ def repairBadPixels(raw, coords, method='median'):
     t0 = time.time()
    
     if raw.raw_pattern.shape[0] == 2:
-        _repairBadPixelsBayer2x2(raw, coords, method)
+        _repair_bad_pixels_bayer2x2(raw, coords, method)
     else:
-        _repairBadPixelsGeneric(raw, coords, method)
+        _repair_bad_pixels_generic(raw, coords, method)
     
     print('badpixel repair:', time.time()-t0, 's')  
     
     # TODO check how many detected bad pixels are false positives
     #raw.raw_image_visible[coords[:,0], coords[:,1]] = 0
 
-def _repairBadPixelsGeneric(raw, coords, method='median'):
+def _repair_bad_pixels_generic(raw, coords, method='median'):
     color_masks = _colormasks(raw)
         
     rawimg = raw.raw_image_visible
@@ -224,11 +224,11 @@ def _repairBadPixelsGeneric(raw, coords, method='median'):
         
         rawimg[mask] = smooth[mask]   
     
-def _repairBadPixelsBayer2x2(raw, coords, method='median'):
+def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
     assert raw.raw_pattern.shape[0] == 2
     if method != 'median':
         raise NotImplementedError
-    _checkMarginsForOptimizedAlgorithm(raw.sizes)
+    _check_margins_for_optimized_algorithm(raw.sizes)
     
     r = 3    
     rawimg = raw.raw_image_visible
@@ -268,7 +268,7 @@ def _repairBadPixelsBayer2x2(raw, coords, method='median'):
 
             rawslice[mask] = smooth[mask]
 
-def _checkMarginsForOptimizedAlgorithm(s):
+def _check_margins_for_optimized_algorithm(s):
     # the following assertions are probably always true
     # if not, then we go this road once someone complains..
     assert s.top_margin % 2 == 0, 'top_margin must be divisible by 2, is: {}'.format(s.top_margin)
@@ -301,7 +301,7 @@ def _groupcount(values):
     res[:,1] = cnt
     return res
 
-def saveDCRawBadPixels(path, bad_pixels):
+def save_dcraw_bad_pixels(path, bad_pixels):
     """
     
     :param path:
@@ -319,7 +319,7 @@ if __name__ == '__main__':
     testfiles = ['iss030e122639.NEF', 'iss030e122659.NEF', 'iss030e122679.NEF',
                  'iss030e122699.NEF', 'iss030e122719.NEF'][0:1]
     paths = [os.path.join(prefix, f) for f in testfiles]
-    coords = findBadPixels(paths)
+    coords = find_bad_pixels(paths)
         
     import imageio
     raw = rawpy.imread(paths[0])
@@ -333,7 +333,7 @@ if __name__ == '__main__':
     # mean of the surrounding pixels.
     t0 = time.time()
     bad_pixels_path = os.path.abspath('bad_pixels.txt')
-    saveDCRawBadPixels(bad_pixels_path, coords)
+    save_dcraw_bad_pixels(bad_pixels_path, coords)
     rgb = raw.postprocess(bad_pixels_path=bad_pixels_path)
     print('badpixel dcraw repair+postprocessing:', time.time()-t0, 's')
     imageio.imsave('test_hotpixels_repaired_dcraw.png', rgb)
@@ -342,7 +342,7 @@ if __name__ == '__main__':
     # With method='median' we still consider each bad pixel separately
     # but the median prevents neighboring bad pixels to have an influence.
     t0 = time.time()
-    repairBadPixels(raw, coords, method='median')
+    repair_bad_pixels(raw, coords, method='median')
     rgb = raw.postprocess()
     print('badpixel repair+postprocessing:', time.time()-t0, 's')
     imageio.imsave('test_hotpixels_repaired.png', rgb)

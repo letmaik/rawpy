@@ -218,7 +218,7 @@ cdef class RawPy:
         del self.p
     
     def open_file(self, path):
-        self.handleError(self.p.open_file(_chars(path)))
+        self.handle_error(self.p.open_file(_chars(path)))
         if libraw_version < (0,15):
             # libraw < 0.15 requires calling open_file & unpack for multiple calls to dcraw_process
             # with different parameters, therefore we remember the fact that this is freshly opened
@@ -226,7 +226,7 @@ cdef class RawPy:
             self.needs_reopening = False
         
     def unpack(self):
-        self.handleError(self.p.unpack())
+        self.handle_Error(self.p.unpack())
     
     @property
     def raw_type(self):
@@ -403,7 +403,7 @@ cdef class RawPy:
         This function should be called only if your code do postprocessing stage.
         If you use LibRaw's postprocessing calls (see below) you don't need to call raw2image().
         """
-        self.handleError(self.p.raw2image())
+        self.handle_error(self.p.raw2image())
     
     @property
     def image(self):
@@ -422,13 +422,13 @@ cdef class RawPy:
             self.needs_reopening = True
         if params is None:
             params = Params(**kw)
-        self.applyParams(params)
-        self.handleError(self.p.dcraw_process())
+        self.apply_params(params)
+        self.handle_error(self.p.dcraw_process())
         
     def dcraw_make_mem_image(self):
         cdef int errcode = 0
         cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
-        self.handleError(errcode)
+        self.handle_error(errcode)
         if img.type != LIBRAW_IMAGE_BITMAP:
             raise NotImplementedError
         wrapped = processed_image_wrapper()
@@ -443,7 +443,7 @@ cdef class RawPy:
         self.dcraw_process(params, **kw)
         return self.dcraw_make_mem_image()
         
-    cdef applyParams(self, params):
+    cdef apply_params(self, params):
         if params is None:
             return
         cdef libraw_output_params_t* p = &self.p.imgdata.params
@@ -471,7 +471,7 @@ cdef class RawPy:
         p.gamm[0] = params.gamm[0]
         p.gamm[1] = params.gamm[1]
     
-    cdef handleError(self, int code):
+    cdef handle_error(self, int code):
         if code > 0:
             raise OSError((code, os.strerror(code))) 
         elif code < 0:
