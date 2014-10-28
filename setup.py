@@ -98,8 +98,21 @@ if isWindows or isMac:
     include_dirs += [os.path.join(install_dir, 'include', 'libraw')]
     library_dirs += [os.path.join(install_dir, 'lib')]
     libraries = ['raw_r']
+    
+    # for Windows and Mac we use cmake, so libraw_config.h will always exist
+    libraw_config_found = True
 else:
     use_pkg_config()
+    
+    # check if libraw_config.h exists
+    # this header is only installed when using cmake
+    libraw_config_found = False
+    for include_dir in include_dirs:
+        if 'libraw_config.h' in os.listdir(include_dir):
+            libraw_config_found = True
+            break
+
+define_macros = [('_HAS_LIBRAW_CONFIG_H', '1' if libraw_config_found else '0')]
 
 if isWindows:
     extra_compile_args += ['/DWIN32']
@@ -338,6 +351,7 @@ extensions = [Extension("rawpy._rawpy",
               sources=[source_path],
               libraries=libraries,
               library_dirs=library_dirs,
+              define_macros=define_macros,
               extra_compile_args=extra_compile_args,
               extra_link_args=extra_link_args,
              )]

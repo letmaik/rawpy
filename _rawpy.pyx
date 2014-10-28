@@ -21,7 +21,7 @@ cdef extern from "def_helper.h":
     
     cdef int _LIBRAW_HAS_FLAGS
     # the following flags are only usable if _LIBRAW_HAS_FLAGS is 1
-    # (this is the case for libraw >= 0.15.4)
+    # (this is the case for libraw >= 0.15.4 and only when cmake was used)
     cdef int _LIBRAW_USE_DNGLOSSYCODEC
     cdef int _LIBRAW_USE_OPENMP
     cdef int _LIBRAW_USE_LCMS
