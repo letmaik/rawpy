@@ -8,8 +8,9 @@
 
 // the following define's are prepended with _ as they are either new or have different semantics
 
-// libraw_config.h only exists since 0.15.4
-// hence all values defined below are irrelevant if < 0.15.4
+// libraw_config.h only exists since 0.15.4, and only in cmake builds
+// hence all values defined below are irrelevant if < 0.15.4 or cmake wasn't used
+// FIXME how to check if libraw_config.h actually exists (cmake yes/no)
 #if LIBRAW_VERSION >= LIBRAW_MAKE_VERSION(0,15,4)
 #include "libraw_config.h"
 #define _LIBRAW_HAS_FLAGS 1

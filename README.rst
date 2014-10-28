@@ -69,6 +69,8 @@ Or install the latest developer version from the SVN repository:
 .. code-block:: sh
 
     git clone git://github.com/LibRaw/LibRaw.git libraw
+    git clone git://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
+    cp -R libraw-cmake/* libraw ;
     cd libraw
     cmake .
     sudo make install
