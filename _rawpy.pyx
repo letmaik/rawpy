@@ -226,7 +226,7 @@ cdef class RawPy:
             self.needs_reopening = False
         
     def unpack(self):
-        self.handle_Error(self.p.unpack())
+        self.handle_error(self.p.unpack())
     
     @property
     def raw_type(self):
