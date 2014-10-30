@@ -228,32 +228,32 @@ cdef class RawPy:
     def unpack(self):
         self.handle_error(self.p.unpack())
     
-    @property
-    def raw_type(self):
-        if self.p.imgdata.rawdata.raw_image != NULL:
-            return RawType.Flat
-        else:
-            return RawType.Stack
+    property raw_type:
+        def __get__(self):
+            if self.p.imgdata.rawdata.raw_image != NULL:
+                return RawType.Flat
+            else:
+                return RawType.Stack
     
-    @property
-    def raw_image(self):
+    property raw_image:
         """View of Bayer-pattern RAW image, one channel. Includes margin."""
-        cdef ushort* raw = self.p.imgdata.rawdata.raw_image
-        if raw == NULL:
-            raise NotImplementedError('3 or 4 channel RAW images currently not supported')
-        cdef np.npy_intp shape[2]
-        shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
-        shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
-        return np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+        def __get__(self):
+            cdef ushort* raw = self.p.imgdata.rawdata.raw_image
+            if raw == NULL:
+                raise NotImplementedError('3 or 4 channel RAW images currently not supported')
+            cdef np.npy_intp shape[2]
+            shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+            shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+            return np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
     
-    @property
-    def raw_image_visible(self):
+    property raw_image_visible:
         """Like raw_image but without margin."""
-        raw_image = self.raw_image
-        if raw_image is None:
-            return None
-        s = self.sizes
-        return raw_image[s.top_margin:s.height,s.left_margin:s.width]        
+        def __get__(self):
+            raw_image = self.raw_image
+            if raw_image is None:
+                return None
+            s = self.sizes
+            return raw_image[s.top_margin:s.height,s.left_margin:s.width]        
             
     cpdef ushort raw_value(self, int row, int column):
         """
@@ -279,32 +279,32 @@ cdef class RawPy:
         cdef ushort raw_width = self.p.imgdata.sizes.raw_width
         return raw[(row+top_margin)*raw_width + column + left_margin]
         
-    @property
-    def sizes(self):
-        cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
-        return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
-                          height=s.height, width=s.width,
-                          top_margin=s.top_margin, left_margin=s.left_margin,
-                          iheight=s.iheight, iwidth=s.iwidth,
-                          pixel_aspect=s.pixel_aspect, flip=s.flip)
+    property sizes:
+        def __get__(self):
+            cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
+            return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
+                              height=s.height, width=s.width,
+                              top_margin=s.top_margin, left_margin=s.left_margin,
+                              iheight=s.iheight, iwidth=s.iwidth,
+                              pixel_aspect=s.pixel_aspect, flip=s.flip)
     
-    @property
-    def num_colors(self):
+    property num_colors:
         """
         Number of colors.
         Note that e.g. for RGBG this can be 3 or 4, depending on the camera model,
         as some use two different greens. 
         """
-        return self.p.imgdata.idata.colors
+        def __get__(self):
+            return self.p.imgdata.idata.colors
     
-    @property
-    def color_desc(self):
+    property color_desc:
         """
         String description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).
         Note that same letters may not refer strictly to the same color.
         There are cameras with two different greens for example.
         """
-        return self.p.imgdata.idata.cdesc
+        def __get__(self):
+            return self.p.imgdata.idata.cdesc
     
     cpdef int raw_color(self, int row, int column):
         """
@@ -315,84 +315,84 @@ cdef class RawPy:
             raise RuntimeError('RAW image is not flat')
         return self.p.COLOR(row, column)
     
-    @property
-    def raw_colors(self):
+    property raw_colors:
         """
         An array of color indices for each pixel in the RAW image.
         Equivalent to calling raw_color(y,x) for each pixel.
         Only usable for flat RAW images (see raw_type property).
         """
-        if self.p.imgdata.rawdata.raw_image == NULL:
-            raise RuntimeError('RAW image is not flat')
-        cdef np.ndarray pattern = self.raw_pattern
-        cdef int n = pattern.shape[0]
-        cdef int height = self.p.imgdata.sizes.raw_height
-        cdef int width = self.p.imgdata.sizes.raw_width
-        return np.tile(pattern, (height/n, width/n))
+        def __get__(self):
+            if self.p.imgdata.rawdata.raw_image == NULL:
+                raise RuntimeError('RAW image is not flat')
+            cdef np.ndarray pattern = self.raw_pattern
+            cdef int n = pattern.shape[0]
+            cdef int height = self.p.imgdata.sizes.raw_height
+            cdef int width = self.p.imgdata.sizes.raw_width
+            return np.tile(pattern, (height/n, width/n))
     
-    @property
-    def raw_colors_visible(self):
+    property raw_colors_visible:
         """Like raw_colors but without margin."""
-        s = self.sizes
-        return self.raw_colors[s.top_margin:s.height,s.left_margin:s.width] 
+        def __get__(self):
+            s = self.sizes
+            return self.raw_colors[s.top_margin:s.height,s.left_margin:s.width] 
     
-    @property
-    def raw_pattern(self):
+    property raw_pattern:
         """
         The smallest possible Bayer pattern of this image.
         :rtype: ndarray, or None if not a flat RAW image
         """
-        if self.p.imgdata.rawdata.raw_image == NULL:
-            return None
-        cdef np.ndarray pattern
-        cdef int n
-        if self.p.imgdata.idata.filters < 1000:
-            if self.p.imgdata.idata.filters == 0:
-                # black and white
-                n = 1
-            if self.p.imgdata.idata.filters == 1:
-                # Leaf Catchlight
-                n = 16
-            elif self.p.imgdata.idata.filters == LIBRAW_XTRANS:
-                n = 6
+        def __get__(self):
+            if self.p.imgdata.rawdata.raw_image == NULL:
+                return None
+            cdef np.ndarray pattern
+            cdef int n
+            if self.p.imgdata.idata.filters < 1000:
+                if self.p.imgdata.idata.filters == 0:
+                    # black and white
+                    n = 1
+                if self.p.imgdata.idata.filters == 1:
+                    # Leaf Catchlight
+                    n = 16
+                elif self.p.imgdata.idata.filters == LIBRAW_XTRANS:
+                    n = 6
+                else:
+                    raise NotImplementedError('filters: {}'.format(self.p.imgdata.idata.filters))
             else:
-                raise NotImplementedError('filters: {}'.format(self.p.imgdata.idata.filters))
-        else:
-            n = 4
-        
-        pattern = np.empty((n, n), dtype=np.uint8)
-        cdef int y, x
-        for y in range(n):
-            for x in range(n):
-                pattern[y,x] = self.p.COLOR(y, x)
-        if n == 4:
-            if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
-               np.all(pattern[:2,:2] == pattern[2:,2:]) and \
-               np.all(pattern[:2,:2] == pattern[2:,:2]):
-                pattern = pattern[:2,:2]
-        return pattern
+                n = 4
+            
+            pattern = np.empty((n, n), dtype=np.uint8)
+            cdef int y, x
+            for y in range(n):
+                for x in range(n):
+                    pattern[y,x] = self.p.COLOR(y, x)
+            if n == 4:
+                if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
+                   np.all(pattern[:2,:2] == pattern[2:,2:]) and \
+                   np.all(pattern[:2,:2] == pattern[2:,:2]):
+                    pattern = pattern[:2,:2]
+            return pattern
        
-    @property
-    def camera_whitebalance(self):
+    property camera_whitebalance:
         """
         White balance coefficients (as shot). Either read from file or calculated.
         """
-        return [self.p.imgdata.rawdata.color.cam_mul[0],
-                self.p.imgdata.rawdata.color.cam_mul[1],
-                self.p.imgdata.rawdata.color.cam_mul[2],
-                self.p.imgdata.rawdata.color.cam_mul[3]]
+        def __get__(self):
+            return [self.p.imgdata.rawdata.color.cam_mul[0],
+                    self.p.imgdata.rawdata.color.cam_mul[1],
+                    self.p.imgdata.rawdata.color.cam_mul[2],
+                    self.p.imgdata.rawdata.color.cam_mul[3]]
         
-    @property
-    def daylight_whitebalance(self):
+    property daylight_whitebalance:
         """
         White balance coefficients for daylight (daylight balance). 
         Either read from file, or calculated on the basis of file data, 
         or taken from hardcoded constants.
         """
-        return [self.p.imgdata.rawdata.color.pre_mul[0],
-                self.p.imgdata.rawdata.color.pre_mul[1],
-                self.p.imgdata.rawdata.color.pre_mul[2],
-                self.p.imgdata.rawdata.color.pre_mul[3]]
+        def __get__(self):
+            return [self.p.imgdata.rawdata.color.pre_mul[0],
+                    self.p.imgdata.rawdata.color.pre_mul[1],
+                    self.p.imgdata.rawdata.color.pre_mul[2],
+                    self.p.imgdata.rawdata.color.pre_mul[3]]
     
     def raw2image(self):
         """
@@ -405,15 +405,15 @@ cdef class RawPy:
         """
         self.handle_error(self.p.raw2image())
     
-    @property
-    def image(self):
-        cdef np.npy_intp shape[2]
-        shape[0] = <np.npy_intp> self.p.imgdata.sizes.iheight
-        shape[1] = <np.npy_intp> self.p.imgdata.sizes.iwidth
-        return [np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[0]),
-                np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[1]),
-                np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[2]),
-                np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
+    property image:
+        def __get__(self):
+            cdef np.npy_intp shape[2]
+            shape[0] = <np.npy_intp> self.p.imgdata.sizes.iheight
+            shape[1] = <np.npy_intp> self.p.imgdata.sizes.iwidth
+            return [np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[0]),
+                    np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[1]),
+                    np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[2]),
+                    np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
                 
     def dcraw_process(self, params=None, **kw):
         if libraw_version < (0,15):

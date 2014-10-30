@@ -1,5 +1,5 @@
 Exceptions
-----------
+==========
 
 NotSupportedError
 -----------------
