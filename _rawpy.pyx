@@ -148,7 +148,7 @@ cdef extern from "libraw.h":
         char        cdesc[5]
         
     ctypedef struct libraw_data_t:
-        ushort                      (*image)[4]
+#         ushort                      (*image)[4]
         libraw_image_sizes_t        sizes
         libraw_iparams_t            idata
         libraw_output_params_t        params
@@ -172,7 +172,7 @@ cdef extern from "libraw.h":
         int open_file(const char *fname)
         int unpack()
         int COLOR(int row, int col)
-        int raw2image()
+#         int raw2image()
         int dcraw_process()
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
         void dcraw_clear_mem(libraw_processed_image_t* img)
@@ -208,6 +208,11 @@ class RawType(Enum):
     """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
 
 cdef class RawPy:
+    """
+    Load RAW images, work on their data, and create a postprocessed (demosaiced) image.
+    
+    All operations are implemented using numpy arrays.
+    """
     cdef LibRaw* p
     cdef bint needs_reopening
         
@@ -218,6 +223,11 @@ cdef class RawPy:
         del self.p
     
     def open_file(self, path):
+        """
+        Opens the given RAW image file. Should be followed by a call to :meth:`unpack`.
+        
+        :param str path: The path to the RAW image.
+        """
         self.handle_error(self.p.open_file(_chars(path)))
         if libraw_version < (0,15):
             # libraw < 0.15 requires calling open_file & unpack for multiple calls to dcraw_process
@@ -226,9 +236,17 @@ cdef class RawPy:
             self.needs_reopening = False
         
     def unpack(self):
+        """
+        Unpacks/decodes the opened RAW image. 
+        """
         self.handle_error(self.p.unpack())
     
     property raw_type:
+        """
+        Return the RAW type.
+        
+        :rtype: :class:`rawpy.RawType`
+        """
         def __get__(self):
             if self.p.imgdata.rawdata.raw_image != NULL:
                 return RawType.Flat
@@ -280,6 +298,10 @@ cdef class RawPy:
         return raw[(row+top_margin)*raw_width + column + left_margin]
         
     property sizes:
+        """
+        Return a :class:`rawpy.ImageSizes` instance with size information of
+        the RAW image and postprocessed image.        
+        """
         def __get__(self):
             cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
             return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
@@ -339,6 +361,7 @@ cdef class RawPy:
     property raw_pattern:
         """
         The smallest possible Bayer pattern of this image.
+        
         :rtype: ndarray, or None if not a flat RAW image
         """
         def __get__(self):
@@ -393,39 +416,41 @@ cdef class RawPy:
                     self.p.imgdata.rawdata.color.pre_mul[1],
                     self.p.imgdata.rawdata.color.pre_mul[2],
                     self.p.imgdata.rawdata.color.pre_mul[3]]
-    
-    def raw2image(self):
-        """
-        This function allocates buffer for postprocessing (self.image) and fills
-        it with data layout compatible with LibRaw 0.13/0.14 and below.
-        If the buffer is already allocated, it will be free()ed and allocated again.
-
-        This function should be called only if your code do postprocessing stage.
-        If you use LibRaw's postprocessing calls (see below) you don't need to call raw2image().
-        """
-        self.handle_error(self.p.raw2image())
-    
-    property image:
-        def __get__(self):
-            cdef np.npy_intp shape[2]
-            shape[0] = <np.npy_intp> self.p.imgdata.sizes.iheight
-            shape[1] = <np.npy_intp> self.p.imgdata.sizes.iwidth
-            return [np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[0]),
-                    np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[1]),
-                    np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[2]),
-                    np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, self.p.imgdata.image[3])]
                 
     def dcraw_process(self, params=None, **kw):
+        """
+        Postprocess the currently loaded RAW image.
+        
+        :param rawpy.Params params: 
+            The parameters to use for postprocessing with :meth:`dcraw_process`.
+        :param **kw: 
+            Alternative way to provide postprocessing parameters.
+            The keywords are used to construct a :class:`rawpy.Params` instance.
+            If keywords are given, then `params` must be omitted.
+        """
         if libraw_version < (0,15):
             if self.needs_reopening:
                 warnings.warn('Repeated postprocessing with libraw<0.15 may require reopening/unpacking')
             self.needs_reopening = True
+        if params and kw:
+            raise ValueError('If params is given, then no additional keywords are allowed')
         if params is None:
             params = Params(**kw)
         self.apply_params(params)
         self.handle_error(self.p.dcraw_process())
         
     def dcraw_make_mem_image(self):
+        """
+        Return the postprocessed image (see :meth:`dcraw_process`) as numpy array.
+                
+        :param rawpy.Params params:
+            The parameters to use for postprocessing with :meth:`dcraw_process`.
+        :param **kw: 
+            Alternative way to provide postprocessing parameters.
+            The keywords are used to construct a :class:`rawpy.Params` instance.
+            If keywords are given, then `params` must be omitted.
+        :rtype: ndarray
+        """
         cdef int errcode = 0
         cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
         self.handle_error(errcode)
@@ -435,10 +460,21 @@ cdef class RawPy:
         wrapped.set_data(self, img)
         ndarr = wrapped.__array__()
         return ndarr
-                
+    
     def postprocess(self, params=None, **kw):
         """
-        Return post-processed image as numpy array.  
+        Postprocess the currently loaded RAW image and return the
+        new resulting image as numpy array.
+        
+        Note: Calls :meth:`dcraw_process` followed by :meth:`dcraw_make_mem_image`.
+        
+        :param rawpy.Params params: 
+            The parameters to use for postprocessing with :meth:`dcraw_process`.
+        :param **kw: 
+            Alternative way to provide postprocessing parameters.
+            The keywords are used to construct a :class:`rawpy.Params` instance.
+            If keywords are given, then `params` must be omitted.
+        :rtype: ndarray
         """
         self.dcraw_process(params, **kw)
         return self.dcraw_make_mem_image()
@@ -502,9 +538,12 @@ class DemosaicAlgorithm(Enum):
     @property
     def isSupported(self):
         """
-        True=supported 
-        False=not supported
-        None=check impossible because libraw version too old (< 0.15.4)
+        Return True if the demosaic algorithm is supported, False if it is not,
+        and None if the support status is unknown. The latter is returned if
+        LibRaw < 0.15.4 is used or if it was compiled without cmake.
+        
+        The necessary information is read from the libraw_config.h header which
+        is only written with cmake builds >= 0.15.4.
         """
         try:
             supported = self.checkSupported()
@@ -514,6 +553,9 @@ class DemosaicAlgorithm(Enum):
             return supported
         
     def checkSupported(self):
+        """
+        Like :attr:`isSupported` but raises an exception for the `False` case.
+        """
         c = DemosaicAlgorithm
         
         min_version_flags = (0,15,4)
@@ -553,6 +595,9 @@ class NotSupportedError(Exception):
         Exception.__init__(self, message)
 
 class Params(object):
+    """
+    A class that handles postprocessing parameters.
+    """
     def __init__(self, demosaic_algorithm=None,
                  use_camera_wb=False, use_auto_wb=False, user_wb=None,
                  output_color=ColorSpace.sRGB, output_bps=8, 
@@ -562,10 +607,35 @@ class Params(object):
                  gamma=None,
                  bad_pixels_path=None):
         """
+
         If use_camera_wb and use_auto_wb are False and user_wb is None, then
         daylight white balance correction is used.
         If both use_camera_wb and use_auto_wb are True, then use_auto_wb has priority.
+        
+        :param rawpy.DemosaicAlgorithm demosaic_algorithm: default is AHD
+        :param bool use_camera_wb: whether to use the as-shot white balance values
+        :param bool use_auto_wb: whether to try automatically calculating the white balance 
+        :param list user_wb: list of length 4 with white balance multipliers for each color 
+        :param rawpy.ColorSpace output_color: output color space
+        :param int output_bps: 8 or 16
+        :param int user_flip: 0=none, 3=180, 5=90CCW, 6=90CW,
+                              default is to use image orientation from the RAW image if available
+        :param int user_black: custom black level
+        :param int user_sat: saturation adjustment
+        :param bool no_auto_bright: whether to disable automatic increase of brightness
+        :param float auto_bright_thr: ratio of clipped pixels when automatic brighness increase is used
+                                      (see `no_auto_bright`). Default is 0.01 (1%).
+        :param float adjust_maximum_thr: see libraw docs
+        :param float exp_shift: exposure shift in linear scale.
+                          Usable range from 0.25 (2-stop darken) to 8.0 (3-stop lighter).
+        :param float exp_preserve_highlights: preserve highlights when lightening the image with `exp_shift`.
+                          From 0.0 to 1.0 (full preservation).
+        :param tuple gamma: pair (power,slope), default is (2.222, 4.5) for rec. BT.709
+        :param str bad_pixels_path: path to dcraw bad pixels file. Each bad pixel will be corrected using
+                                    the mean of the neighbor pixels. See the :mod:`rawpy.enhance` module
+                                    for alternative repair algorithms, e.g. using the median.
         """
+
         if demosaic_algorithm:
             demosaic_algorithm.checkSupported()
             self.user_qual = demosaic_algorithm.value
