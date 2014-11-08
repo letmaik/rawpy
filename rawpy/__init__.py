@@ -7,8 +7,11 @@ globals().update(rawpy._rawpy.__dict__)
 
 def imread(path):
     """
-    Convenience function that creates a RawPy instance, opens the given file,
-    unpacks the RAW data, and returns the RawPy instance for further processing.
+    Convenience function that creates a :class:`rawpy.RawPy` instance, opens the given file,
+    unpacks the RAW data, and returns the :class:`rawpy.RawPy` instance for further processing.
+    
+    :param str path: path to RAW image that will be opened
+    :rtype: :class:`rawpy.RawPy`
     """
     d = RawPy()
     d.open_file(path)

@@ -224,7 +224,7 @@ cdef class RawPy:
     
     def open_file(self, path):
         """
-        Opens the given RAW image file. Should be followed by a call to :meth:`unpack`.
+        Opens the given RAW image file. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
         :param str path: The path to the RAW image.
         """
@@ -422,7 +422,7 @@ cdef class RawPy:
         Postprocess the currently loaded RAW image.
         
         :param rawpy.Params params: 
-            The parameters to use for postprocessing with :meth:`dcraw_process`.
+            The parameters to use for postprocessing.
         :param **kw: 
             Alternative way to provide postprocessing parameters.
             The keywords are used to construct a :class:`rawpy.Params` instance.
@@ -441,10 +441,10 @@ cdef class RawPy:
         
     def dcraw_make_mem_image(self):
         """
-        Return the postprocessed image (see :meth:`dcraw_process`) as numpy array.
+        Return the postprocessed image (see :meth:`~rawpy.RawPy.dcraw_process`) as numpy array.
                 
         :param rawpy.Params params:
-            The parameters to use for postprocessing with :meth:`dcraw_process`.
+            The parameters to use for postprocessing with :meth:`~rawpy.RawPy.dcraw_process`.
         :param **kw: 
             Alternative way to provide postprocessing parameters.
             The keywords are used to construct a :class:`rawpy.Params` instance.
@@ -466,10 +466,10 @@ cdef class RawPy:
         Postprocess the currently loaded RAW image and return the
         new resulting image as numpy array.
         
-        Note: Calls :meth:`dcraw_process` followed by :meth:`dcraw_make_mem_image`.
+        Note: Calls :meth:`~rawpy.RawPy.dcraw_process` followed by :meth:`~rawpy.RawPy.dcraw_make_mem_image`.
         
         :param rawpy.Params params: 
-            The parameters to use for postprocessing with :meth:`dcraw_process`.
+            The parameters to use for postprocessing with :meth:`~rawpy.RawPy.dcraw_process`.
         :param **kw: 
             Alternative way to provide postprocessing parameters.
             The keywords are used to construct a :class:`rawpy.Params` instance.
