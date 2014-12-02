@@ -1,5 +1,9 @@
 from __future__ import division, print_function, absolute_import
 
+"""
+This module contains additional functionality not part of LibRaw.
+"""
+
 import time
 import os
 import warnings
@@ -30,17 +34,27 @@ def _is_candidate(rawarr, med, find_hot, find_dead, thresh):
 
 def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     """
+    Find and return coordinates of hot/dead pixels in the given RAW images.
+    
+    The probability that a detected bad pixel is really a bad pixel gets
+    higher the more input images are given. The images should be taken around
+    the same time, that is, each image must contain the same bad pixels.
+    Also, there should be movement between the images to avoid the false detection
+    of bad pixels in non-moving high-contrast areas.
     
     :param paths: paths to RAW images shot with the same camera
-    :param find_hot: whether to find hot pixels
-    :param find_dead: whether to find dead pixels
-    :param confirm_ratio: ratio of how many out of all given images
+    :type paths: iterable of str
+    :param bool find_hot: whether to find hot pixels
+    :param bool find_dead: whether to find dead pixels
+    :param float confirm_ratio: ratio of how many out of all given images
                           must contain a bad pixel to confirm it as such
+    :return: coordinates of confirmed bad pixels
     :rtype: ndarray of shape (n,2) with y,x coordinates relative to visible RAW size
     """
     assert find_hot or find_dead
     coords = []
     width = None
+    paths = list(paths)
     for path in paths:
         t0 = time.time()
         # TODO this is a bit slow, try RawSpeed
@@ -179,10 +193,23 @@ def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
     return coords
 
 def repair_bad_pixels(raw, coords, method='median'):
+    """
+    Repair bad pixels in the given RAW image.
+    
+    Note that the function works in-place on the RAW image data.
+    It has to be called before postprocessing the image.
+    
+    :param rawpy.RawPy raw: the RAW image to repair
+    :param array-like coords: coordinates of bad pixels to repair, 
+                           array of shape (n,2) with y,x coordinates relative to visible RAW size
+    :param str method: currently only 'median' is supported
+    """
     print('repairing', len(coords), 'bad pixels')
     
     # For small numbers of bad pixels this could be done more efficiently
     # by only interpolating the bad pixels instead of the whole image.
+    
+    coords = np.asarray(coords)
     
     t0 = time.time()
    
@@ -303,11 +330,16 @@ def _groupcount(values):
 
 def save_dcraw_bad_pixels(path, bad_pixels):
     """
+    Save the given bad pixel coordinates in 
+    `dcraw file format <http://www.cybercom.net/~dcoffin/dcraw/.badpixels>`_.
     
-    :param path:
-    :param bad_pixels: array of shape (n,2) with y,x coordinates
-                       relative to visible image area
+    Note that timestamps cannot be set and will be written as zero.
+    
+    :param str path: path of the badpixels file that will be written
+    :param array-like bad_pixels: array of shape (n,2) with y,x coordinates
+                                  relative to visible image area
     """
+    bad_pixels = np.asarray(bad_pixels)
     # Format is: pixel column, pixel row, UNIX time of death
     dc = np.zeros((len(bad_pixels),3), dtype=int)
     dc[:,0] = bad_pixels[:,1]
