@@ -272,6 +272,9 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
             rawslice = rawimg[offset_y::2,offset_x::2]
 
             t1 = time.time()
+            # some older OpenCV versions require contiguous arrays
+            # otherwise results are invalid
+            rawslice = np.require(rawslice, rawslice.dtype, 'C')
             smooth = median_(rawslice)
             print('median:', time.time()-t1, 's')
             

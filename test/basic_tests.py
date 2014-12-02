@@ -50,31 +50,25 @@ def testFileOpenAndPostProcess():
     save('test_16daylight_linear.tiff', rgb)
 
 def testBadPixelRepair():
+    def getColorNeighbors(raw, y, x):
+        # 5x5 area around coordinate masked by color of coordinate
+        raw_colors = raw.raw_colors_visible
+        raw_color = raw_colors[y, x]
+        masked = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
+        return masked[y-2:y+3,x-2:x+3].copy()
     bad_pixels = np.loadtxt(badPixelsTestPath, int)
     i = 60
     y, x = bad_pixels[i,0], bad_pixels[i,1]
     for repair in [_repair_bad_pixels_generic, _repair_bad_pixels_bayer2x2]:
-        print('using ' + repair.__name__)
         raw = rawpy.imread(rawTestPath)
         
         before = getColorNeighbors(raw, y, x)
         repair(raw, bad_pixels, method='median')
-        after = getColorNeighbors(raw, y, x)
-    
-        print('before:') 
-        print(before)
-        print('after:')
-        print(after)
+        #after = getColorNeighbors(raw, y, x)
     
         # check that the repaired value is the median of the 5x5 neighbors
-        assert_equal(int(ma.median(before)), raw.raw_image_visible[y,x])
-
-def getColorNeighbors(raw, y, x):
-    # 5x5 area around coordinate masked by color of coordinate
-    raw_colors = raw.raw_colors_visible
-    raw_color = raw_colors[y, x]
-    masked = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
-    return masked[y-2:y+3,x-2:x+3].copy()
+        assert_equal(int(ma.median(before)), raw.raw_image_visible[y,x],
+                     'median wrong for ' + repair.__name__)
 
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
