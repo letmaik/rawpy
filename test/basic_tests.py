@@ -60,6 +60,7 @@ def testBadPixelRepair():
     i = 60
     y, x = bad_pixels[i,0], bad_pixels[i,1]
     for repair in [_repair_bad_pixels_generic, _repair_bad_pixels_bayer2x2]:
+        print('testing ' + repair.__name__)
         raw = rawpy.imread(rawTestPath)
         
         before = getColorNeighbors(raw, y, x)

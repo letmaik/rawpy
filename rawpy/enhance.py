@@ -264,7 +264,7 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
         median_ = partial(cv2.medianBlur, ksize=r)
     else:
         kernel = np.ones((r,r))
-        median_ = median(selem=kernel)
+        median_ = partial(median, selem=kernel)
             
     # we have 4 colors (two greens are always seen as two colors)
     for offset_y in [0,1]:
