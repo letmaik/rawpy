@@ -57,7 +57,7 @@ install:
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # we use conda to prevent compiling extensions
-  - "conda install --yes numpy cython"
+  - "conda install --yes numpy cython scipy"
   - "pip install -r dev-requirements.txt"
   
   # Install the build dependencies of the project. If some dependencies contain
