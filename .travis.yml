@@ -37,6 +37,8 @@ install:
       sudo apt-get install libraw-dev ;
     fi
   - sudo apt-get install libfreeimage-dev
+  # scikit-image requires scipy
+  - sudo apt-get install python-scipy
   # scikit-image 0.10.1 doesn't install six itself
   - pip install six
   - pip install -r dev-requirements.txt
