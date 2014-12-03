@@ -161,7 +161,7 @@ def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
         median_ = partial(cv2.medianBlur, ksize=r)
     else:
         kernel = np.ones((r,r))
-        median_ = median(selem=kernel)
+        median_ = partial(median, selem=kernel)
         
     coords = []
     
@@ -171,6 +171,10 @@ def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
             rawslice = rawimg[offset_y::2,offset_x::2]
 
             t1 = time.time()
+            if cv2 is not None:
+                # some older OpenCV versions require contiguous arrays
+                # otherwise results are invalid
+                rawslice = np.require(rawslice, rawslice.dtype, 'C')
             med = median_(rawslice)
             print('median:', time.time()-t1, 's')
             
@@ -272,10 +276,13 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
             rawslice = rawimg[offset_y::2,offset_x::2]
 
             t1 = time.time()
-            # some older OpenCV versions require contiguous arrays
-            # otherwise results are invalid
-            rawslice = np.require(rawslice, rawslice.dtype, 'C')
-            smooth = median_(rawslice)
+            if cv2 is not None:
+                # some older OpenCV versions require contiguous arrays
+                # otherwise results are invalid
+                rawslicecv = np.require(rawslice, rawslice.dtype, 'C')
+                smooth = median_(rawslicecv)
+            else:
+                smooth = median_(rawslice)
             print('median:', time.time()-t1, 's')
             
             # determine which bad pixels belong to this color slice

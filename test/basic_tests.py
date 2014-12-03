@@ -56,20 +56,38 @@ def testBadPixelRepair():
         raw_color = raw_colors[y, x]
         masked = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
         return masked[y-2:y+3,x-2:x+3].copy()
+    
     bad_pixels = np.loadtxt(badPixelsTestPath, int)
     i = 60
     y, x = bad_pixels[i,0], bad_pixels[i,1]
-    for repair in [_repair_bad_pixels_generic, _repair_bad_pixels_bayer2x2]:
-        print('testing ' + repair.__name__)
-        raw = rawpy.imread(rawTestPath)
-        
-        before = getColorNeighbors(raw, y, x)
-        repair(raw, bad_pixels, method='median')
-        #after = getColorNeighbors(raw, y, x)
     
-        # check that the repaired value is the median of the 5x5 neighbors
-        assert_equal(int(ma.median(before)), raw.raw_image_visible[y,x],
-                     'median wrong for ' + repair.__name__)
+    for useOpenCV in [False,True]:
+        if useOpenCV:
+            if rawpy.enhance.cv2 is None:
+                print('OpenCV not available, skipping subtest')
+                continue
+            print('testing with OpenCV')
+        else:
+            print('testing without OpenCV')
+            oldCv = rawpy.enhance.cv2
+            rawpy.enhance.cv2 = None
+            
+        for repair in [_repair_bad_pixels_generic, _repair_bad_pixels_bayer2x2]:
+            print('testing ' + repair.__name__)
+            raw = rawpy.imread(rawTestPath)
+            
+            before = getColorNeighbors(raw, y, x)
+            repair(raw, bad_pixels, method='median')
+            after = getColorNeighbors(raw, y, x)
+        
+            print(before)
+            print(after)
+        
+            # check that the repaired value is the median of the 5x5 neighbors
+            assert_equal(int(ma.median(before)), raw.raw_image_visible[y,x],
+                         'median wrong for ' + repair.__name__)
+        if not useOpenCV:
+            rawpy.enhance.cv2 = oldCv
 
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
