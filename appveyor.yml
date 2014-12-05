@@ -58,6 +58,8 @@ install:
 
   # we use conda to prevent compiling extensions
   - "conda install --yes numpy cython scipy"
+  # scikit-image 0.10.1 doesn't install six itself
+  - "pip install six"
   - "pip install -r dev-requirements.txt"
   
   # Install the build dependencies of the project. If some dependencies contain
