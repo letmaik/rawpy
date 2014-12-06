@@ -36,7 +36,7 @@ install:
     else
       sudo apt-get install libraw-dev ;
     fi
-  - sudo apt-get install libfreeimage-dev
+  - sudo apt-get install libfreeimage-dev python-opencv
   # scikit-image requires scipy
   - sudo apt-get install python-scipy
   # scikit-image 0.10.1 doesn't install six itself
