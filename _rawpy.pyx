@@ -497,6 +497,7 @@ cdef class RawPy:
         p.no_auto_bright = params.no_auto_bright
         p.auto_bright_thr = params.auto_bright_thr
         p.adjust_maximum_thr = params.adjust_maximum_thr
+        p.bright = params.bright
         p.exp_correc = params.exp_correc
         p.exp_shift = params.exp_shift
         p.exp_preser = params.exp_preser
@@ -603,6 +604,7 @@ class Params(object):
                  output_color=ColorSpace.sRGB, output_bps=8, 
                  user_flip=None, user_black=None, user_sat=None,
                  no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
+                 bright=None,
                  exp_shift=None, exp_preserve_highlights=0.0,
                  gamma=None,
                  bad_pixels_path=None):
@@ -626,6 +628,7 @@ class Params(object):
         :param float auto_bright_thr: ratio of clipped pixels when automatic brighness increase is used
                                       (see `no_auto_bright`). Default is 0.01 (1%).
         :param float adjust_maximum_thr: see libraw docs
+        :param float bright: brightness (default 1.0)
         :param float exp_shift: exposure shift in linear scale.
                           Usable range from 0.25 (2-stop darken) to 8.0 (3-stop lighter).
         :param float exp_preserve_highlights: preserve highlights when lightening the image with `exp_shift`.
@@ -663,6 +666,7 @@ class Params(object):
         else:
             self.auto_bright_thr = LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
         self.adjust_maximum_thr = adjust_maximum_thr
+        self.bright = bright if bright is not None else 1.0
         if exp_shift is not None:
             self.exp_correc = 1
             self.exp_shift = exp_shift
