@@ -12,9 +12,13 @@ import imageio
 from rawpy.enhance import _repair_bad_pixels_bayer2x2,\
     _repair_bad_pixels_generic, find_bad_pixels
 
+# Nikon D3S
 rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
-raw2TestPath = os.path.join(os.path.dirname(__file__), 'iss042e297200.NEF')
 badPixelsTestPath = os.path.join(os.path.dirname(__file__), 'bad_pixels.gz')
+
+# Nikon D4
+raw2TestPath = os.path.join(os.path.dirname(__file__), 'iss042e297200.NEF')
+
 
 def testVersion():
     print('using libraw', rawpy.libraw_version)
@@ -91,23 +95,31 @@ def testBadPixelRepair():
             rawpy.enhance.cv2 = oldCv
 
 def testVisibleSize():
-    raw = rawpy.imread(raw2TestPath)
-    s = raw.sizes
-    print(s)
-    h,w = raw.raw_image_visible.shape
-    assert_equal(h, s.height)
-    assert_equal(w, s.width)
-    h,w = raw.raw_colors_visible.shape
-    assert_equal(h, s.height)
-    assert_equal(w, s.width)
+    for path in [rawTestPath, raw2TestPath]:
+        print('testing', path)
+        raw = rawpy.imread(path)
+        s = raw.sizes
+        print(s)
+        h,w = raw.raw_image_visible.shape
+        assert_equal(h, s.height)
+        assert_equal(w, s.width)
+        h,w = raw.raw_colors_visible.shape
+        assert_equal(h, s.height)
+        assert_equal(w, s.width)
 
 def testFindBadPixelsNikonD4():
     # crashed with "AssertionError: horizontal margins are not symmetric"
-    bad = find_bad_pixels([raw2TestPath])
-    # FIXME find problem
-    # raw.sizes
-    # ImageSizes(raw_height=3292, raw_width=4992, height=3292, width=4940, top_margin=0, left_margin=2, iheight=3292, iwidth=4940)
+    find_bad_pixels([raw2TestPath])
 
+def testNikonD4Size():
+    # older libraw/dcraw versions return wrong values for D4
+    raw = rawpy.imread(raw2TestPath)
+    s = raw.sizes
+    assert_equals(s.width, 4940)
+    assert_equals(s.height, 3292)
+    assert_equals(s.top_margin, 0)
+    assert_equals(s.left_margin, 2)
+    
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
     # as they both use freeimage and this has some weird internal formats

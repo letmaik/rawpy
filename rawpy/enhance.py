@@ -147,7 +147,6 @@ def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
 
 def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
     assert raw.raw_pattern.shape[0] == 2
-    _check_margins_for_optimized_algorithm(raw.sizes)
     
     # optimized code path for common 2x2 pattern
     # create a view for each color, do 3x3 median on it, find bad pixels, correct coordinates
@@ -259,7 +258,6 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
     assert raw.raw_pattern.shape[0] == 2
     if method != 'median':
         raise NotImplementedError
-    _check_margins_for_optimized_algorithm(raw.sizes)
     
     r = 3    
     rawimg = raw.raw_image_visible
@@ -304,14 +302,6 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
             mask[coords_color[:,0],coords_color[:,1]] = True
 
             rawslice[mask] = smooth[mask]
-
-def _check_margins_for_optimized_algorithm(s):
-    # the following assertions are probably always true
-    # if not, then we go this road once someone complains..
-    assert s.top_margin % 2 == 0, 'top_margin must be divisible by 2, is: {}'.format(s.top_margin)
-    assert s.left_margin % 2 == 0, 'left_margin must be divisible by 2, is: {}'.format(s.left_margin)            
-    assert s.top_margin*2 + s.height == s.raw_height, 'vertical margins are not symmetric'
-    assert s.left_margin*2 + s.width == s.raw_width, 'horizontal margins are not symmetric' 
 
 def _colormasks(raw):
     colors = raw.raw_colors_visible
