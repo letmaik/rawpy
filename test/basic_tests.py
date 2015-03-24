@@ -93,12 +93,16 @@ def testBadPixelRepair():
 def testVisibleSize():
     raw = rawpy.imread(raw2TestPath)
     s = raw.sizes
+    print(s)
     h,w = raw.raw_image_visible.shape
-    assert_equal(s.height, h)
-    assert_equal(s.width, w)
+    assert_equal(h, s.height)
+    assert_equal(w, s.width)
+    h,w = raw.raw_colors_visible.shape
+    assert_equal(h, s.height)
+    assert_equal(w, s.width)
 
 def testFindBadPixelsNikonD4():
-    # crashes with AssertionError: horizontal margins are not symmetric
+    # crashed with "AssertionError: horizontal margins are not symmetric"
     bad = find_bad_pixels([raw2TestPath])
     # FIXME find problem
     # raw.sizes
