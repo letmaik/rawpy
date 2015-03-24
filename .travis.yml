@@ -16,6 +16,9 @@ env:
 git:
   submodules: false
 
+before_install:
+  - sudo apt-get update
+
 install:
   # latest version 0.16 has an error in the pkgconfig file
   # therefore we use master for now, until 0.17 is released
