@@ -92,7 +92,7 @@ def testBadPixelRepair():
 
 def testFindBadPixelsNikonD4():
     # crashes with AssertionError: horizontal margins are not symmetric
-    bad = find_bad_pixels([rawTestPath])
+    bad = find_bad_pixels([raw2TestPath])
     # FIXME find problem
     # raw.sizes
     # ImageSizes(raw_height=3292, raw_width=4992, height=3292, width=4940, top_margin=0, left_margin=2, iheight=3292, iwidth=4940)
