@@ -90,6 +90,13 @@ def testBadPixelRepair():
         if not useOpenCV:
             rawpy.enhance.cv2 = oldCv
 
+def testVisibleSize():
+    raw = rawpy.imread(raw2TestPath)
+    s = raw.sizes
+    h,w = raw.raw_image_visible.shape
+    assert_equal(s.height, h)
+    assert_equal(s.width, w)
+
 def testFindBadPixelsNikonD4():
     # crashes with AssertionError: horizontal margins are not symmetric
     bad = find_bad_pixels([raw2TestPath])
