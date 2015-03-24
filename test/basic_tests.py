@@ -115,10 +115,10 @@ def testNikonD4Size():
     # older libraw/dcraw versions return wrong values for D4
     raw = rawpy.imread(raw2TestPath)
     s = raw.sizes
-    assert_equals(s.width, 4940)
-    assert_equals(s.height, 3292)
-    assert_equals(s.top_margin, 0)
-    assert_equals(s.left_margin, 2)
+    assert_equal(s.width, 4940)
+    assert_equal(s.height, 3292)
+    assert_equal(s.top_margin, 0)
+    assert_equal(s.left_margin, 2)
     
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
