@@ -114,7 +114,7 @@ def testFindBadPixelsNikonD4():
 def testNikonD4Size():
     if rawpy.libraw_version < (0,15):
         # older libraw/dcraw versions don't support D4 fully
-	return
+        return
     raw = rawpy.imread(raw2TestPath)
     s = raw.sizes
     assert_equal(s.width, 4940)
