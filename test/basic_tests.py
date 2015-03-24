@@ -10,9 +10,10 @@ import rawpy
 import rawpy.enhance
 import imageio
 from rawpy.enhance import _repair_bad_pixels_bayer2x2,\
-    _repair_bad_pixels_generic
+    _repair_bad_pixels_generic, find_bad_pixels
 
 rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
+raw2TestPath = os.path.join(os.path.dirname(__file__), 'iss042e297200.NEF')
 badPixelsTestPath = os.path.join(os.path.dirname(__file__), 'bad_pixels.gz')
 
 def testVersion():
@@ -89,6 +90,13 @@ def testBadPixelRepair():
         if not useOpenCV:
             rawpy.enhance.cv2 = oldCv
 
+def testFindBadPixelsNikonD4():
+    # crashes with AssertionError: horizontal margins are not symmetric
+    bad = find_bad_pixels([rawTestPath])
+    # FIXME find problem
+    # raw.sizes
+    # ImageSizes(raw_height=3292, raw_width=4992, height=3292, width=4940, top_margin=0, left_margin=2, iheight=3292, iwidth=4940)
+
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
     # as they both use freeimage and this has some weird internal formats
@@ -108,5 +116,6 @@ def print_stats(rgb):
 if __name__ == '__main__':
     testVersion()
     #testFileOpenAndPostProcess()
-    testBadPixelRepair()
+    #testBadPixelRepair()
+    testFindBadPixelsNikonD4()
     

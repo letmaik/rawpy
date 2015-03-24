@@ -271,6 +271,7 @@ cdef class RawPy:
             if raw_image is None:
                 return None
             s = self.sizes
+            # FIXME shouldn't this be s.height-s.top_margin?
             return raw_image[s.top_margin:s.height,s.left_margin:s.width]        
             
     cpdef ushort raw_value(self, int row, int column):
@@ -356,6 +357,7 @@ cdef class RawPy:
         """Like raw_colors but without margin."""
         def __get__(self):
             s = self.sizes
+            # FIXME is this correct?
             return self.raw_colors[s.top_margin:s.height,s.left_margin:s.width] 
     
     property raw_pattern:
