@@ -60,6 +60,10 @@ after_success:
       travis_retry python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.branch('mac-wheels', 'neothemachine/rawpy').id).restart()" ;
     fi
 
+before_deploy:
+  # otherwise sphinx would fail
+  - python setup.py build_ext --inplace
+
 deploy:
   provider: pypi
   user: neothemachine
