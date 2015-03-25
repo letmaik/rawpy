@@ -444,13 +444,7 @@ cdef class RawPy:
     def dcraw_make_mem_image(self):
         """
         Return the postprocessed image (see :meth:`~rawpy.RawPy.dcraw_process`) as numpy array.
-                
-        :param rawpy.Params params:
-            The parameters to use for postprocessing with :meth:`~rawpy.RawPy.dcraw_process`.
-        :param **kw: 
-            Alternative way to provide postprocessing parameters.
-            The keywords are used to construct a :class:`rawpy.Params` instance.
-            If keywords are given, then `params` must be omitted.
+        
         :rtype: ndarray
         """
         cdef int errcode = 0
