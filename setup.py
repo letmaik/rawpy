@@ -179,7 +179,11 @@ def windows_libraw_compile():
             path = 'external/' + os.path.basename(url)
             if not os.path.exists(path):
                 print('Downloading', url)
-                urlretrieve(url, path)
+                try:
+                    urlretrieve(url, path)
+                except:
+                    # repeat once in case of network issues
+                    urlretrieve(url, path)
             
             with zipfile.ZipFile(path) as z:
                 print('Extracting', path, 'into', extractdir)
