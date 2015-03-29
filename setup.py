@@ -151,9 +151,9 @@ def windows_libraw_compile():
     clone_submodules()
     
     # download cmake to compile libraw
-    # the cmake zip contains a cmake-3.0.1-win32-x86 folder when extracted
-    cmake_url = 'http://www.cmake.org/files/v3.0/cmake-3.0.1-win32-x86.zip'
-    cmake = os.path.abspath('external/cmake-3.0.1-win32-x86/bin/cmake.exe')
+    # the cmake zip contains a cmake-3.2.1-win32-x86 folder when extracted
+    cmake_url = 'http://www.cmake.org/files/v3.2/cmake-3.2.1-win32-x86.zip'
+    cmake = os.path.abspath('external/cmake-3.2.1-win32-x86/bin/cmake.exe')
     # libjpeg needed for lossy DNG support (and later rawspeed support)
     libjpeg_url = 'https://github.com/neothemachine/libjpeg-turbo-vc-binaries/releases/download/' +\
                   '1.3.1/libjpeg-turbo-1.3.1-vc' + ('64' if is64Bit else '') + '.zip'

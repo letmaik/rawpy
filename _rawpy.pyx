@@ -226,6 +226,8 @@ cdef class RawPy:
         """
         Opens the given RAW image file. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
+        .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
+        
         :param str path: The path to the RAW image.
         """
         self.handle_error(self.p.open_file(_chars(path)))
@@ -237,7 +239,9 @@ cdef class RawPy:
         
     def unpack(self):
         """
-        Unpacks/decodes the opened RAW image. 
+        Unpacks/decodes the opened RAW image.
+        
+        .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
         """
         self.handle_error(self.p.unpack())
     
@@ -423,6 +427,8 @@ cdef class RawPy:
         """
         Postprocess the currently loaded RAW image.
         
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.postprocess` instead.
+        
         :param rawpy.Params params: 
             The parameters to use for postprocessing.
         :param **kw: 
@@ -445,6 +451,8 @@ cdef class RawPy:
         """
         Return the postprocessed image (see :meth:`~rawpy.RawPy.dcraw_process`) as numpy array.
         
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.postprocess` instead.
+        
         :rtype: ndarray
         """
         cdef int errcode = 0
@@ -461,11 +469,9 @@ cdef class RawPy:
         """
         Postprocess the currently loaded RAW image and return the
         new resulting image as numpy array.
-        
-        Note: Calls :meth:`~rawpy.RawPy.dcraw_process` followed by :meth:`~rawpy.RawPy.dcraw_make_mem_image`.
-        
+                
         :param rawpy.Params params: 
-            The parameters to use for postprocessing with :meth:`~rawpy.RawPy.dcraw_process`.
+            The parameters to use for postprocessing.
         :param **kw: 
             Alternative way to provide postprocessing parameters.
             The keywords are used to construct a :class:`rawpy.Params` instance.
