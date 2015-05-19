@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from ._version import __version__, __version_info__
 
 import rawpy._rawpy
-globals().update(rawpy._rawpy.__dict__)
+globals().update({k:v for k,v in rawpy._rawpy.__dict__.items() if not k.startswith('_')})
 
 def imread(path):
     """
