@@ -477,10 +477,10 @@ cdef class RawPy:
         :rtype: ndarray of length 65536
         """
         def __get__(self):
-            cdef ushort* curve = &self.p.imgdata.rawdata.color.curve
             cdef np.npy_intp shape[1]
             shape[0] = <np.npy_intp> 65536
-            return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT, curve)
+            return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT,
+                                                &self.p.imgdata.rawdata.color.curve)
 
     def dcraw_process(self, params=None, **kw):
         """
