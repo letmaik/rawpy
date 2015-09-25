@@ -54,6 +54,14 @@ def testFileOpenAndPostProcess():
     print_stats(rgb)
     save('test_16daylight_linear.tiff', rgb)
 
+def testProperties():
+    raw = rawpy.imread(rawTestPath)
+    
+    print('black_level_per_channel:', raw.black_level_per_channel)
+    print('color_matrix:', raw.color_matrix)
+    print('rgb_xyz_matrix:', raw.rgb_xyz_matrix)
+    print('tone_curve:', raw.tone_curve)
+
 def testBadPixelRepair():
     def getColorNeighbors(raw, y, x):
         # 5x5 area around coordinate masked by color of coordinate

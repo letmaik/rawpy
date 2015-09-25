@@ -54,7 +54,14 @@ cdef extern from "libraw.h":
         
     ctypedef struct libraw_colordata_t:
         float       cam_mul[4] 
-        float       pre_mul[4] 
+        float       pre_mul[4]
+        ushort      curve[0x10000] # 65536
+        unsigned    cblack[4]
+        unsigned    black
+        float       cmatrix[3][4]
+        float       cam_xyz[4][3]
+        void        *profile # a string?
+        unsigned    profile_length
 
     ctypedef struct libraw_rawdata_t:
         ushort *raw_image # 1 component per pixel, for b/w and Bayer type sensors
@@ -422,7 +429,59 @@ cdef class RawPy:
                     self.p.imgdata.rawdata.color.pre_mul[1],
                     self.p.imgdata.rawdata.color.pre_mul[2],
                     self.p.imgdata.rawdata.color.pre_mul[3]]
-                
+            
+    property black_level_per_channel:
+        """
+        Per-channel black level correction.
+        NOTE: This equals black + cblack[N] in LibRaw.
+        """
+        def __get__(self):
+            cdef unsigned black = self.p.imgdata.rawdata.color.black
+            return [black + self.p.imgdata.rawdata.color.cblack[0],
+                    black + self.p.imgdata.rawdata.color.cblack[1],
+                    black + self.p.imgdata.rawdata.color.cblack[2],
+                    black + self.p.imgdata.rawdata.color.cblack[3]]
+            
+    property color_matrix:
+        """
+        Color matrix, read from file for some cameras, calculated for others. 
+        
+        :rtype: ndarray of shape (3,4)
+        """
+        def __get__(self):
+            cdef np.ndarray matrix = np.empty((3, 4), dtype=np.float32)
+            for i in range(3):
+                for j in range(4):
+                    matrix[i,j] = self.p.imgdata.rawdata.color.cmatrix[i][j]
+            return matrix
+        
+    property rgb_xyz_matrix:
+        """
+        Camera RGB - XYZ conversion matrix.
+        This matrix is constant (different for different models).
+        Last row is zero for RGB cameras and non-zero for different color models (CMYG and so on).
+        
+        :rtype: ndarray of shape (4,3)
+        """
+        def __get__(self):
+            cdef np.ndarray matrix = np.empty((4, 3), dtype=np.float32)
+            for i in range(4):
+                for j in range(3):
+                    matrix[i,j] = self.p.imgdata.rawdata.color.cam_xyz[i][j]
+            return matrix
+    
+    property tone_curve:
+        """
+        Camera tone curve, read from file for Nikon, Sony and some other cameras.
+        
+        :rtype: ndarray of length 65536
+        """
+        def __get__(self):
+            cdef ushort* curve = &self.p.imgdata.rawdata.color.curve
+            cdef np.npy_intp shape[1]
+            shape[0] = <np.npy_intp> 65536
+            return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT, curve)
+
     def dcraw_process(self, params=None, **kw):
         """
         Postprocess the currently loaded RAW image.
