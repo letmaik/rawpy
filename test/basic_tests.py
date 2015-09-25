@@ -61,6 +61,12 @@ def testProperties():
     print('color_matrix:', raw.color_matrix)
     print('rgb_xyz_matrix:', raw.rgb_xyz_matrix)
     print('tone_curve:', raw.tone_curve)
+    
+    assert_array_equal(raw.black_level_per_channel, [0,0,0,0])
+    
+    # older versions have zeros at the end, was probably a bug
+    if rawpy.libraw_version >= (0,16):
+        assert_array_equal(raw.tone_curve, np.arange(65536))
 
 def testBadPixelRepair():
     def getColorNeighbors(raw, y, x):
