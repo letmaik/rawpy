@@ -152,8 +152,8 @@ def windows_libraw_compile():
     
     # download cmake to compile libraw
     # the cmake zip contains a cmake-3.2.1-win32-x86 folder when extracted
-    cmake_url = 'http://www.cmake.org/files/v3.2/cmake-3.2.1-win32-x86.zip'
-    cmake = os.path.abspath('external/cmake-3.2.1-win32-x86/bin/cmake.exe')
+    cmake_url = 'http://www.cmake.org/files/v3.3/cmake-3.3.2-win32-x86.zip'
+    cmake = os.path.abspath('external/cmake-3.3.2-win32-x86/bin/cmake.exe')
     # libjpeg needed for lossy DNG support (and later rawspeed support)
     libjpeg_url = 'https://github.com/neothemachine/libjpeg-turbo-vc-binaries/releases/download/' +\
                   '1.3.1/libjpeg-turbo-1.3.1-vc' + ('64' if is64Bit else '') + '.zip'
@@ -244,7 +244,7 @@ def windows_libraw_compile():
     # openmp dll
     isVS2008 = sys.version_info < (3, 3)
     isVS2010 = (3, 3) <= sys.version_info < (3, 5)
-    isVS2014 = (3, 5) <= sys.version_info
+    isVS2015 = (3, 5) <= sys.version_info
     
     libraw_configh = os.path.join(install_dir, 'include', 'libraw', 'libraw_config.h')
     match = '#define LIBRAW_USE_OPENMP 1'
@@ -266,8 +266,13 @@ def windows_libraw_compile():
                 omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll']
             else:
                 omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll']
-    elif isVS2014:
-        raise NotImplementedError('Python 3.5 will likely target MSVC 2014, not supported yet')
+    elif isVS2015:
+        if not hasOpenMpSupport:
+            raise Exception('OpenMP not available but should be, see error messages above')
+        if is64Bit:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x64\Microsoft.VC140.OpenMP\vcomp140.dll']
+        else:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x86\Microsoft.VC140.OPENMP\vcomp140.dll']
     
     if hasOpenMpSupport:
         try:
