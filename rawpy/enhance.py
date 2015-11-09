@@ -296,7 +296,7 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
             # convert the full-size coordinates to the color slice coordinates
             coords_color[:,0] -= offset_y
             coords_color[:,1] -= offset_x
-            coords_color /= 2            
+            coords_color //= 2            
             
             mask = np.zeros_like(rawslice, dtype=bool)
             mask[coords_color[:,0],coords_color[:,1]] = True
