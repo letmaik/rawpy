@@ -97,7 +97,4 @@ test_script:
 
 deploy_script:
   - "powershell ./appveyor/pypi_deploy.ps1"
- 
-matrix:
-  fast_finish: true
   
