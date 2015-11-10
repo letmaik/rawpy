@@ -265,7 +265,11 @@ cdef class RawPy:
                 return RawType.Stack
     
     property raw_image:
-        """View of Bayer-pattern RAW image, one channel. Includes margin."""
+        """
+        View of Bayer-pattern RAW image, one channel. Includes margin.
+        
+        :rtype: ndarray of shape (h,w)
+        """
         def __get__(self):
             cdef ushort* raw = self.p.imgdata.rawdata.raw_image
             if raw == NULL:
@@ -276,7 +280,11 @@ cdef class RawPy:
             return np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
     
     property raw_image_visible:
-        """Like raw_image but without margin."""
+        """
+        Like raw_image but without margin.
+        
+        :rtype: ndarray of shape (hv,wv)
+        """
         def __get__(self):
             raw_image = self.raw_image
             if raw_image is None:
@@ -354,6 +362,8 @@ cdef class RawPy:
         An array of color indices for each pixel in the RAW image.
         Equivalent to calling raw_color(y,x) for each pixel.
         Only usable for flat RAW images (see raw_type property).
+        
+        :rtype: ndarray of shape (h,w)
         """
         def __get__(self):
             if self.p.imgdata.rawdata.raw_image == NULL:
@@ -365,7 +375,11 @@ cdef class RawPy:
             return np.tile(pattern, (height/n, width/n))
     
     property raw_colors_visible:
-        """Like raw_colors but without margin."""
+        """
+        Like raw_colors but without margin.
+        
+        :rtype: ndarray of shape (hv,wv)
+        """
         def __get__(self):
             s = self.sizes
             return self.raw_colors[s.top_margin:s.top_margin+s.height,
@@ -411,6 +425,8 @@ cdef class RawPy:
     property camera_whitebalance:
         """
         White balance coefficients (as shot). Either read from file or calculated.
+        
+        :rtype: list of length 4
         """
         def __get__(self):
             return [self.p.imgdata.rawdata.color.cam_mul[0],
@@ -423,6 +439,8 @@ cdef class RawPy:
         White balance coefficients for daylight (daylight balance). 
         Either read from file, or calculated on the basis of file data, 
         or taken from hardcoded constants.
+        
+        :rtype: list of length 4
         """
         def __get__(self):
             return [self.p.imgdata.rawdata.color.pre_mul[0],
@@ -434,6 +452,8 @@ cdef class RawPy:
         """
         Per-channel black level correction.
         NOTE: This equals black + cblack[N] in LibRaw.
+        
+        :rtype: list of length 4
         """
         def __get__(self):
             cdef unsigned black = self.p.imgdata.rawdata.color.black
@@ -512,7 +532,7 @@ cdef class RawPy:
         
         .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.postprocess` instead.
         
-        :rtype: ndarray
+        :rtype: ndarray of shape (h,w,c)
         """
         cdef int errcode = 0
         cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
@@ -535,7 +555,7 @@ cdef class RawPy:
             Alternative way to provide postprocessing parameters.
             The keywords are used to construct a :class:`rawpy.Params` instance.
             If keywords are given, then `params` must be omitted.
-        :rtype: ndarray
+        :rtype: ndarray of shape (h,w,c)
         """
         self.dcraw_process(params, **kw)
         return self.dcraw_make_mem_image()
