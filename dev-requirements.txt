@@ -4,4 +4,4 @@ nose
 wheel
 sphinx_rtd_theme
 imageio
-scikit-image==0.10.1
+scikit-image

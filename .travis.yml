@@ -42,8 +42,6 @@ install:
   - travis_retry sudo apt-get install libfreeimage-dev python-opencv
   # scikit-image requires scipy
   - travis_retry sudo apt-get install python-scipy
-  # scikit-image 0.10.1 doesn't install six itself
-  - pip install six
   - pip install -r dev-requirements.txt
   - python setup.py sdist
   - pip install dist/*.tar.gz
