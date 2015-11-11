@@ -136,6 +136,10 @@ def testNikonD4Size():
     assert_equal(s.top_margin, 0)
     assert_equal(s.left_margin, 2)
     
+def testSegfaultBug():
+    # https://github.com/neothemachine/rawpy/issues/7
+    dummy = rawpy.imread(rawTestPath).raw_image
+    
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
     # as they both use freeimage and this has some weird internal formats
