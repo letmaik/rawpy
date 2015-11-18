@@ -70,6 +70,10 @@ install:
   - "conda install --yes numpy cython scipy scikit-image"
   - "pip install -r dev-requirements.txt"
   
+  # force nose reinstall (not using possibly existing conda package)
+  # see https://github.com/conda/conda/issues/1183
+  - "pip install -U nose"
+  
   # output what's installed
   - "pip freeze"
   
