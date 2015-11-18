@@ -43,6 +43,8 @@ install:
   # scikit-image requires scipy
   - travis_retry sudo apt-get install python-scipy
   - pip install -r dev-requirements.txt
+  # output what's installed
+  - pip freeze
   - python setup.py sdist
   - pip install dist/*.tar.gz
 
