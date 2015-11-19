@@ -118,6 +118,7 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
     
     $miniconda_versions=@{
      	"2.7.9"="3.9.1";
+     	"3.3.4"="3.0.5";
     	"3.3.5"="3.4.2";
     	"3.4.3"="3.16.0";
     	"3.5.0"="3.18.3";
