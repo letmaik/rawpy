@@ -125,7 +125,10 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
     	"3.5.0"="3.18.3";
   		}
   		
-  	$miniconda_version = $miniconda_versions.$python_version
+  	#$miniconda_version = $miniconda_versions.$python_version
+  	
+  	# temporary test: always use latest version and then create a conda environment 
+  	$miniconda_version = "3.18.3"
     
     if ($python_version.StartsWith("3")) {    	
         $filename = "Miniconda3-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"

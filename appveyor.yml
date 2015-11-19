@@ -21,11 +21,11 @@ environment:
       PYTHON_ARCH: "64"
 
     - PYTHON: "C:\\Python33_32"
-      PYTHON_VERSION: "3.3.4"
+      PYTHON_VERSION: "3.3.5"
       PYTHON_ARCH: "32"
 
     - PYTHON: "C:\\Python33_64"
-      PYTHON_VERSION: "3.3.4"
+      PYTHON_VERSION: "3.3.5"
       PYTHON_ARCH: "64"
 
     - PYTHON: "C:\\Python34_32"
@@ -61,6 +61,10 @@ install:
   # done from inside the powershell script as it would require to restart
   # the parent CMD process).
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  
+  # create conda environment
+  - "conda create --yes --name pyenv python=%PYTHON_VERSION%"
+  - "activate pyenv"
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
