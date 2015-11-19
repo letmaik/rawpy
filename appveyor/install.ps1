@@ -130,11 +130,13 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
   	# temporary test: always use latest version and then create a conda environment 
   	$miniconda_version = "3.18.3"
     
-    if ($python_version.StartsWith("3")) {    	
-        $filename = "Miniconda3-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"
-    } else {
-        $filename = "Miniconda-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"
-    }
+    $filename = "Miniconda3-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"
+    
+    #if ($python_version.StartsWith("3")) {    	
+    #    $filename = "Miniconda3-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"
+    #} else {
+    #    $filename = "Miniconda-" + $miniconda_version + "-Windows-" + $platform_suffix + ".exe"
+    #}
     $url = $MINICONDA_URL + $filename
 
     $basedir = $pwd.Path + "\"
