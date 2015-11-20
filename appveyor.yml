@@ -76,7 +76,7 @@ install:
   
   # force nose reinstall (not using possibly existing conda package)
   # see https://github.com/conda/conda/issues/1183
-  #- "pip install -U nose"
+  - "pip install -U nose"
   
   # output what's installed
   - "pip freeze"
