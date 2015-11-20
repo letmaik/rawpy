@@ -277,7 +277,15 @@ cdef class RawPy:
             cdef np.npy_intp shape[2]
             shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
             shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
-            return np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+            cdef np.ndarray ndarr
+            ndarr = np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+            # ndarr must hold a reference to this object,
+            # otherwise the underlying data gets lost when the RawPy instance gets out of scope
+            # (which would trigger __dealloc__)
+            ndarr.base = <PyObject*> self
+            # Python doesn't know about above assignment as it's in C-level 
+            Py_INCREF(self)
+            return ndarr
     
     property raw_image_visible:
         """
