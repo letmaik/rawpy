@@ -304,7 +304,7 @@ cdef class RawPy:
     cpdef ushort raw_value(self, int row, int column):
         """
         Return RAW value at given position relative to the full RAW image.
-        Only usable for flat RAW images (see raw_type property).
+        Only usable for flat RAW images (see :attr:`~rawpy.RawPy.raw_type` property).
         """
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
