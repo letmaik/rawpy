@@ -1,9 +1,6 @@
 Enumerations
 ============
 
-sphinx doesn't handle Python 3.4 enums yet
-see https://github.com/sphinx-doc/sphinx/issues/1609
-
 RawType
 -------
 

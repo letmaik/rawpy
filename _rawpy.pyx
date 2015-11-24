@@ -208,6 +208,10 @@ ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width',
                                        'pixel_aspect', 'flip'])
 
 class RawType(Enum):
+    """
+    RAW image type.
+    """
+    
     Flat = 0
     """ Bayer type or black and white """
     
@@ -608,6 +612,9 @@ cdef class RawPy:
                 print(repr(LibRawNonFatalError(errstr)), file=sys.stderr)
 
 class DemosaicAlgorithm(Enum):
+    """
+    Identifiers for demosaic algorithms.
+    """
     LINEAR=0
     VNG=1
     PPG=2
@@ -669,6 +676,9 @@ class DemosaicAlgorithm(Enum):
         return True
     
 class ColorSpace(Enum):
+    """
+    Color spaces.
+    """
     raw=0
     sRGB=1
     Adobe=2
