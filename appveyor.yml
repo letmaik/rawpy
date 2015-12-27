@@ -15,34 +15,42 @@ environment:
     - PYTHON: "C:\\Python27_32"
       PYTHON_VERSION: "2.7.10"
       PYTHON_ARCH: "32"
+      NUMPY_VERSION: "1.7"
 
     - PYTHON: "C:\\Python27_64"
       PYTHON_VERSION: "2.7.10"
       PYTHON_ARCH: "64"
+      NUMPY_VERSION: "1.7"
 
     - PYTHON: "C:\\Python33_32"
       PYTHON_VERSION: "3.3.5"
       PYTHON_ARCH: "32"
+      NUMPY_VERSION: "1.7"
 
     - PYTHON: "C:\\Python33_64"
       PYTHON_VERSION: "3.3.5"
       PYTHON_ARCH: "64"
+      NUMPY_VERSION: "1.7"
 
     - PYTHON: "C:\\Python34_32"
       PYTHON_VERSION: "3.4.3"
       PYTHON_ARCH: "32"
+      NUMPY_VERSION: "1.8"
 
     - PYTHON: "C:\\Python34_64"
       PYTHON_VERSION: "3.4.3"
       PYTHON_ARCH: "64"
+      NUMPY_VERSION: "1.8"
       
     - PYTHON: "C:\\Python35_32"
       PYTHON_VERSION: "3.5.0"
       PYTHON_ARCH: "32"
+      NUMPY_VERSION: "1.9"
 
     - PYTHON: "C:\\Python35_64"
       PYTHON_VERSION: "3.5.0"
       PYTHON_ARCH: "64"
+      NUMPY_VERSION: "1.9"
 
 install:
   - ECHO "Powershell version:"
@@ -71,7 +79,7 @@ install:
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # we use conda to prevent compiling extensions
-  - "conda install --yes numpy cython scipy scikit-image"
+  - "conda install --yes numpy=%NUMPY_VERSION% cython scipy scikit-image"
   - "pip install -r dev-requirements.txt"
   
   # force nose reinstall (not using possibly existing conda package)
