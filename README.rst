@@ -55,6 +55,28 @@ Find bad pixels using multiple RAW files and repair them:
 	    rgb = raw.postprocess()
 	    imageio.imsave(path + '.tiff', rgb)
 
+NumPy Dependency
+----------------
+
+Before installing rawpy, you need to have *numpy* installed.
+You can check your *numpy* version with `pip freeze`.
+
+The minimum supported *numpy* version depends on your Python version:
+
+Python    | numpy
+----------|---------
+2.7 - 3.4 | >= 1.7.1
+3.5       | >= 1.9.3
+
+You can install numpy with `pip install numpy`.
+
+Installation on Windows and Mac OS X
+------------------------------------
+
+Binaries are provided for Python 2.7, 3.3, 3.4 and 3.5 for both 32 and 64 bit.
+These can be installed with a simple ``pip install --use-wheel rawpy`` 
+(or just ``pip install rawpy`` if using pip >= 1.5).
+
 Installation on Linux
 ---------------------
 
@@ -66,7 +88,7 @@ On Ubuntu, you can get (an outdated) version with:
 
     sudo apt-get install libraw-dev
     
-Or install the latest developer version from the SVN repository:
+Or install the latest developer version from the source repository:
 
 .. code-block:: sh
 
@@ -89,15 +111,5 @@ when trying to use rawpy, then do the following:
 
 The LibRaw library is installed in /usr/local/lib and apparently this folder is not searched
 for libraries by default in some Linux distributions.
-
-Installation on Windows and Mac OS X
-------------------------------------
-
-Binaries are provided for Python 2.7, 3.3, 3.4 and 3.5 for both 32 and 64 bit.
-These can be installed with a simple ``pip install --use-wheel rawpy`` 
-(or just ``pip install rawpy`` if using pip >= 1.5).
-
-Binaries for other Python versions are currently not produced but if there is a need
-then this is possible as well. In that case, just contact me.
 
 .. _LibRaw: http://www.libraw.org
