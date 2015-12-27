@@ -59,16 +59,18 @@ NumPy Dependency
 ----------------
 
 Before installing rawpy, you need to have *numpy* installed.
-You can check your *numpy* version with `pip freeze`.
+You can check your numpy version with ``pip freeze``.
 
-The minimum supported *numpy* version depends on your Python version:
+The minimum supported numpy version depends on your Python version:
 
-Python    | numpy
-----------|---------
-2.7 - 3.4 | >= 1.7.1
-3.5       | >= 1.9.3
+========== =========
+Python     numpy
+---------- ---------
+2.7 - 3.4  >= 1.7.1
+3.5        >= 1.9.3
+========== =========
 
-You can install numpy with `pip install numpy`.
+You can install numpy with ``pip install numpy``.
 
 Installation on Windows and Mac OS X
 ------------------------------------
