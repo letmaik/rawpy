@@ -154,6 +154,10 @@ def save(path, im):
     imageio.imsave(path, im)
 
 def print_stats(rgb):
+    # np.min supports axis tuple from 1.10
+    from distutils.version import StrictVersion
+    if StrictVersion(np.__version__) <= StrictVersion('1.10'):
+        return
     print(rgb.dtype, 
           np.min(rgb, axis=(0,1)), np.max(rgb, axis=(0,1)), # range for each channel
           [len(np.unique(rgb[:,:,0])), len(np.unique(rgb[:,:,1])), len(np.unique(rgb[:,:,2]))], # unique values
