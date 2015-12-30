@@ -66,7 +66,8 @@ The minimum supported numpy version depends on your Python version:
 ========== =========
 Python     numpy
 ---------- ---------
-2.7 - 3.4  >= 1.7.1
+2.7 - 3.3  >= 1.7.1
+3.4        >= 1.8.1
 3.5        >= 1.9.3
 ========== =========
 
