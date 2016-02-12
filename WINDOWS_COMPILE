@@ -24,6 +24,10 @@ http://www.microsoft.com/en-us/download/details.aspx?id=5582
 Visual C++ 2008 SP1 Redistributable Package (x64)
 http://www.microsoft.com/en-us/download/details.aspx?id=2092
 
-Python >= 3.3
--------------
+Python >= 3.3 and < 3.5
+-----------------------
 You need to have Visual Studio 2010 Professional (or Premium or Ultimate) installed.
+
+Python >= 3.5
+-------------
+You need to have Visual Studio 2015 installed.
