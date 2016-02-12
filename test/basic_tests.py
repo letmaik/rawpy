@@ -54,6 +54,15 @@ def testFileOpenAndPostProcess():
     print_stats(rgb)
     save('test_16daylight_linear.tiff', rgb)
 
+def testContextManager():
+    with rawpy.imread(rawTestPath) as raw:
+        assert_array_equal(raw.raw_image.shape, [2844, 4288])
+
+def testManualClose():
+    raw = rawpy.imread(rawTestPath)
+    assert_array_equal(raw.raw_image.shape, [2844, 4288])
+    raw.close()
+
 def testProperties():
     raw = rawpy.imread(rawTestPath)
     
