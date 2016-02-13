@@ -20,16 +20,13 @@ before_install:
   - travis_retry sudo apt-get update
 
 install:
-  # latest version 0.16 has an error in the pkgconfig file
-  # therefore we use master for now, until 0.17 is released
-  # once 0.17 is release, put this line below git clone:
-  # git checkout `git describe --abbrev=0 --tags` ;
   - if [ $USE_LATEST_LIBRAW == true ]; then
       cd .. ;
       git clone $LIBRAW_GIT ;
       git clone $LIBRAW_CMAKE_GIT ;
       cp -R LibRaw-cmake/* LibRaw ;
       cd LibRaw ;
+      git checkout `git describe --abbrev=0 --tags` ;
       cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ;
       make ;
       sudo make install ;
