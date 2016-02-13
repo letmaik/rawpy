@@ -240,6 +240,15 @@ cdef class RawPy:
         self.close()
         
     def close(self):
+        """
+        Release all resources and close the RAW image.
+        
+        Consider using context managers for the same effect::
+        
+            with rawpy.imread('image.nef') as raw:
+              # work with raw object
+            
+        """
         self.p.recycle()
     
     def open_file(self, path):

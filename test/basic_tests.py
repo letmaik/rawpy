@@ -64,10 +64,8 @@ def testManualClose():
     assert_array_equal(raw.raw_image.shape, [2844, 4288])
     raw.close()
     
-'''
-see https://github.com/neothemachine/rawpy/issues/10
-'''
 def testWindowsFileLockRelease():
+    # see https://github.com/neothemachine/rawpy/issues/10
     # we make a copy of the raw file which we will later remove
     copyPath = rawTestPath + '-copy'
     shutil.copyfile(rawTestPath, copyPath)

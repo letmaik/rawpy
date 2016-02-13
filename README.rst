@@ -29,15 +29,16 @@ Load a RAW file and save the postprocessed image using default parameters:
 	import imageio
 	
 	path = 'image.nef'
-	raw = rawpy.imread(path)
-	rgb = raw.postprocess()
+	with rawpy.imread(path) as raw:
+	    rgb = raw.postprocess()
 	imageio.imsave('default.tiff', rgb)
 	
 Save as 16-bit linear image:
 
 .. code-block:: python
 	
-	rgb = raw.postprocess(gamma=(1,1), no_auto_bright=True, output_bps=16)
+	with rawpy.imread(path) as raw:
+	    rgb = raw.postprocess(gamma=(1,1), no_auto_bright=True, output_bps=16)
 	imageio.imsave('linear.tiff', rgb)
 
 Find bad pixels using multiple RAW files and repair them:
@@ -50,9 +51,9 @@ Find bad pixels using multiple RAW files and repair them:
 	bad_pixels = rawpy.enhance.find_bad_pixels(paths)
 	
 	for path in paths:
-	    raw = rawpy.imread(path)
-	    rawpy.enhance.repair_bad_pixels(raw, bad_pixels, method='median')
-	    rgb = raw.postprocess()
+	    with rawpy.imread(path) as raw:
+	        rawpy.enhance.repair_bad_pixels(raw, bad_pixels, method='median')
+	        rgb = raw.postprocess()
 	    imageio.imsave(path + '.tiff', rgb)
 
 NumPy Dependency
