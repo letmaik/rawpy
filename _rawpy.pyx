@@ -243,11 +243,13 @@ cdef class RawPy:
         """
         Release all resources and close the RAW image.
         
-        Consider using context managers for the same effect::
+        Consider using context managers for the same effect:
+        
+        .. code-block:: python
         
             with rawpy.imread('image.nef') as raw:
               # work with raw object
-            
+        
         """
         self.p.recycle()
     
