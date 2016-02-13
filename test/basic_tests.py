@@ -71,7 +71,8 @@ def testWindowsFileLockRelease():
     shutil.copyfile(rawTestPath, copyPath)
     with rawpy.imread(copyPath) as raw:
         rgb = raw.postprocess()
-        assert_array_equal(rgb.shape, [2844, 4284, 3])
+    assert_array_equal(rgb.shape, [2844, 4284, 3])
+    print_stats(rgb)
     # if the following does not throw an exception on Windows,
     # then the file is not locked anymore, which is how it should be
     os.remove(copyPath)
@@ -80,9 +81,9 @@ def testWindowsFileLockRelease():
     shutil.copyfile(rawTestPath, copyPath)
     raw = rawpy.imread(copyPath)
     rgb = raw.postprocess()
-    assert_array_equal(rgb.shape, [2844, 4284, 3])
     raw.close()
     os.remove(copyPath)
+    assert_array_equal(rgb.shape, [2844, 4284, 3])
 
 def testProperties():
     raw = rawpy.imread(rawTestPath)
