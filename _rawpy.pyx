@@ -296,9 +296,9 @@ cdef class RawPy:
         calling :meth:`~rawpy.RawPy.postprocess`.
         
         .. WARNING:: The returned numpy array can only be accessed while this RawPy instance
-        is not closed yet, that is, within a :code:`with` block or before calling :meth:`~rawpy.RawPy.close`.
-        If you need to work on the array after closing the RawPy instance,
-        make sure to create a copy of it with :code:`raw_image = raw.raw_image.copy()`.
+            is not closed yet, that is, within a :code:`with` block or before calling :meth:`~rawpy.RawPy.close`.
+            If you need to work on the array after closing the RawPy instance,
+            make sure to create a copy of it with :code:`raw_image = raw.raw_image.copy()`.
         
         :rtype: ndarray of shape (h,w)
         """
