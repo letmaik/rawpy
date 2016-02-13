@@ -1,6 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import os
+import shutil
 from pprint import pprint
 import numpy as np
 import numpy.ma as ma
@@ -62,6 +63,28 @@ def testManualClose():
     raw = rawpy.imread(rawTestPath)
     assert_array_equal(raw.raw_image.shape, [2844, 4288])
     raw.close()
+    
+'''
+see https://github.com/neothemachine/rawpy/issues/10
+'''
+def testWindowsFileLockRelease():
+    # we make a copy of the raw file which we will later remove
+    copyPath = rawTestPath + '-copy'
+    shutil.copyfile(rawTestPath, copyPath)
+    with rawpy.imread(copyPath) as raw:
+        rgb = raw.postprocess()
+        assert_array_equal(rgb.shape, [2844, 4284, 3])
+    # if the following does not throw an exception on Windows,
+    # then the file is not locked anymore, which is how it should be
+    os.remove(copyPath)
+    
+    # we test the same using .close() instead of a context manager
+    shutil.copyfile(rawTestPath, copyPath)
+    raw = rawpy.imread(copyPath)
+    rgb = raw.postprocess()
+    assert_array_equal(rgb.shape, [2844, 4284, 3])
+    raw.close()
+    os.remove(copyPath)
 
 def testProperties():
     raw = rawpy.imread(rawTestPath)
