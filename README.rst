@@ -92,7 +92,7 @@ On Ubuntu, you can get (an outdated) version with:
 
     sudo apt-get install libraw-dev
     
-Or install the latest developer version from the source repository:
+Or install the latest release version from the source repository:
 
 .. code-block:: sh
 
