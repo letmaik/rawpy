@@ -98,8 +98,9 @@ Or install the latest developer version from the source repository:
 
     git clone git://github.com/LibRaw/LibRaw.git libraw
     git clone git://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
-    cp -R libraw-cmake/* libraw ;
     cd libraw
+    git checkout 0.17.1
+    cp -R ../libraw-cmake/* .
     cmake .
     sudo make install
     
