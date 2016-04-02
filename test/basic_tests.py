@@ -153,12 +153,17 @@ def testVisibleSize():
         assert_equal(w, s.width)
         
 def testHalfSizeParameter():
-    path = rawTestPath
-    raw = rawpy.imread(path)
+    raw = rawpy.imread(rawTestPath)
     s = raw.sizes
     rgb = raw.postprocess(half_size=True)
     assert_equal(rgb.shape[0], s.height//2)
     assert_equal(rgb.shape[1], s.width//2)
+    
+def testHighlightModeParameter():
+    raw = rawpy.imread(rawTestPath)
+    raw.postprocess(highlight_mode=1)
+    raw.postprocess(highlight_mode=rawpy.HighlightMode.Blend)
+    raw.postprocess(highlight_mode=rawpy.HighlightMode.Reconstruct(3))
 
 def testFindBadPixelsNikonD4():
     # crashed with "AssertionError: horizontal margins are not symmetric"

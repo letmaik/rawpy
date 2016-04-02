@@ -621,6 +621,7 @@ cdef class RawPy:
         p.auto_bright_thr = params.auto_bright_thr
         p.adjust_maximum_thr = params.adjust_maximum_thr
         p.bright = params.bright
+        p.highlight = params.highlight
         p.exp_correc = params.exp_correc
         p.exp_shift = params.exp_shift
         p.exp_preser = params.exp_preser
@@ -717,6 +718,25 @@ class ColorSpace(Enum):
     Wide=3
     ProPhoto=4
     XYZ=5
+    
+class HighlightMode(Enum):
+    """
+    Highlight modes.
+    """
+    Clip=0
+    Ignore=1
+    Blend=2
+    ReconstructDefault=5
+    
+    @classmethod
+    def Reconstruct(self, level):
+        """
+        :param int level: 3 to 9, low numbers favor whites, high numbers favor colors
+        """
+        if not 3 <= level <= 9:
+            raise ValueError('highlight reconstruction level must be between 3 and 9 inclusive') 
+        return level
+
 
 class NotSupportedError(Exception):
     def __init__(self, message, min_version=None):
@@ -735,7 +755,7 @@ class Params(object):
                  output_color=ColorSpace.sRGB, output_bps=8, 
                  user_flip=None, user_black=None, user_sat=None,
                  no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
-                 bright=None,
+                 bright=None, highlight_mode=HighlightMode.Clip,
                  exp_shift=None, exp_preserve_highlights=0.0,
                  gamma=None, chromatic_aberration=None,
                  bad_pixels_path=None):
@@ -763,6 +783,8 @@ class Params(object):
                                       (see `no_auto_bright`). Default is 0.01 (1%).
         :param float adjust_maximum_thr: see libraw docs
         :param float bright: brightness (default 1.0)
+        :param highlight_mode: highlight mode
+        :type highlight_mode: rawpy.HighlightMode | int
         :param float exp_shift: exposure shift in linear scale.
                           Usable range from 0.25 (2-stop darken) to 8.0 (3-stop lighter).
         :param float exp_preserve_highlights: preserve highlights when lightening the image with `exp_shift`.
@@ -805,6 +827,10 @@ class Params(object):
             self.auto_bright_thr = LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
         self.adjust_maximum_thr = adjust_maximum_thr
         self.bright = bright if bright is not None else 1.0
+        if isinstance(highlight_mode, HighlightMode):
+            self.highlight = highlight_mode.value
+        else:
+            self.highlight = highlight_mode
         if exp_shift is not None:
             self.exp_correc = 1
             self.exp_shift = exp_shift
