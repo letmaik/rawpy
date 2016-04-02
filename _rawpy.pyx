@@ -605,6 +605,7 @@ cdef class RawPy:
             return
         cdef libraw_output_params_t* p = &self.p.imgdata.params
         p.user_qual = params.user_qual
+        p.half_size = params.half_size
         p.use_camera_wb = params.use_camera_wb
         p.use_auto_wb = params.use_auto_wb
         if params.user_mul:
@@ -726,7 +727,7 @@ class Params(object):
     """
     A class that handles postprocessing parameters.
     """
-    def __init__(self, demosaic_algorithm=None,
+    def __init__(self, demosaic_algorithm=None, half_size=False,
                  use_camera_wb=False, use_auto_wb=False, user_wb=None,
                  output_color=ColorSpace.sRGB, output_bps=8, 
                  user_flip=None, user_black=None, user_sat=None,
@@ -742,6 +743,8 @@ class Params(object):
         If both use_camera_wb and use_auto_wb are True, then use_auto_wb has priority.
         
         :param rawpy.DemosaicAlgorithm demosaic_algorithm: default is AHD
+        :param bool half_size: outputs image in half size by reducing each 2x2 block to one pixel
+                               instead of interpolating
         :param bool use_camera_wb: whether to use the as-shot white balance values
         :param bool use_auto_wb: whether to try automatically calculating the white balance 
         :param list user_wb: list of length 4 with white balance multipliers for each color 
@@ -771,6 +774,7 @@ class Params(object):
             self.user_qual = demosaic_algorithm.value
         else:
             self.user_qual = -1
+        self.half_size = half_size
         self.use_camera_wb = use_camera_wb
         self.use_auto_wb = use_auto_wb
         if user_wb is not None:
