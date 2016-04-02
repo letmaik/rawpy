@@ -629,6 +629,8 @@ cdef class RawPy:
             p.bad_pixels = NULL
         p.gamm[0] = params.gamm[0]
         p.gamm[1] = params.gamm[1]
+        p.aber[0] = params.aber[0]
+        p.aber[2] = params.aber[1]
     
     cdef handle_error(self, int code):
         if code > 0:
@@ -734,7 +736,7 @@ class Params(object):
                  no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
                  bright=None,
                  exp_shift=None, exp_preserve_highlights=0.0,
-                 gamma=None,
+                 gamma=None, chromatic_aberration=None,
                  bad_pixels_path=None):
         """
 
@@ -764,6 +766,8 @@ class Params(object):
         :param float exp_preserve_highlights: preserve highlights when lightening the image with `exp_shift`.
                           From 0.0 to 1.0 (full preservation).
         :param tuple gamma: pair (power,slope), default is (2.222, 4.5) for rec. BT.709
+        :param tuple chromatic_aberration: pair (red_scale, blue_scale), default is (1,1),
+                                           corrects chromatic aberration by scaling the red and blue channels
         :param str bad_pixels_path: path to dcraw bad pixels file. Each bad pixel will be corrected using
                                     the mean of the neighbor pixels. See the :mod:`rawpy.enhance` module
                                     for alternative repair algorithms, e.g. using the median.
@@ -810,6 +814,11 @@ class Params(object):
             self.gamm = (1/gamma[0], gamma[1])
         else:
             self.gamm = (1/2.222, 4.5) # rec. BT.709
+        if chromatic_aberration is not None:
+            assert len(chromatic_aberration) == 2
+            self.aber = (chromatic_aberration[0], chromatic_aberration[1])
+        else:
+            self.aber = (1, 1)
         self.bad_pixels = bad_pixels_path
     
 class LibRawFatalError(Exception):
