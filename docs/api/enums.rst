@@ -22,3 +22,10 @@ ColorSpace
    :members:
    :undoc-members:
    
+HighlightMode
+-------------
+
+.. autoclass:: rawpy.HighlightMode
+   :members:
+   :undoc-members:
+   
