@@ -784,7 +784,7 @@ class Params(object):
         :param float adjust_maximum_thr: see libraw docs
         :param float bright: brightness (default 1.0)
         :param highlight_mode: highlight mode
-        :type highlight_mode: rawpy.HighlightMode | int
+        :type highlight_mode: :class:`rawpy.HighlightMode` | int
         :param float exp_shift: exposure shift in linear scale.
                           Usable range from 0.25 (2-stop darken) to 8.0 (3-stop lighter).
         :param float exp_preserve_highlights: preserve highlights when lightening the image with `exp_shift`.
