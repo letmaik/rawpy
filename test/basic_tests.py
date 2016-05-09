@@ -54,6 +54,14 @@ def testFileOpenAndPostProcess():
                           gamma=(1,1), output_bps=16)
     print_stats(rgb)
     save('test_16daylight_linear.tiff', rgb)
+    
+def testBufferOpen():
+    with open(rawTestPath, 'rb') as rawfile:
+        with rawpy.imread(rawfile) as raw:
+            assert_array_equal(raw.raw_image.shape, [2844, 4288])
+            rgb = raw.postprocess()
+    print_stats(rgb)
+    save('test_buffer.tiff', rgb)
 
 def testContextManager():
     with rawpy.imread(rawTestPath) as raw:

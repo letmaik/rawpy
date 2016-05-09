@@ -177,6 +177,7 @@ cdef extern from "libraw.h":
         libraw_data_t imgdata
         LibRaw()
         int open_file(const char *fname)
+        int open_buffer(void *buffer, size_t bufsize)
         int unpack()
         int COLOR(int row, int col)
 #         int raw2image()
@@ -226,6 +227,7 @@ cdef class RawPy:
     """
     cdef LibRaw* p
     cdef bint needs_reopening
+    cdef object bytes
         
     def __cinit__(self):
         self.p = new LibRaw()
@@ -267,7 +269,20 @@ cdef class RawPy:
             # with different parameters, therefore we remember the fact that this is freshly opened
             # and issue a warning in postprocess if needed
             self.needs_reopening = False
+    
+    def open_buffer(self, fileobj):
+        """
+        Opens the given RAW image file-like object. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
+        .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
+        
+        :param file fileobj: The file-like object.
+        """
+        # we keep a reference to the byte buffer to avoid garbage collection
+        self.bytes = fileobj.read()
+        cdef char *buf = self.bytes
+        self.handle_error(self.p.open_buffer(buf, len(self.bytes)))        
+    
     def unpack(self):
         """
         Unpacks/decodes the opened RAW image.
@@ -275,6 +290,7 @@ cdef class RawPy:
         .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
         """
         self.handle_error(self.p.unpack())
+        self.bytes = None
     
     property raw_type:
         """
@@ -642,7 +658,7 @@ cdef class RawPy:
             if code < -10000: # see macro LIBRAW_FATAL_ERROR in libraw_const.h
                 raise LibRawFatalError(errstr)
             else:
-                print(repr(LibRawNonFatalError(errstr)), file=sys.stderr)
+                raise LibRawNonFatalError(errstr)
 
 class DemosaicAlgorithm(Enum):
     """
