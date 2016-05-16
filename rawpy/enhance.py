@@ -56,7 +56,6 @@ def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     width = None
     paths = list(paths)
     for path in paths:
-        t0 = time.time()
         # TODO this is a bit slow, try RawSpeed
         raw = rawpy.imread(path)
         if width is None:
@@ -64,10 +63,8 @@ def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
                 raise NotImplementedError('Only Bayer-type images are currently supported')
             # we need the width later for counting
             width = raw.sizes.width
-        print('imread:', time.time()-t0, 's')
             
         thresh = max(np.max(raw.raw_image_visible)//150, 20)
-        print('threshold:', thresh)
         
         isCandidate = partial(_is_candidate, find_hot=find_hot, find_dead=find_dead, thresh=thresh)        
         coords.extend(_find_bad_pixel_candidates(raw, isCandidate))
@@ -85,11 +82,9 @@ def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     offset += coords[:,1]
     
     # now we count how many times each offset occurs
-    t0 = time.time()
     counts = _groupcount(offset)
-    print('groupcount:', time.time()-t0, 's')
     
-    print('found', len(counts), 'bad pixel candidates, cross-checking images..')
+    #print('found', len(counts), 'bad pixel candidates, cross-checking images..')
     
     # we select the ones whose count is high
     is_bad = counts[:,1] >= confirm_ratio*len(paths)
@@ -98,20 +93,16 @@ def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     bad_offsets = counts[is_bad,0]
     bad_coords = np.transpose([bad_offsets // width, bad_offsets % width])
     
-    print(len(bad_coords), 'bad pixels remaining after cross-checking images')
+    #print(len(bad_coords), 'bad pixels remaining after cross-checking images')
     
     return bad_coords
 
 def _find_bad_pixel_candidates(raw, isCandidateFn):
-    t0 = time.time()
-    
     if raw.raw_pattern.shape[0] == 2:
         coords = _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn)
     else:
         coords = _find_bad_pixel_candidates_generic(raw, isCandidateFn)
-            
-    print('badpixel candidates:', time.time()-t0, 's')
-    
+                
     return coords
 
 def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
@@ -123,13 +114,11 @@ def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
     r = 5
     kernel = np.ones((r,r))
     for mask in color_masks:
-        t1 = time.time()
         # skimage's median is quite slow, it uses an O(r) filtering algorithm.
         # There exist O(log(r)) and O(1) algorithms, see https://nomis80.org/ctmf.pdf.
         # Also, we only need the median values for the masked pixels.
         # Currently, they are calculated for all pixels for each color.
         med = median(rawimg, kernel, mask=mask)
-        print('median:', time.time()-t1, 's')
         
         # detect possible bad pixels
         candidates = isCandidateFn(rawimg, med)
@@ -169,13 +158,11 @@ def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
         for offset_x in [0,1]:
             rawslice = rawimg[offset_y::2,offset_x::2]
 
-            t1 = time.time()
             if cv2 is not None:
                 # some older OpenCV versions require contiguous arrays
                 # otherwise results are invalid
                 rawslice = np.require(rawslice, rawslice.dtype, 'C')
             med = median_(rawslice)
-            print('median:', time.time()-t1, 's')
             
             # detect possible bad pixels
             candidates = isCandidateFn(rawslice, med)
@@ -213,16 +200,12 @@ def repair_bad_pixels(raw, coords, method='median'):
     # by only interpolating the bad pixels instead of the whole image.
     
     coords = np.asarray(coords)
-    
-    t0 = time.time()
    
     if raw.raw_pattern.shape[0] == 2:
         _repair_bad_pixels_bayer2x2(raw, coords, method)
     else:
         _repair_bad_pixels_generic(raw, coords, method)
-    
-    print('badpixel repair:', time.time()-t0, 's')  
-    
+        
     # TODO check how many detected bad pixels are false positives
     #raw.raw_image_visible[coords[:,0], coords[:,1]] = 0
 
@@ -273,7 +256,6 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
         for offset_x in [0,1]:
             rawslice = rawimg[offset_y::2,offset_x::2]
 
-            t1 = time.time()
             if cv2 is not None:
                 # some older OpenCV versions require contiguous arrays
                 # otherwise results are invalid
@@ -281,7 +263,6 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
                 smooth = median_(rawslicecv)
             else:
                 smooth = median_(rawslice)
-            print('median:', time.time()-t1, 's')
             
             # determine which bad pixels belong to this color slice
             sliced_y = coords[:,0]-offset_y
