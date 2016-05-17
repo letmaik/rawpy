@@ -10,12 +10,18 @@ import warnings
 from functools import partial
 import numpy as np
 
-from skimage.filter.rank import median
+try:
+    from skimage.filter.rank import median
+except ImportError:
+    median = None
 try:
     import cv2
 except ImportError:
     warnings.warn('OpenCV not found, install for faster processing')
     cv2 = None
+
+if median is None and cv2 is None:
+    raise ImportError('Either scikit-image or OpenCV must be installed to use rawpy.enhance')
 
 import rawpy
 
@@ -106,6 +112,9 @@ def _find_bad_pixel_candidates(raw, isCandidateFn):
     return coords
 
 def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
+    if median is None:
+        raise RuntimeError('scikit-image is required if the Bayer pattern is not 2x2')
+    
     color_masks = _colormasks(raw)   
     rawimg = raw.raw_image_visible    
     coords = []
@@ -210,6 +219,9 @@ def repair_bad_pixels(raw, coords, method='median'):
     #raw.raw_image_visible[coords[:,0], coords[:,1]] = 0
 
 def _repair_bad_pixels_generic(raw, coords, method='median'):
+    if median is None:
+        raise RuntimeError('scikit-image is required for repair_bad_pixels if the Bayer pattern is not 2x2')
+    
     color_masks = _colormasks(raw)
         
     rawimg = raw.raw_image_visible
