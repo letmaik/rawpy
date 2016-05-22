@@ -1,72 +1,49 @@
 language: python
 
-virtualenv:
-  system_site_packages: true
-
 env:
   global:
     - LIBRAW_GIT="git://github.com/LibRaw/LibRaw.git"
     - LIBRAW_CMAKE_GIT="git://github.com/LibRaw/LibRaw-cmake.git"
     # GitHub Access Token to trigger rawpy-mac-wheels builds
     - secure: "LQky6eiSVVGr8o4qaB6B7rM5U87KTAFUiHQdfPlys0VnQC774rP5rc6kssXN8e8HOhYjZ9P8zqypCZcD7HPG3Y8JF6ef/+NrdLPawc41lxNKMojg6k/NIBkK3IUnrr/7A9hfcO89P3iBKZpTDcJesigQ8dVKhVGOMqPx7ZDdD2Y="
-  matrix:
-    - USE_LATEST_LIBRAW=true
-    - USE_LATEST_LIBRAW=false
+
+matrix:
+  include:
+    - sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+    - sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+           PRE_CMD=linux32
     
 git:
   submodules: false
 
-before_install:
-  - travis_retry sudo apt-get update
-
 install:
-  - if [ $USE_LATEST_LIBRAW == true ]; then
-      cd .. ;
-      git clone $LIBRAW_GIT ;
-      git clone $LIBRAW_CMAKE_GIT ;
-      cp -R LibRaw-cmake/* LibRaw ;
-      cd LibRaw ;
-      git checkout `git describe --abbrev=0 --tags` ;
-      cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ;
-      make ;
-      sudo make install ;
-      echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/99local.conf ;
-      sudo ldconfig ;
-      cd ../rawpy ;
-    else
-      travis_retry sudo apt-get install libraw-dev ;
-    fi
-  - travis_retry sudo apt-get install libfreeimage-dev python-opencv
-  # scikit-image requires scipy
-  - travis_retry sudo apt-get install python-scipy
-  - pip install -r dev-requirements.txt
-  # output what's installed
-  - pip freeze
-  - python setup.py sdist
-  - pip install dist/*.tar.gz
+  - docker pull $DOCKER_IMAGE
 
 script:
-  - mkdir tmp_for_test
-  - cd tmp_for_test
-  - nosetests --verbosity=3 --nocapture ../test
-  - cd ..
+  - docker run --rm -v `pwd`:/io -e LIBRAW_GIT -e LIBRAW_CMAKE_GIT $DOCKER_IMAGE $PRE_CMD /io/travis/build.sh
 
 after_success:
-  - if [ $USE_LATEST_LIBRAW == true ]; then
+  - ls wheelhouse/
+  - ls dist/
+  - ls build/
+  - if [ $PRE_CMD=linux32 ]; then
       pip install travispy ;
       travis_retry python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.branch('mac-wheels', 'neothemachine/rawpy').id).restart()" ;
     fi
 
-before_deploy:
-  # otherwise sphinx would fail
-  - python setup.py build_ext --inplace
-
-deploy:
-  provider: pypi
-  user: neothemachine
-  password:
-    secure: "E7MMZ4ZdG+1ZsSPqQ5y8r8AC6/UR1AsH/cajeO1sD58QRXSojEzIgpfENIUS22a3I8jCn84k5V47pWBuELcJubk/G5fxLG2gAQ4skf1Pimwh+TGgzlNN7tE7NuM8xdtgXxFFH7GaZNp1e9TaE9ewya+sMGaqiC5EVRSA0BG5jM0="
-  on:
-    tags: true
-    all_branches: true
-    condition: $USE_LATEST_LIBRAW = false
+# TODO use twine for sdist & wheels, and python setup.py upload_sphinx
+#deploy:
+#  provider: pypi
+#  user: neothemachine
+#  password:
+#    secure: "E7MMZ4ZdG+1ZsSPqQ5y8r8AC6/UR1AsH/cajeO1sD58QRXSojEzIgpfENIUS22a3I8jCn84k5V47pWBuELcJubk/G5fxLG2gAQ4skf1Pimwh+TGgzlNN7tE7NuM8xdtgXxFFH7GaZNp1e9TaE9ewya+sMGaqiC5EVRSA0BG5jM0="
+#  on:
+#    tags: true
+#    all_branches: true
+#    condition: $PRE_CMD=linux32

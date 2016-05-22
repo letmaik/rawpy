@@ -4,4 +4,5 @@ nose
 wheel>=0.25
 sphinx_rtd_theme
 imageio
+scipy
 scikit-image
