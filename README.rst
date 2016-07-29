@@ -1,16 +1,16 @@
 rawpy
 =====
 
-.. image:: https://travis-ci.org/neothemachine/rawpy.svg?branch=master
-    :target: https://travis-ci.org/neothemachine/rawpy
+.. image:: https://travis-ci.org/letmaik/rawpy.svg?branch=master
+    :target: https://travis-ci.org/letmaik/rawpy
     :alt: Linux Build Status
 
-.. image:: https://travis-ci.org/neothemachine/rawpy.svg?branch=mac-wheels
-    :target: https://travis-ci.org/neothemachine/rawpy
+.. image:: https://travis-ci.org/letmaik/rawpy.svg?branch=mac-wheels
+    :target: https://travis-ci.org/letmaik/rawpy
     :alt: Mac OS X Build Status
     
-.. image:: https://ci.appveyor.com/api/projects/status/f8ibd8mejxs9xq5w/branch/master
-    :target: https://ci.appveyor.com/project/neothemachine/rawpy/branch/master
+.. image:: https://ci.appveyor.com/api/projects/status/f8ibd8mejxs9xq5w?svg=true
+    :target: https://ci.appveyor.com/project/letmaik/rawpy
     :alt: Windows Build Status
 
 rawpy is an easy-to-use Python wrapper for the LibRaw_ library.
