@@ -63,6 +63,9 @@ travis_retry yum install -y lapack-devel blas-devel
 for PYBIN in ${PYBINS[@]}; do
     # skimage requires numpy >= 1.7.2, so we use that as our minimum supported version numpy version
     ${PYBIN}/pip install numpy==1.7.2
+    
+    # use older mpl because newer versions require a newer freetype version which doesn't exist on CentOS 5
+    ${PYBIN}/pip install matplotlib==1.3.1
         
     ${PYBIN}/pip install -r /io/dev-requirements.txt
     ${PYBIN}/pip freeze
