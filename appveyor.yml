@@ -52,6 +52,16 @@ environment:
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.9"
 
+    - PYTHON: "C:\\Python36_32"
+      PYTHON_VERSION: "3.6.0"
+      PYTHON_ARCH: "32"
+      NUMPY_VERSION: "1.9"
+
+    - PYTHON: "C:\\Python36_64"
+      PYTHON_VERSION: "3.6.0"
+      PYTHON_ARCH: "64"
+      NUMPY_VERSION: "1.9"
+
 install:
   - ECHO "Powershell version:"
   - ps: "$PSVersionTable.PSVersion.Major"
