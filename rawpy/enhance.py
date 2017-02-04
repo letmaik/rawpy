@@ -11,7 +11,7 @@ from functools import partial
 import numpy as np
 
 try:
-    from skimage.filter.rank import median
+    from skimage.filters.rank import median
 except ImportError:
     warnings.warn('scikit-image not found, will use OpenCV')
     median = None
