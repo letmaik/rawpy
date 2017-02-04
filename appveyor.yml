@@ -22,16 +22,6 @@ environment:
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.7"
 
-    - PYTHON: "C:\\Python33_32"
-      PYTHON_VERSION: "3.3.5"
-      PYTHON_ARCH: "32"
-      NUMPY_VERSION: "1.7"
-
-    - PYTHON: "C:\\Python33_64"
-      PYTHON_VERSION: "3.3.5"
-      PYTHON_ARCH: "64"
-      NUMPY_VERSION: "1.7"
-
     - PYTHON: "C:\\Python34_32"
       PYTHON_VERSION: "3.4.3"
       PYTHON_ARCH: "32"
@@ -52,15 +42,15 @@ environment:
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.9"
 
-    - PYTHON: "C:\\Python36_32"
-      PYTHON_VERSION: "3.6.0"
-      PYTHON_ARCH: "32"
-      NUMPY_VERSION: "1.9"
+    #- PYTHON: "C:\\Python36_32"
+    #  PYTHON_VERSION: "3.6.0"
+    #  PYTHON_ARCH: "32"
+    #  NUMPY_VERSION: "1.9"
 
-    - PYTHON: "C:\\Python36_64"
-      PYTHON_VERSION: "3.6.0"
-      PYTHON_ARCH: "64"
-      NUMPY_VERSION: "1.9"
+    #- PYTHON: "C:\\Python36_64"
+    #  PYTHON_VERSION: "3.6.0"
+    #  PYTHON_ARCH: "64"
+    #  NUMPY_VERSION: "1.9"
 
 install:
   - ECHO "Powershell version:"
