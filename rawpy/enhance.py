@@ -13,6 +13,7 @@ import numpy as np
 try:
     from skimage.filter.rank import median
 except ImportError:
+    warnings.warn('scikit-image not found, will use OpenCV')
     median = None
 try:
     import cv2
