@@ -96,10 +96,10 @@ Or install the latest release version from the source repository:
 
 .. code-block:: sh
 
-    git clone git://github.com/LibRaw/LibRaw.git libraw
-    git clone git://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
+    git clone https://github.com/LibRaw/LibRaw.git libraw
+    git clone https://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
     cd libraw
-    git checkout 0.17.1
+    git checkout 0.18.0
     cp -R ../libraw-cmake/* .
     cmake .
     sudo make install
@@ -114,7 +114,7 @@ when trying to use rawpy, then do the following:
     echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/99local.conf
     sudo ldconfig
 
-The LibRaw library is installed in /usr/local/lib and apparently this folder is not searched
+The LibRaw library is installed in /usr/local/lib (if installed manually) and apparently this folder is not searched
 for libraries by default in some Linux distributions.
 
 .. _LibRaw: http://www.libraw.org
