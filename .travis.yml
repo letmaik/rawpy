@@ -1,7 +1,7 @@
 language: python
 
-virtualenv:
-  system_site_packages: true
+python: 
+  - "3.5"
 
 env:
   global:
@@ -34,9 +34,9 @@ install:
     else
       travis_retry sudo apt-get install libraw-dev ;
     fi
-  - travis_retry sudo apt-get install libfreeimage-dev python-opencv
+  - travis_retry sudo apt-get install libfreeimage-dev
   # scikit-image requires scipy
-  - travis_retry sudo apt-get install python-scipy
+  - pip install scipy opencv-python
   - pip install -r dev-requirements.txt
   # output what's installed
   - pip freeze
