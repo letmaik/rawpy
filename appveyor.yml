@@ -8,7 +8,7 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
     
     PYPI_PASS:
-      secure: K/M1K0yykepbIoiNCP/exSrT+Vqd3BGabL2B2zS94Mo=
+      secure: JMaE+BmBS1Wnw9QKySybvqvmfhh7XdQaNv6gwZnfonU=
 
   # Note that we use miniconda, so the minor versions are irrelevant here
   matrix:

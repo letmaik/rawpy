@@ -63,7 +63,7 @@ deploy:
   provider: pypi
   user: letmaik
   password:
-    secure: "E7MMZ4ZdG+1ZsSPqQ5y8r8AC6/UR1AsH/cajeO1sD58QRXSojEzIgpfENIUS22a3I8jCn84k5V47pWBuELcJubk/G5fxLG2gAQ4skf1Pimwh+TGgzlNN7tE7NuM8xdtgXxFFH7GaZNp1e9TaE9ewya+sMGaqiC5EVRSA0BG5jM0="
+    secure: "Gi+qCKpRNFjlvpOxBXjSNAq4yDhlSXfUUl9RZaOSdER+YURbc9/AMlfUuyOvpi09tAgwGnn9Hn3z7NqqjNV9auTcD30viMnevNbiyJaE2O/bw75FU9HqFmTM/OR7UVJp4sNtxtXy1Zp5CxmMnzRCjV3stQ9iaG9aJOV3sbUzDTQ="
   on:
     tags: true
     all_branches: true

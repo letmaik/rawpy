@@ -67,7 +67,7 @@ The minimum supported numpy version depends on your Python version:
 ========== =========
 Python     numpy
 ---------- ---------
-2.7 - 3.3  >= 1.7.1
+2.7        >= 1.7.1
 3.4        >= 1.8.1
 3.5        >= 1.9.3
 ========== =========
@@ -77,7 +77,7 @@ You can install numpy with ``pip install numpy``.
 Installation on Windows and Mac OS X
 ------------------------------------
 
-Binaries are provided for Python 2.7, 3.3, 3.4 and 3.5 for both 32 and 64 bit.
+Binaries are provided for Python 2.7, 3.4 and 3.5 for both 32 and 64 bit.
 These can be installed with a simple ``pip install --use-wheel rawpy`` 
 (or just ``pip install rawpy`` if using pip >= 1.5).
 
