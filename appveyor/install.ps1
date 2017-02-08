@@ -29,7 +29,11 @@ function DownloadPython ($python_version, $platform_suffix) {
             break
         }
         Catch [Exception]{
-            Start-Sleep 1
+            if ($i + 1 -eq $retry_attempts) {
+                throw
+            } else {
+                Start-Sleep 1
+            }
         }
    }
    if (Test-Path $filepath) {
@@ -117,7 +121,11 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
             break
         }
         Catch [Exception]{
-            Start-Sleep 1
+            if ($i + 1 -eq $retry_attempts) {
+                throw
+            } else {
+                Start-Sleep 1
+            }
         }
    }
    if (Test-Path $filepath) {
