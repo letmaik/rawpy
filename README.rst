@@ -78,9 +78,9 @@ You can install numpy with ``pip install numpy``.
 Installation on Windows and Mac OS X
 ------------------------------------
 
-Binaries are provided for Python 2.7, 3.4 and 3.5 for both 32 and 64 bit.
-These can be installed with a simple ``pip install --use-wheel rawpy`` 
-(or just ``pip install rawpy`` if using pip >= 1.5).
+Binaries are provided for Python 2.7, 3.4, 3.5, and 3.6 for both 32 and 64 bit.
+These can be installed with a simple ``pip install rawpy`` 
+(or ``pip install --use-wheel rawpy`` if using pip < 1.5).
 
 Installation on Linux
 ---------------------
@@ -100,7 +100,7 @@ Or install the latest release version from the source repository:
     git clone https://github.com/LibRaw/LibRaw.git libraw
     git clone https://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
     cd libraw
-    git checkout 0.18.0
+    git checkout 0.18.2
     cp -R ../libraw-cmake/* .
     cmake .
     sudo make install
