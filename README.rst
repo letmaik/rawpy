@@ -67,9 +67,10 @@ The minimum supported numpy version depends on your Python version:
 ========== =========
 Python     numpy
 ---------- ---------
-2.7        >= 1.7.1
-3.4        >= 1.8.1
-3.5        >= 1.9.3
+2.7        >= 1.7
+3.4        >= 1.8
+3.5        >= 1.9
+3.6        >= 1.11
 ========== =========
 
 You can install numpy with ``pip install numpy``.

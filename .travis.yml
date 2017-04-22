@@ -1,7 +1,10 @@
 language: python
 
-python: 
-  - "3.5"
+sudo: required
+
+python:
+  - "2.7"
+  - "3.4"
 
 env:
   global:
@@ -35,8 +38,7 @@ install:
       travis_retry sudo apt-get install libraw-dev ;
     fi
   - travis_retry sudo apt-get install libfreeimage-dev
-  # scikit-image requires scipy
-  - pip install scipy opencv-python
+  - pip install opencv-python
   - pip install -r dev-requirements.txt
   # output what's installed
   - pip freeze
@@ -50,7 +52,7 @@ script:
   - cd ..
 
 after_success:
-  - if [ $USE_LATEST_LIBRAW == true ]; then
+  - if [[ $USE_LATEST_LENSFUN == false && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then
       pip install travispy ;
       travis_retry python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.branch('mac-wheels', 'letmaik/rawpy').id).restart()" ;
     fi
@@ -67,4 +69,4 @@ deploy:
     secure: "Gi+qCKpRNFjlvpOxBXjSNAq4yDhlSXfUUl9RZaOSdER+YURbc9/AMlfUuyOvpi09tAgwGnn9Hn3z7NqqjNV9auTcD30viMnevNbiyJaE2O/bw75FU9HqFmTM/OR7UVJp4sNtxtXy1Zp5CxmMnzRCjV3stQ9iaG9aJOV3sbUzDTQ="
   on:
     tags: true
-    condition: $USE_LATEST_LIBRAW = false
+    condition: $USE_LATEST_LIBRAW = false && $TRAVIS_PYTHON_VERSION == '2.7'
