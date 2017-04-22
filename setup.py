@@ -370,7 +370,7 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
-install_requires = []
+install_requires = ['numpy']
 if sys.version_info < (3, 4):
     # Backport of Python 3.4 enums to earlier versions
     install_requires.append('enum34')
