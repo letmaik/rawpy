@@ -58,6 +58,7 @@ after_success:
 before_deploy:
   # otherwise sphinx would fail
   - python setup.py build_ext --inplace
+  - pip install sphinx
 
 deploy:
   provider: pypi
@@ -66,5 +67,4 @@ deploy:
     secure: "Gi+qCKpRNFjlvpOxBXjSNAq4yDhlSXfUUl9RZaOSdER+YURbc9/AMlfUuyOvpi09tAgwGnn9Hn3z7NqqjNV9auTcD30viMnevNbiyJaE2O/bw75FU9HqFmTM/OR7UVJp4sNtxtXy1Zp5CxmMnzRCjV3stQ9iaG9aJOV3sbUzDTQ="
   on:
     tags: true
-    all_branches: true
     condition: $USE_LATEST_LIBRAW = false
