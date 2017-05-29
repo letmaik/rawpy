@@ -62,12 +62,12 @@ travis_retry yum install -y lapack-devel blas-devel
 # Install python dependencies
 for PYBIN in ${PYBINS[@]}; do
     # numpy 1.7 is our minimum supported version
-    ${PYBIN}/pip install numpy==1.7.2
+    ${PYBIN}/pip install numpy~=1.7.2
 
     # the following versions still support numpy 1.7
-    ${PYBIN}/pip install scipy==0.18.1    
-    ${PYBIN}/pip install matplotlib==1.5.3
-    ${PYBIN}/pip install scikit-image==0.12.3-1
+    ${PYBIN}/pip install scipy~=0.18.1    
+    ${PYBIN}/pip install matplotlib~=1.5.3
+    ${PYBIN}/pip install scikit-image~=0.12.3
         
     ${PYBIN}/pip install -r /io/dev-requirements.txt
     ${PYBIN}/pip freeze
