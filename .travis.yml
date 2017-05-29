@@ -1,20 +1,16 @@
-language: python
+sudo: required
 
 env:
   global:
     - LIBRAW_GIT="git://github.com/LibRaw/LibRaw.git"
     - LIBRAW_CMAKE_GIT="git://github.com/LibRaw/LibRaw-cmake.git"
-    # GitHub Access Token to trigger rawpy-mac-wheels builds
-    - secure: "LQky6eiSVVGr8o4qaB6B7rM5U87KTAFUiHQdfPlys0VnQC774rP5rc6kssXN8e8HOhYjZ9P8zqypCZcD7HPG3Y8JF6ef/+NrdLPawc41lxNKMojg6k/NIBkK3IUnrr/7A9hfcO89P3iBKZpTDcJesigQ8dVKhVGOMqPx7ZDdD2Y="
 
 matrix:
   include:
-    - sudo: required
-      services:
+    - services:
         - docker
       env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
-    - sudo: required
-      services:
+    - services:
         - docker
       env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
            PRE_CMD=linux32
@@ -32,18 +28,7 @@ after_success:
   - ls wheelhouse/
   - ls dist/
   - ls build/
-  - if [ $PRE_CMD=linux32 ]; then
-      pip install travispy ;
-      travis_retry python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.branch('mac-wheels', 'neothemachine/rawpy').id).restart()" ;
-    fi
 
 # TODO use twine for sdist & wheels, and python setup.py upload_sphinx
-#deploy:
-#  provider: pypi
-#  user: neothemachine
-#  password:
-#    secure: "E7MMZ4ZdG+1ZsSPqQ5y8r8AC6/UR1AsH/cajeO1sD58QRXSojEzIgpfENIUS22a3I8jCn84k5V47pWBuELcJubk/G5fxLG2gAQ4skf1Pimwh+TGgzlNN7tE7NuM8xdtgXxFFH7GaZNp1e9TaE9ewya+sMGaqiC5EVRSA0BG5jM0="
-#  on:
-#    tags: true
-#    all_branches: true
-#    condition: $PRE_CMD=linux32
+
+

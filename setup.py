@@ -151,9 +151,9 @@ def windows_libraw_compile():
     clone_submodules()
     
     # download cmake to compile libraw
-    # the cmake zip contains a cmake-3.2.1-win32-x86 folder when extracted
-    cmake_url = 'http://www.cmake.org/files/v3.3/cmake-3.3.2-win32-x86.zip'
-    cmake = os.path.abspath('external/cmake-3.3.2-win32-x86/bin/cmake.exe')
+    # the cmake zip contains a cmake-3.7.2-win32-x86 folder when extracted
+    cmake_url = 'https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.zip'
+    cmake = os.path.abspath('external/cmake-3.7.2-win32-x86/bin/cmake.exe')
     
     files = [(cmake_url, 'external', cmake)]
     
@@ -370,7 +370,7 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
-install_requires = []
+install_requires = ['numpy']
 if sys.version_info < (3, 4):
     # Backport of Python 3.4 enums to earlier versions
     install_requires.append('enum34')
@@ -382,7 +382,7 @@ setup(
       long_description = open('README.rst').read(),
       author = 'Maik Riechert',
       author_email = 'maik.riechert@arcor.de',
-      url = 'https://github.com/neothemachine/rawpy',
+      url = 'https://github.com/letmaik/rawpy',
       classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -392,9 +392,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',

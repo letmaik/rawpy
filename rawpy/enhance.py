@@ -11,13 +11,17 @@ from functools import partial
 import numpy as np
 
 try:
-    from skimage.filter.rank import median
+    from skimage.filters.rank import median
 except ImportError:
-    median = None
+    try:
+        from skimage.filter.rank import median
+    except ImportError as e:
+        warnings.warn('scikit-image not found, will use OpenCV (error: ' + str(e) + ')')
+        median = None
 try:
     import cv2
-except ImportError:
-    warnings.warn('OpenCV not found, install for faster processing')
+except ImportError as e:
+    warnings.warn('OpenCV not found, install for faster processing (error: ' + str(e) + ')')
     cv2 = None
 
 if median is None and cv2 is None:

@@ -8,7 +8,7 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
     
     PYPI_PASS:
-      secure: K/M1K0yykepbIoiNCP/exSrT+Vqd3BGabL2B2zS94Mo=
+      secure: JMaE+BmBS1Wnw9QKySybvqvmfhh7XdQaNv6gwZnfonU=
 
   # Note that we use miniconda, so the minor versions are irrelevant here
   matrix:
@@ -19,16 +19,6 @@ environment:
 
     - PYTHON: "C:\\Python27_64"
       PYTHON_VERSION: "2.7.10"
-      PYTHON_ARCH: "64"
-      NUMPY_VERSION: "1.7"
-
-    - PYTHON: "C:\\Python33_32"
-      PYTHON_VERSION: "3.3.5"
-      PYTHON_ARCH: "32"
-      NUMPY_VERSION: "1.7"
-
-    - PYTHON: "C:\\Python33_64"
-      PYTHON_VERSION: "3.3.5"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.7"
 
@@ -51,6 +41,16 @@ environment:
       PYTHON_VERSION: "3.5.0"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.9"
+
+    - PYTHON: "C:\\Python36_32"
+      PYTHON_VERSION: "3.6.1"
+      PYTHON_ARCH: "32"
+      NUMPY_VERSION: "1.11"
+
+    - PYTHON: "C:\\Python36_64"
+      PYTHON_VERSION: "3.6.1"
+      PYTHON_ARCH: "64"
+      NUMPY_VERSION: "1.11"
 
 install:
   - ECHO "Powershell version:"
@@ -79,7 +79,7 @@ install:
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # we use conda to prevent compiling extensions
-  - "conda install --yes numpy=%NUMPY_VERSION% cython scipy scikit-image"
+  - "conda install --yes numpy=%NUMPY_VERSION% cython scikit-image"
   - "pip install -r dev-requirements.txt"
   
   # force nose reinstall (not using possibly existing conda package)

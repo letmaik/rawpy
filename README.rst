@@ -1,16 +1,16 @@
 rawpy
 =====
 
-.. image:: https://travis-ci.org/neothemachine/rawpy.svg?branch=master
-    :target: https://travis-ci.org/neothemachine/rawpy
+.. image:: https://travis-ci.org/letmaik/rawpy.svg?branch=master
+    :target: https://travis-ci.org/letmaik/rawpy
     :alt: Linux Build Status
 
-.. image:: https://travis-ci.org/neothemachine/rawpy.svg?branch=mac-wheels
-    :target: https://travis-ci.org/neothemachine/rawpy
+.. image:: https://travis-ci.org/letmaik/rawpy.svg?branch=mac-wheels
+    :target: https://travis-ci.org/letmaik/rawpy
     :alt: Mac OS X Build Status
     
-.. image:: https://ci.appveyor.com/api/projects/status/f8ibd8mejxs9xq5w/branch/master
-    :target: https://ci.appveyor.com/project/neothemachine/rawpy/branch/master
+.. image:: https://ci.appveyor.com/api/projects/status/f8ibd8mejxs9xq5w?svg=true
+    :target: https://ci.appveyor.com/project/letmaik/rawpy
     :alt: Windows Build Status
 
 rawpy is an easy-to-use Python wrapper for the LibRaw_ library.
@@ -56,30 +56,12 @@ Find bad pixels using multiple RAW files and repair them:
 	        rgb = raw.postprocess()
 	    imageio.imsave(path + '.tiff', rgb)
 
-NumPy Dependency
-----------------
+Installation on Windows and macOS
+---------------------------------
 
-Before installing rawpy, you need to have *numpy* installed.
-You can check your numpy version with ``pip freeze``.
-
-The minimum supported numpy version depends on your Python version:
-
-========== =========
-Python     numpy
----------- ---------
-2.7 - 3.3  >= 1.7.1
-3.4        >= 1.8.1
-3.5        >= 1.9.3
-========== =========
-
-You can install numpy with ``pip install numpy``.
-
-Installation on Windows and Mac OS X
-------------------------------------
-
-Binaries are provided for Python 2.7, 3.3, 3.4 and 3.5 for both 32 and 64 bit.
-These can be installed with a simple ``pip install --use-wheel rawpy`` 
-(or just ``pip install rawpy`` if using pip >= 1.5).
+Binaries are provided for Python 2.7, 3.4, 3.5, and 3.6.
+These can be installed with a simple ``pip install rawpy`` 
+(or ``pip install --use-wheel rawpy`` if using pip < 1.5).
 
 Installation on Linux
 ---------------------
@@ -96,10 +78,10 @@ Or install the latest release version from the source repository:
 
 .. code-block:: sh
 
-    git clone git://github.com/LibRaw/LibRaw.git libraw
-    git clone git://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
+    git clone https://github.com/LibRaw/LibRaw.git libraw
+    git clone https://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
     cd libraw
-    git checkout 0.17.1
+    git checkout 0.18.2
     cp -R ../libraw-cmake/* .
     cmake .
     sudo make install
@@ -114,7 +96,21 @@ when trying to use rawpy, then do the following:
     echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/99local.conf
     sudo ldconfig
 
-The LibRaw library is installed in /usr/local/lib and apparently this folder is not searched
+The LibRaw library is installed in /usr/local/lib (if installed manually) and apparently this folder is not searched
 for libraries by default in some Linux distributions.
+
+NumPy Dependency
+----------------
+
+rawpy depends on NumPy. The minimum supported NumPy version depends on your Python version:
+
+========== =========
+Python     NumPy
+---------- ---------
+2.7        >= 1.7
+3.4        >= 1.8
+3.5        >= 1.9
+3.6        >= 1.11
+========== =========
 
 .. _LibRaw: http://www.libraw.org
