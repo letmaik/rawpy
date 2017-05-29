@@ -67,7 +67,7 @@ for PYBIN in ${PYBINS[@]}; do
     # the following versions still support numpy 1.7
     ${PYBIN}/pip install scipy==0.18.1    
     ${PYBIN}/pip install matplotlib==1.5.3
-    ${PYBIN}/pip install scikit-image==0.12.3
+    ${PYBIN}/pip install scikit-image==0.12.3-1
         
     ${PYBIN}/pip install -r /io/dev-requirements.txt
     ${PYBIN}/pip freeze
