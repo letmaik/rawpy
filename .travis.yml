@@ -20,7 +20,7 @@ matrix:
     - os: osx
       osx_image: xcode6.4
       env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.9.*
-      
+
     - os: osx
       osx_image: xcode6.4
       env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11.*
@@ -29,7 +29,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker pull $DOCKER_IMAGE; fi
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker run --rm -v `pwd`:/io -e LIBRAW_GIT -e LIBRAW_CMAKE_GIT $DOCKER_IMAGE $PRE_CMD /io/travis/build_linux.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE /io/travis/build_linux.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then travis/build_macos.sh; fi
 
 after_success:
