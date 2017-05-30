@@ -66,6 +66,8 @@ for PYBIN in ${PYBINS[@]}; do
     ${PYBIN}/pip install rawpy --no-index -f wheelhouse
     
     ${PYBIN}/pip install -r dev-requirements.txt
+    
+    ${PYBIN}/pip install numpy -U # scipy should trigger an update, but that doesn't happen
     (cd $HOME; ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test)
 done
 

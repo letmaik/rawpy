@@ -28,6 +28,7 @@ delocate-listdeps --all dist/*.whl # verify
 pip install dist/*.whl
 
 # Test installed rawpy
+travis_retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
 travis_retry pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed
 brew rm --ignore-dependencies jpeg
