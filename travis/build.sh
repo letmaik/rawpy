@@ -37,18 +37,18 @@ PYBINS=(
 travis_retry yum install -y cmake
 
 # Install libraw
-cd /opt
+pushd /tmp
 travis_retry git clone $LIBRAW_GIT
 travis_retry git clone $LIBRAW_CMAKE_GIT
 cp -R LibRaw-cmake/* LibRaw
-cd LibRaw
+pushd LibRaw
 git checkout `git describe --abbrev=0 --tags`
 cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF
-make
-make install
+cmake --build .
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/99local.conf
 ldconfig
-cd /io
+popd
+popd
 
 # Install matplotlib (a scikit-image dependency) dependencies
 travis_retry yum install -y libpng-devel freetype-devel
@@ -59,20 +59,37 @@ travis_retry yum install -y libjpeg-devel
 # Install numpy/scipy deps
 travis_retry yum install -y lapack-devel blas-devel
 
-# Install python dependencies
+# Build rawpy wheels
 for PYBIN in ${PYBINS[@]}; do
     # numpy 1.7 is our minimum supported version
     ${PYBIN}/pip install numpy~=1.7.2
 
-    # the following versions still support numpy 1.7
-    ${PYBIN}/pip install scipy~=0.18.1    
-    ${PYBIN}/pip install matplotlib~=1.5.3
-    ${PYBIN}/pip install scikit-image~=0.12.3
-        
-    ${PYBIN}/pip install -r /io/dev-requirements.txt
-    ${PYBIN}/pip freeze
+    ${PYBIN}/python setup.py bdist_wheel -d wheelhouse
 done
 
-# Build rawpy distribution
-source /io/travis/build-sdist-and-docs.sh
-source /io/travis/build-wheels.sh
+# Bundle external shared libraries into the wheels
+for whl in wheelhouse/*.whl; do
+    auditwheel repair $whl -w wheelhouse
+done
+
+ls -al wheelhouse
+
+# Build sdist
+${PYBINS[0]}/python setup.py sdist
+
+ls -al dist
+
+# Install packages and test
+for PYBIN in ${PYBINS[@]}; do
+    ${PYBIN}/pip install rawpy --no-index -f wheelhouse
+    
+    ${PYBIN}/pip install -r dev-requirements.txt
+    (cd $HOME; ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test)
+done
+
+# Build docs
+${PYBINS[0]}/python setup.py build_ext --inplace
+${PYBINS[0]}/python setup.py build_sphinx
+
+ls -al build
+
