@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-source travis_retry.sh
+source travis/travis_retry.sh
 
 # List python versions
 ls /opt/python
