@@ -1,24 +1,30 @@
-sudo: required
+language: generic
 
-env:
-  global:
-    - LIBRAW_GIT="git://github.com/LibRaw/LibRaw.git"
-    - LIBRAW_CMAKE_GIT="git://github.com/LibRaw/LibRaw-cmake.git"
+# use oldest available image to be as compatible as possible when producing wheels
+osx_image: xcode6.4 # = OS X 10.10 
 
 matrix:
   include:
-    - services:
+    - os: linux
+      services:
         - docker
       env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
-    
-git:
-  submodules: false
+    - os: osx
+      # (NumPy 1.7.2 has no macOS wheels)
+      env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7.1
+    - os: osx
+      env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.8.*
+    - os: osx
+      env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.9.*
+    - os: osx
+      env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11.*
 
 install:
-  - docker pull $DOCKER_IMAGE
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker pull $DOCKER_IMAGE; fi
 
 script:
-  - docker run --rm -v `pwd`:/io -e LIBRAW_GIT -e LIBRAW_CMAKE_GIT $DOCKER_IMAGE $PRE_CMD /io/travis/build.sh
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker run --rm -v `pwd`:/io -e LIBRAW_GIT -e LIBRAW_CMAKE_GIT $DOCKER_IMAGE $PRE_CMD /io/travis/build_linux.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then travis/build_macos.sh; fi
 
 after_success:
   - ls wheelhouse/

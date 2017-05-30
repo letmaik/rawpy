@@ -33,16 +33,21 @@ PYBINS=(
   "/opt/python/cp36-cp36m/bin"
   )
 
+declare -A NUMPY_VERSION
+NUMPY_VERSION=(
+  ["/opt/python/cp27-cp27mu/bin"]="1.7.2"
+  ["/opt/python/cp34-cp34m/bin"]="1.8.*"
+  ["/opt/python/cp35-cp35m/bin"]="1.9.*"
+  ["/opt/python/cp36-cp36m/bin"]="1.11.*"
+)
+
 # Install build tools
 travis_retry yum install -y cmake
 
 # Install libraw
-pushd /tmp
-travis_retry git clone $LIBRAW_GIT
-travis_retry git clone $LIBRAW_CMAKE_GIT
+pushd external
 cp -R LibRaw-cmake/* LibRaw
 pushd LibRaw
-git checkout `git describe --abbrev=0 --tags`
 cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF
 cmake --build .
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/99local.conf
@@ -61,8 +66,7 @@ travis_retry yum install -y lapack-devel blas-devel
 
 # Build rawpy wheels
 for PYBIN in ${PYBINS[@]}; do
-    # numpy 1.7 is our minimum supported version
-    ${PYBIN}/pip install numpy~=1.7.2
+    ${PYBIN}/pip install numpy==${NUMPY_VERSION[${PYBIN}]}
 
     ${PYBIN}/python setup.py bdist_wheel -d wheelhouse
 done
@@ -72,12 +76,8 @@ for whl in wheelhouse/*.whl; do
     auditwheel repair $whl -w wheelhouse
 done
 
-ls -al wheelhouse
-
 # Build sdist
 ${PYBINS[0]}/python setup.py sdist
-
-ls -al dist
 
 # Install packages and test
 for PYBIN in ${PYBINS[@]}; do
@@ -90,6 +90,3 @@ done
 # Build docs
 ${PYBINS[0]}/python setup.py build_ext --inplace
 ${PYBINS[0]}/python setup.py build_sphinx
-
-ls -al build
-
