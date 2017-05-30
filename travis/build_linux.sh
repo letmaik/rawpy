@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e -x
 
+cd /io
+
 source travis/travis_retry.sh
 
 # List python versions

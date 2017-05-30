@@ -5,8 +5,10 @@ source travis/travis_retry.sh
 
 # Build wheel
 git clone https://github.com/MacPython/terryfy.git
+set +x # reduce noise
 source terryfy/travis_tools.sh
 travis_retry get_python_environment macports $PYTHON_VERSION venv
+set -x
 travis_retry pip install numpy==$NUMPY_VERSION delocate
 pip freeze
 brew rm --ignore-dependencies jpeg
