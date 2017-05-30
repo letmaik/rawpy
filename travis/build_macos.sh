@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e -x
 
+source travis_retry.sh
+
 # Build wheel
 git clone https://github.com/MacPython/terryfy.git
 source terryfy/travis_tools.sh
