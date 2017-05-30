@@ -23,7 +23,8 @@ pushd external
 cp -R LibRaw-cmake/* LibRaw
 pushd LibRaw
 cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF
-cmake --build . --target install
+make
+make install
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/99local.conf
 ldconfig
 popd
