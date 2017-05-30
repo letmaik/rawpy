@@ -9,7 +9,7 @@ set +x # reduce noise
 source terryfy/travis_tools.sh
 travis_retry get_python_environment macports $PYTHON_VERSION venv
 set -x
-travis_retry pip install numpy==$NUMPY_VERSION delocate
+travis_retry pip install numpy==$NUMPY_VERSION cython wheel delocate
 pip freeze
 brew rm --ignore-dependencies jpeg
 brew install jpeg

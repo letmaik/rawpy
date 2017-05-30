@@ -15,14 +15,6 @@ PYBINS=(
   "/opt/python/cp36-cp36m/bin"
   )
 
-declare -A NUMPY_VERSION
-NUMPY_VERSION=(
-  ["/opt/python/cp27-cp27mu/bin"]="1.7.2"
-  ["/opt/python/cp34-cp34m/bin"]="1.8.*"
-  ["/opt/python/cp35-cp35m/bin"]="1.9.*"
-  ["/opt/python/cp36-cp36m/bin"]="1.11.*"
-)
-
 # Install build tools
 travis_retry yum install -y cmake
 
@@ -48,7 +40,14 @@ travis_retry yum install -y lapack-devel blas-devel
 
 # Build rawpy wheels
 for PYBIN in ${PYBINS[@]}; do
-    ${PYBIN}/pip install numpy==${NUMPY_VERSION[${PYBIN}]}
+    case ${PYBIN} in
+        *27*) NUMPY_VERSION="1.7.2";;
+        *34*) NUMPY_VERSION="1.8.*";;
+        *35*) NUMPY_VERSION="1.9.*";;
+        *36*) NUMPY_VERSION="1.11.*";;
+    esac
+
+    ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython wheel
 
     ${PYBIN}/python setup.py bdist_wheel -d wheelhouse
 done
