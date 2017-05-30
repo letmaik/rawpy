@@ -1,22 +1,28 @@
 language: generic
 
-# use oldest available image to be as compatible as possible when producing wheels
-osx_image: xcode6.4 # = OS X 10.10 
-
 matrix:
   include:
     - os: linux
       services:
         - docker
       env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+
     - os: osx
+      # use oldest available image to be as compatible as possible when producing wheels
+      osx_image: xcode6.4 # = OS X 10.10
       # (NumPy 1.7.2 has no macOS wheels)
       env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7.1
+
     - os: osx
+      osx_image: xcode6.4
       env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.8.*
+
     - os: osx
+      osx_image: xcode6.4
       env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.9.*
+      
     - os: osx
+      osx_image: xcode6.4
       env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11.*
 
 install:
