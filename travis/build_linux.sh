@@ -78,3 +78,6 @@ done
 # Build docs
 ${PYBINS[0]}/python setup.py build_ext --inplace
 ${PYBINS[0]}/python setup.py build_sphinx
+
+# Move wheels to dist/ folder for easier deployment
+mv wheelhouse/rawpy*manylinux1*.whl dist/
