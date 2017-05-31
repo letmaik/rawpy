@@ -49,9 +49,9 @@ for PYBIN in ${PYBINS[@]}; do
     esac
 
     # install compile-time dependencies
-    ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
+    travis_retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
 
-    ${PYBIN}/pip wheel . -w wheelhouse
+    travis_retry ${PYBIN}/pip wheel . -w wheelhouse
 done
 
 # Bundle external shared libraries into the wheels
@@ -67,10 +67,10 @@ for PYBIN in ${PYBINS[@]}; do
     ${PYBIN}/pip install rawpy --no-index -f wheelhouse
     
     # install older mpl version without subprocess32 dependency (install issues)
-    ${PYBIN}/pip install matplotlib==1.5.*
+    travis_retry ${PYBIN}/pip install matplotlib==1.5.*
 
-    ${PYBIN}/pip install -r dev-requirements.txt
-    ${PYBIN}/pip install numpy -U # scipy should trigger an update, but that doesn't happen
+    travis_retry ${PYBIN}/pip install -r dev-requirements.txt
+    travis_retry ${PYBIN}/pip install numpy -U # scipy should trigger an update, but that doesn't happen
     
     (cd $HOME; ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test)
 done
