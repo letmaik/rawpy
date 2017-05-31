@@ -37,6 +37,16 @@ after_success:
   - ls dist/
   - ls build/
 
-# TODO use twine for sdist & wheels, and python setup.py upload_sphinx
+before_deploy:
+  - mv wheelhouse/rawpy*manylinux1*.whl dist/
+
+deploy:
+  provider: pypi
+  user: letmaik
+  skip_cleanup: true
+  password:
+    secure: "Gi+qCKpRNFjlvpOxBXjSNAq4yDhlSXfUUl9RZaOSdER+YURbc9/AMlfUuyOvpi09tAgwGnn9Hn3z7NqqjNV9auTcD30viMnevNbiyJaE2O/bw75FU9HqFmTM/OR7UVJp4sNtxtXy1Zp5CxmMnzRCjV3stQ9iaG9aJOV3sbUzDTQ="
+  on:
+    tags: true
 
 
