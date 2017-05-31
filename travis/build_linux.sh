@@ -48,13 +48,14 @@ for PYBIN in ${PYBINS[@]}; do
         *36*) NUMPY_VERSION="1.11.*";;
     esac
 
-    ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython wheel
+    # install compile-time dependencies
+    ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
 
-    ${PYBIN}/python setup.py bdist_wheel -d wheelhouse
+    ${PYBIN}/pip wheel . -w wheelhouse
 done
 
 # Bundle external shared libraries into the wheels
-for whl in wheelhouse/*.whl; do
+for whl in wheelhouse/rawpy*.whl; do
     auditwheel repair $whl -w wheelhouse
 done
 

@@ -9,7 +9,7 @@ set +x # reduce noise
 source terryfy/travis_tools.sh
 travis_retry get_python_environment macports $PYTHON_VERSION venv
 set -x
-travis_retry pip install numpy==$NUMPY_VERSION cython wheel delocate
+pip install numpy==$NUMPY_VERSION cython wheel delocate
 pip freeze
 brew rm --ignore-dependencies jpeg
 brew install jpeg
@@ -28,8 +28,8 @@ delocate-listdeps --all dist/*.whl # verify
 pip install dist/*.whl
 
 # Test installed rawpy
-travis_retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
-travis_retry pip install -r dev-requirements.txt
+pip install numpy -U # scipy should trigger an update, but that doesn't happen
+pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed
 brew rm --ignore-dependencies jpeg
 mkdir tmp_for_test
