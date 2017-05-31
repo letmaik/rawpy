@@ -38,7 +38,7 @@ after_success:
   - ls build/
 
 before_deploy:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then mv wheelhouse/rawpy*manylinux1*.whl dist/; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp wheelhouse/rawpy*manylinux1*.whl dist/; fi
 
 deploy:
   provider: pypi
