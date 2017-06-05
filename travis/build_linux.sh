@@ -75,9 +75,8 @@ for PYBIN in ${PYBINS[@]}; do
     (cd $HOME; ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test)
 done
 
-# Build docs
-${PYBINS[0]}/python setup.py build_ext --inplace
-${PYBINS[0]}/python setup.py build_sphinx
-
 # Move wheels to dist/ folder for easier deployment
 mv wheelhouse/rawpy*manylinux1*.whl dist/
+
+# deploy if git tag
+travis/deploy_pypi.sh

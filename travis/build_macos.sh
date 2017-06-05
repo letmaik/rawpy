@@ -36,3 +36,6 @@ mkdir tmp_for_test
 pushd tmp_for_test
 nosetests --verbosity=3 --nocapture ../test
 popd
+
+# deploy if git tag
+travis/deploy_pypi.sh
