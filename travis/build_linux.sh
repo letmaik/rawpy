@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e -x
 
+bash --version
+
 cd /io
 
 source travis/travis_retry.sh
