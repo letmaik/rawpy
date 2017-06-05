@@ -1,4 +1,4 @@
-language: generic
+language: python
 
 matrix:
   include:
@@ -35,14 +35,12 @@ script:
 after_success:
   - ls dist/
   - ls build/
-
-deploy:
-  provider: pypi
-  user: letmaik
-  skip_cleanup: true
-  password:
-    secure: "Gi+qCKpRNFjlvpOxBXjSNAq4yDhlSXfUUl9RZaOSdER+YURbc9/AMlfUuyOvpi09tAgwGnn9Hn3z7NqqjNV9auTcD30viMnevNbiyJaE2O/bw75FU9HqFmTM/OR7UVJp4sNtxtXy1Zp5CxmMnzRCjV3stQ9iaG9aJOV3sbUzDTQ="
-  on:
-    tags: true
-
-
+  - "if [[ \"`git log -n 1 --pretty=format:'%d'`\" =~ \"tag: v\" ]]; then
+       pip install twine ;
+       twine upload -u letmaik -p $PYPI_PASS dist/* ;
+       if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "2.7" ]]; then
+           python setup.py build_ext --inplace ;
+           python setup.py build_sphinx ;
+           python setup.py upload_docs ;
+       fi ;
+     fi"
