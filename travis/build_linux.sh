@@ -82,6 +82,7 @@ mv wheelhouse/rawpy*manylinux1*.whl dist/
 
 # deploy if git tag
 # alias so that the deploy script can use twine and also build docs
+shopt -s expand_aliases
 alias python=${PYBINS[0]}/python
 alias pip=${PYBINS[0]}/pip
 # use source to make aliases available
