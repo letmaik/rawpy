@@ -1,5 +1,3 @@
-set -e
-
 # the original travis_retry is a shell function and not available inside scripts
 # therefore the following provides a source'able version of it
 
@@ -11,7 +9,8 @@ travis_retry() {
     [ $result -ne 0 ] && {
       echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
-    "$@"
+    # ! { } ignores set -e, see https://stackoverflow.com/a/4073372
+    ! { "$@" }
     result=$?
     [ $result -eq 0 ] && break
     count=$(($count + 1))
