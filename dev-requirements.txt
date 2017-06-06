@@ -2,7 +2,7 @@ numpy>=1.7
 cython
 nose
 wheel>=0.25
-sphinx
+sphinx==1.5.*
 sphinx_rtd_theme
 imageio
 scipy
