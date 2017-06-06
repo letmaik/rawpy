@@ -1,5 +1,9 @@
 language: generic
 
+env:
+  global:
+    - PYPI_USER=letmaik
+
 matrix:
   include:
     - os: linux
@@ -29,7 +33,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker pull $DOCKER_IMAGE; fi
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker run --rm -e TRAVIS_OS_NAME -e PYPI_PASS -v `pwd`:/io $DOCKER_IMAGE /io/travis/build_linux.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker run --rm -e TRAVIS_TAG -e PYPI_USER -e PYPI_PASS -v `pwd`:/io $DOCKER_IMAGE /io/travis/build_linux.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then travis/build_macos.sh; fi
 
 after_success:
