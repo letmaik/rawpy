@@ -10,7 +10,7 @@ travis_retry() {
       echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
     # ! { } ignores set -e, see https://stackoverflow.com/a/4073372
-    ! { "$@" }
+    ! { "$@"; }
     result=$?
     [ $result -eq 0 ] && break
     count=$(($count + 1))
