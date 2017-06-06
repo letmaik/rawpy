@@ -81,6 +81,6 @@ done
 mv wheelhouse/rawpy*manylinux1*.whl dist/
 
 # deploy if git tag
-# make first python available so that the deploy script can use twine and also build docs
+# make first python available so that the deploy script can use twine
 export PATH=${PYBINS[0]}:$PATH
 travis/deploy_pypi.sh
