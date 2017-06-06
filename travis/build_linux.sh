@@ -81,4 +81,7 @@ done
 mv wheelhouse/rawpy*manylinux1*.whl dist/
 
 # deploy if git tag
+# alias so that the deploy script can use twine and also build docs
+alias python=${PYBINS[0]}/python
+alias pip=${PYBINS[0]}/pip
 travis/deploy_pypi.sh

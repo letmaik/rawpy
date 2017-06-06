@@ -3,7 +3,7 @@ set -e -x
 
 if [[ "`git log -n 1 --pretty=format:'%d'`" =~ v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
     pip install twine
-    twine upload -u letmaik -p $PYPI_PASS dist/*
+    twine upload -u letmaik -p $PYPI_PASS --skip-existing dist/*
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         python setup.py build_ext --inplace
         python setup.py build_sphinx
