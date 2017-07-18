@@ -5,6 +5,7 @@ from __future__ import print_function
 
 from cpython.ref cimport PyObject, Py_INCREF
 from cython.operator cimport dereference as deref
+from libc.time cimport time_t
 
 import numpy as np
 from collections import namedtuple
@@ -51,6 +52,66 @@ cdef extern from "libraw.h":
         ushort iheight, iwidth
         double pixel_aspect
         int flip
+
+    ctypedef struct libraw_nikonlens_t:
+        float  NikonEffectiveMaxAp
+        unsigned char  NikonLensIDNumber
+        unsigned char  NikonLensFStops
+        unsigned char  NikonMCUVersion
+        unsigned char  NikonLensType
+
+    ctypedef struct libraw_dnglens_t:
+        float  MinFocal
+        float  MaxFocal
+        float  MaxAp4MinFocal
+        float  MaxAp4MaxFocal
+
+    ctypedef struct libraw_makernotes_lens_t:
+        unsigned long long LensID
+        char Lens[128]
+        short LensFormat
+        short LensMount
+        unsigned long long CamID
+        short CameraFormat
+        short CameraMount
+        char body[64]
+        short FocalType
+        char LensFeatures_pre[16]
+        char LensFeatures_suf[16]
+        float MinFocal
+        float MaxFocal
+        float MaxAp4MinFocal
+        float MaxAp4MaxFocal
+        float MinAp4MinFocal
+        float MinAp4MaxFocal
+        float MaxAp
+        float MinAp
+        float CurFocal
+        float CurAp
+        float MaxAp4CurFocal
+        float MinAp4CurFocal
+        float LensFStops
+        unsigned long long TeleconverterID
+        char Teleconverter[128]
+        unsigned long long AdapterID
+        char Adapter[128]
+        unsigned long long AttachmentID
+        char Attachment[128]
+        short CanonFocalUnits
+        float FocalLengthIn35mmFormat
+
+    ctypedef struct libraw_lensinfo_t:
+        float   MinFocal
+        float   MaxFocal
+        float   MaxAp4MinFocal
+        float   MaxAp4MaxFocal
+        float   EXIF_MaxAp
+        char    LensMake[128]
+        char    Lens[128]
+        short   FocalLengthIn35mmFormat
+        libraw_nikonlens_t  nikon
+        libraw_dnglens_t    dng
+        libraw_makernotes_lens_t makernotes
         
     ctypedef struct libraw_colordata_t:
         float       cam_mul[4] 
@@ -62,6 +123,29 @@ cdef extern from "libraw.h":
         float       cam_xyz[4][3]
         void        *profile # a string?
         unsigned    profile_length
+
+    ctypedef struct libraw_gps_info_t:
+        float  latitude[3]
+        float  longtitude[3]
+        float  gpstimestamp[3]
+        float  altitude
+        char   altref
+        char   latref
+        char   longref
+        char   gpsstatus
+        char   gpsparsed
+
+    ctypedef struct libraw_imgother_t:
+        float     iso_speed
+        float     shutter
+        float     aperture
+        float     focal_len
+        time_t    timestamp
+        unsigned  shot_order
+        unsigned  gpsdata[32]
+        libraw_gps_info_t  parsed_gps
+        char      desc[512]
+        char      artist[64]
 
     ctypedef struct libraw_rawdata_t:
         ushort *raw_image # 1 component per pixel, for b/w and Bayer type sensors
@@ -158,11 +242,12 @@ cdef extern from "libraw.h":
 #         ushort                      (*image)[4]
         libraw_image_sizes_t        sizes
         libraw_iparams_t            idata
-        libraw_output_params_t        params
+        libraw_output_params_t      params
+        libraw_lensinfo_t           lens       # 0.17+
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
         libraw_colordata_t          color
-#         libraw_imgother_t           other
+        libraw_imgother_t           other
 #         libraw_thumbnail_t          thumbnail
         libraw_rawdata_t            rawdata
 #         void                *parent_class
@@ -207,6 +292,55 @@ ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width',
                                        'top_margin', 'left_margin',
                                        'iheight', 'iwidth',
                                        'pixel_aspect', 'flip'])
+
+ImageIData = namedtuple('ImageIData', ['make', 'model', 'raw_count',
+                                       'dng_version', 'is_foveon',
+                                       'colors', 'filters', 'xtrans',
+                                       'cdesc'])
+
+ImageNikonLens = namedtuple('ImageNikonLens', ['NikonEffectiveMaxAp',
+                                               'NikonLensIDNumber',
+                                               'NikonLensFStops',
+                                               'NikonMCUVersion',
+                                               'NikonLensType'])
+
+ImageDNGLens = namedtuple('ImageDNGLens', ['MinFocal', 'MaxFocal',
+                                           'MaxAp4MinFocal', 'MaxAp4MaxFocal'])
+
+ImageMakerNotesLens = namedtuple('ImageMakerNotesLens', ['LensID', 'Lens', 'LensFormat',
+                                                         'LensMount', 'CamID', 'CameraFormat',
+                                                         'CameraMount', 'body', 'FocalType',
+                                                         'LensFeatures_pre', 'LensFeatures_suf',
+                                                         'MinFocal', 'MaxFocal', 'MaxAp4MinFocal',
+                                                         'MaxAp4MaxFocal', 'MinAp4MinFocal', 
+                                                         'MinAp4MaxFocal', 'MaxAp', 'MinAp',
+                                                         'CurFocal', 'CurAp', 'MaxAp4CurFocal',
+                                                         'MinAp4CurFocal', 'LensFStops',
+                                                         'TeleconverterID', 'Teleconverter',
+                                                         'AdapterID', 'Adapter', 'AttachmentID',
+                                                         'Attachment', 'CanonFocalUnits',
+                                                         'FocalLengthIn35mmFormat'])
+
+ImageLens = namedtuple('ImageLens', ['MinFocal', 'MaxFocal',
+                                     'MaxAp4MinFocal', 'MaxAp4MaxFocal',
+                                     'EXIF_MaxAp', 'LensMake', 'Lens',
+                                     'FocalLengthIn35mmFormat', 'nikon',
+                                     'dng', 'makernotes'])
+
+ImageGPS = namedtuple('ImageGPS', ['latitude', 'longtitude',
+                                   'gpstimestamp', 'altitude',
+                                   'altref', 'latref', 'longref',
+                                   'gpsstatus', 'gpsparsed'])
+
+ImageOther = namedtuple('ImageOther', ['iso_speed', 'shutter',
+                                       'aperture', 'focal_len',
+                                       'timestamp', 'shot_order',
+                                       'gpsdata', 'parsed_gps',
+                                       'desc', 'artist'])
+
+ImageColor = namedtuple('ImageColor', ['cam_mul', 'pre_mul', 'curve',
+                                       'cblack', 'black', 'cmatrix',
+                                       'cam_xyz', 'profile'])
 
 class RawType(Enum):
     """
@@ -385,6 +519,109 @@ cdef class RawPy:
                               top_margin=s.top_margin, left_margin=s.left_margin,
                               iheight=s.iheight, iwidth=s.iwidth,
                               pixel_aspect=s.pixel_aspect, flip=s.flip)
+
+    property idata:
+        """
+        Return a :class:`rawpy.ImageIData` instance with information of
+        the RAW image and postprocessed image.
+        """
+        def __get__(self):
+            cdef libraw_iparams_t* i = &self.p.imgdata.idata
+
+            return ImageIData(make=i.make, model=i.model, raw_count=i.raw_count,
+                              dng_version=i.dng_version, is_foveon=i.is_foveon,
+                              colors=i.colors, filters=i.filters, xtrans=i.xtrans,
+                              cdesc=i.cdesc)
+
+    property lens:
+        """
+        Return a :class:`rawpy.ImageLens` instance with lens information of
+        the RAW image and postprocessed image.
+        """
+        def __get__(self):
+            cdef libraw_lensinfo_t* l = &self.p.imgdata.lens
+            cdef libraw_nikonlens_t* nl = &self.p.imgdata.lens.nikon
+            cdef libraw_dnglens_t* dl = &self.p.imgdata.lens.dng
+            cdef libraw_makernotes_lens_t* mnl = &self.p.imgdata.lens.makernotes
+
+            nikonLens = ImageNikonLens(NikonEffectiveMaxAp=nl.NikonEffectiveMaxAp,
+                                       NikonLensIDNumber=nl.NikonLensIDNumber,
+                                       NikonLensFStops=nl.NikonLensFStops,
+                                       NikonMCUVersion=nl.NikonMCUVersion,
+                                       NikonLensType=nl.NikonLensType)
+
+            dngLens = ImageDNGLens(MinFocal=dl.MinFocal, MaxFocal=dl.MaxFocal,
+                                   MaxAp4MinFocal=dl.MaxAp4MinFocal,
+                                   MaxAp4MaxFocal=dl.MaxAp4MaxFocal)
+
+            makerNotesLens = ImageMakerNotesLens(LensID=mnl.LensID, Lens=mnl.Lens,
+                                                 LensFormat=mnl.LensFormat,
+                                                 LensMount=mnl.LensMount,
+                                                 CamID=mnl.CamID,
+                                                 CameraFormat=mnl.CameraFormat,
+                                                 CameraMount=mnl.CameraMount,
+                                                 body=mnl.body, FocalType=mnl.FocalType,
+                                                 LensFeatures_pre=mnl.LensFeatures_pre,
+                                                 LensFeatures_suf=mnl.LensFeatures_suf,
+                                                 MinFocal=mnl.MinFocal,
+                                                 MaxFocal=mnl.MaxFocal,
+                                                 MaxAp4MinFocal=mnl.MaxAp4MinFocal,
+                                                 MaxAp4MaxFocal=mnl.MaxAp4MaxFocal,
+                                                 MinAp4MinFocal=mnl.MinAp4MinFocal,
+                                                 MinAp4MaxFocal=mnl.MinAp4MaxFocal,
+                                                 MaxAp=mnl.MaxAp, MinAp=mnl.MinAp,
+                                                 CurFocal=mnl.CurFocal, CurAp=mnl.CurAp,
+                                                 MaxAp4CurFocal=mnl.MaxAp4CurFocal,
+                                                 MinAp4CurFocal=mnl.MinAp4CurFocal,
+                                                 LensFStops=mnl.LensFStops,
+                                                 TeleconverterID=mnl.TeleconverterID,
+                                                 Teleconverter=mnl.Teleconverter,
+                                                 AdapterID=mnl.AdapterID,
+                                                 Adapter=mnl.Adapter,
+                                                 AttachmentID=mnl.AttachmentID,
+                                                 Attachment=mnl.Attachment,
+                                                 CanonFocalUnits=mnl.CanonFocalUnits,
+                                                 FocalLengthIn35mmFormat=mnl.FocalLengthIn35mmFormat)
+
+            return ImageLens(MinFocal=l.MinFocal, MaxFocal=l.MaxFocal,
+                             MaxAp4MinFocal=l.MaxAp4MinFocal,
+                             MaxAp4MaxFocal=l.MaxAp4MaxFocal,
+                             EXIF_MaxAp=l.EXIF_MaxAp, LensMake=l.LensMake,
+                             Lens=l.Lens,
+                             FocalLengthIn35mmFormat=l.FocalLengthIn35mmFormat,
+                             nikon=nikonLens, dng=dngLens, makernotes=makerNotesLens)
+
+    property color:
+        """
+        Return a :class:`rawpy.ImageColor` instance with color information of
+        the RAW image and postprocessed image.
+        """
+        def __get__(self):
+            cdef libraw_colordata_t* c = &self.p.imgdata.color
+            cdef char* profile = <char*>c.profile
+
+            return ImageColor(cam_mul=c.cam_mul, pre_mul=c.pre_mul, curve=c.curve,
+                              cblack=c.cblack, black=c.black, cmatrix=c.cmatrix,
+                              cam_xyz=c.cam_xyz, profile=profile[:c.profile_length])
+    property other:
+        """
+        Return a :class:`rawpy.ImageOther` instance with additional information of
+        the RAW image and postprocessed image.
+        """
+        def __get__(self):
+            cdef libraw_imgother_t* o = &self.p.imgdata.other
+            cdef libraw_gps_info_t* g = &o.parsed_gps
+
+            parsed_gps = ImageGPS(latitude=g.latitude, longtitude=g.longtitude,
+                                  gpstimestamp=g.gpstimestamp, altitude=g.altitude,
+                                  altref=g.altref, latref=g.latref, longref=g.longref,
+                                  gpsstatus=g.gpsstatus, gpsparsed=g.gpsparsed)
+
+            return ImageOther(iso_speed=o.iso_speed, shutter=o.shutter,
+                              aperture=o.aperture, focal_len=o.focal_len,
+                              timestamp=o.timestamp, shot_order=o.shot_order,
+                              gpsdata=o.gpsdata, parsed_gps=parsed_gps,
+                              desc=o.desc, artist=o.artist)
     
     property num_colors:
         """
