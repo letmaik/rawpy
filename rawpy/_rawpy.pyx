@@ -327,6 +327,11 @@ ImageLens = namedtuple('ImageLens', ['MinFocal', 'MaxFocal',
                                      'FocalLengthIn35mmFormat', 'nikon',
                                      'dng', 'makernotes'])
 
+ImageGPS = namedtuple('ImageGPS', ['latitude', 'longtitude',
+                                   'gpstimestamp', 'altitude',
+                                   'altref', 'latref', 'longref',
+                                   'gpsstatus', 'gpsparsed'])
+
 ImageOther = namedtuple('ImageOther', ['iso_speed', 'shutter',
                                        'aperture', 'focal_len',
                                        'timestamp', 'shot_order',
@@ -336,11 +341,6 @@ ImageOther = namedtuple('ImageOther', ['iso_speed', 'shutter',
 ImageColor = namedtuple('ImageColor', ['cam_mul', 'pre_mul', 'curve',
                                        'cblack', 'black', 'cmatrix',
                                        'cam_xyz', 'profile'])
-
-ImageGPS = namedtuple('ImageGPS', ['latitude', 'longtitude',
-                                   'gpstimestamp', 'altitude',
-                                   'altref', 'latref', 'longref',
-                                   'gpsstatus', 'gpsparsed'])
 
 class RawType(Enum):
     """
