@@ -371,7 +371,7 @@ if sys.version_info < (3, 4):
 setup(
       name = 'rawpy',
       version = __version__,
-      description = 'Python wrapper for the LibRaw library',
+      description = 'RAW image processing for Python, a wrapper for libraw',
       long_description = open('README.rst').read(),
       author = 'Maik Riechert',
       author_email = 'maik.riechert@arcor.de',

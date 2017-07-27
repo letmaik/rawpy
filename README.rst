@@ -56,17 +56,20 @@ Find bad pixels using multiple RAW files and repair them:
 	        rgb = raw.postprocess()
 	    imageio.imsave(path + '.tiff', rgb)
 
-Installation on Windows and macOS
----------------------------------
+Installation
+------------
 
-Binaries are provided for Python 2.7, 3.4, 3.5, and 3.6.
-These can be installed with a simple ``pip install rawpy`` 
-(or ``pip install --use-wheel rawpy`` if using pip < 1.5).
+Binary wheels for Linux, macOS, and Windows are provided for Python 2.7, 3.4, 3.5, and 3.6.
+These can be installed with a simple ``pip install rawpy``.
+Currently, Linux and macOS wheels are only available as 64 bit versions.
 
-Installation on Linux
----------------------
+Installation from source on Linux/macOS
+---------------------------------------
 
-You need to have the LibRaw_ library installed to use this wrapper.
+If you have the need to use a specific libraw version or you can't use the provided binary wheels
+then follow the steps in this section to build rawpy from source.
+
+First, install the LibRaw_ library on your system.
 
 On Ubuntu, you can get (an outdated) version with:
 
@@ -86,7 +89,7 @@ Or install the latest release version from the source repository:
     cmake .
     sudo make install
     
-After that, it's the usual ``pip install rawpy``.
+After that, install rawpy using ``pip install rawpy --no-binary :all:``.
     
 If you get the error "ImportError: libraw.so: cannot open shared object file: No such file or directory"
 when trying to use rawpy, then do the following:
