@@ -332,8 +332,8 @@ if any(s in cmdline for s in ['clean', 'sdist']):
     print('removing', egg_info)
     shutil.rmtree(egg_info, ignore_errors=True)
 
-pyx_path = '_rawpy.pyx'
-c_path = '_rawpy.cpp'
+pyx_path = os.path.join('rawpy', '_rawpy.pyx')
+c_path = os.path.join('rawpy', '_rawpy.c')
 if not os.path.exists(pyx_path):
     # we are running from a source dist which doesn't include the .pyx
     use_cython = False
@@ -360,15 +360,8 @@ extensions = [Extension("rawpy._rawpy",
 if use_cython:
     extensions = cythonize(extensions)
 
-# version handling from https://stackoverflow.com/a/7071358
-VERSIONFILE="rawpy/_version.py"
-verstrline = open(VERSIONFILE, "rt").read()
-VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
-mo = re.search(VSRE, verstrline, re.M)
-if mo:
-    verstr = mo.group(1)
-else:
-    raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
+# make __version__ available (https://stackoverflow.com/a/16084844)
+exec(open('rawpy/_version.py').read())
 
 install_requires = ['numpy']
 if sys.version_info < (3, 4):
@@ -377,7 +370,7 @@ if sys.version_info < (3, 4):
 
 setup(
       name = 'rawpy',
-      version = verstr,
+      version = __version__,
       description = 'Python wrapper for the LibRaw library',
       long_description = open('README.rst').read(),
       author = 'Maik Riechert',

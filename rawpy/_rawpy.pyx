@@ -634,6 +634,7 @@ cdef class RawPy:
         p.user_black = params.user_black
         p.user_sat = params.user_sat
         p.no_auto_bright = params.no_auto_bright
+        p.no_auto_scale = params.no_auto_scale
         p.auto_bright_thr = params.auto_bright_thr
         p.adjust_maximum_thr = params.adjust_maximum_thr
         p.bright = params.bright
@@ -772,7 +773,7 @@ class Params(object):
                  user_flip=None, user_black=None, user_sat=None,
                  no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
                  bright=None, highlight_mode=HighlightMode.Clip,
-                 exp_shift=None, exp_preserve_highlights=0.0,
+                 exp_shift=None, exp_preserve_highlights=0.0, no_auto_scale=False,
                  gamma=None, chromatic_aberration=None,
                  bad_pixels_path=None):
         """
@@ -794,6 +795,7 @@ class Params(object):
                               default is to use image orientation from the RAW image if available
         :param int user_black: custom black level
         :param int user_sat: saturation adjustment
+        :param bool no_auto_scale: Whether to disable pixel value scaling
         :param bool no_auto_bright: whether to disable automatic increase of brightness
         :param float auto_bright_thr: ratio of clipped pixels when automatic brighness increase is used
                                       (see `no_auto_bright`). Default is 0.01 (1%).
@@ -833,6 +835,7 @@ class Params(object):
         self.user_black = user_black if user_black is not None else -1
         self.user_sat = user_sat if user_sat is not None else -1
         self.no_auto_bright = no_auto_bright
+        self.no_auto_scale = no_auto_scale
         if auto_bright_thr is not None:
             min_version = (0,16,1)
             if libraw_version < min_version:

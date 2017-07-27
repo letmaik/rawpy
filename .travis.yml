@@ -1,72 +1,50 @@
-language: python
-
-sudo: required
-
-python:
-  - "2.7"
-  - "3.4"
+language: generic
 
 env:
   global:
-    - LIBRAW_GIT="git://github.com/LibRaw/LibRaw.git"
-    - LIBRAW_CMAKE_GIT="git://github.com/LibRaw/LibRaw-cmake.git"
-  matrix:
-    - USE_LATEST_LIBRAW=true
-    - USE_LATEST_LIBRAW=false
-    
-git:
-  submodules: false
+    - PYPI_USER=letmaik
 
-before_install:
-  - travis_retry sudo apt-get update
+matrix:
+  include:
+    - os: linux
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+
+    - os: osx
+      # use oldest available image to be as compatible as possible when producing wheels
+      osx_image: xcode6.4 # = OS X 10.10
+      # (NumPy 1.7.2 has no macOS wheels)
+      env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7.1
+
+    - os: osx
+      osx_image: xcode6.4
+      env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.8.*
+
+    - os: osx
+      osx_image: xcode6.4
+      env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.9.*
+
+    - os: osx
+      osx_image: xcode6.4
+      env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11.*
 
 install:
-  - if [ $USE_LATEST_LIBRAW == true ]; then
-      cd .. ;
-      git clone $LIBRAW_GIT ;
-      git clone $LIBRAW_CMAKE_GIT ;
-      cp -R LibRaw-cmake/* LibRaw ;
-      cd LibRaw ;
-      git checkout `git describe --abbrev=0 --tags` ;
-      cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ;
-      make ;
-      sudo make install ;
-      echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/99local.conf ;
-      sudo ldconfig ;
-      cd ../rawpy ;
-    else
-      travis_retry sudo apt-get install libraw-dev ;
-    fi
-  - travis_retry sudo apt-get install libfreeimage-dev
-  - pip install opencv-python
-  - pip install -r dev-requirements.txt
-  # output what's installed
-  - pip freeze
-  - python setup.py sdist
-  - pip install dist/*.tar.gz
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker pull $DOCKER_IMAGE; fi
 
 script:
-  - mkdir tmp_for_test
-  - cd tmp_for_test
-  - nosetests --verbosity=3 --nocapture ../test
-  - cd ..
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker run --rm -e TRAVIS_TAG -e PYPI_USER -e PYPI_PASS -v `pwd`:/io $DOCKER_IMAGE /io/travis/build_linux.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then travis/build_macos.sh; fi
 
 after_success:
-  - if [[ $USE_LATEST_LENSFUN == false && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then
-      pip install travispy ;
-      travis_retry python -c "import os; from travispy import TravisPy; t = TravisPy.github_auth(os.environ['GITHUB_TOKEN']); t.build(t.branch('mac-wheels', 'letmaik/rawpy').id).restart()" ;
-    fi
-
-before_deploy:
-  # otherwise sphinx would fail
-  - python setup.py build_ext --inplace
-  - pip install sphinx
+  - ls dist/
+  - ls build/
 
 deploy:
-  provider: pypi
-  user: letmaik
-  password:
-    secure: "Gi+qCKpRNFjlvpOxBXjSNAq4yDhlSXfUUl9RZaOSdER+YURbc9/AMlfUuyOvpi09tAgwGnn9Hn3z7NqqjNV9auTcD30viMnevNbiyJaE2O/bw75FU9HqFmTM/OR7UVJp4sNtxtXy1Zp5CxmMnzRCjV3stQ9iaG9aJOV3sbUzDTQ="
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  local_dir: build/sphinx
   on:
     tags: true
-    condition: $USE_LATEST_LIBRAW = false && $TRAVIS_PYTHON_VERSION == '2.7'
+    condition: $PYTHON_VERSION = '3.6' && $TRAVIS_OS_NAME == 'osx'
