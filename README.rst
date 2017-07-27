@@ -3,12 +3,8 @@ rawpy
 
 .. image:: https://travis-ci.org/letmaik/rawpy.svg?branch=master
     :target: https://travis-ci.org/letmaik/rawpy
-    :alt: Linux Build Status
-
-.. image:: https://travis-ci.org/letmaik/rawpy.svg?branch=mac-wheels
-    :target: https://travis-ci.org/letmaik/rawpy
-    :alt: Mac OS X Build Status
-    
+    :alt: Linux/macOS Build Status
+   
 .. image:: https://ci.appveyor.com/api/projects/status/f8ibd8mejxs9xq5w?svg=true
     :target: https://ci.appveyor.com/project/letmaik/rawpy
     :alt: Windows Build Status
@@ -16,7 +12,7 @@ rawpy
 rawpy is an easy-to-use Python wrapper for the LibRaw_ library.
 It also contains some extra functionality for finding and repairing hot/dead pixels.
 
-`API Documentation <http://pythonhosted.org/rawpy/api/>`_
+`API Documentation <https://letmaik.github.io/rawpy/api/>`_
 
 Sample code
 -----------
