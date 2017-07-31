@@ -14,6 +14,8 @@ It also contains some extra functionality for finding and repairing hot/dead pix
 
 `API Documentation <https://letmaik.github.io/rawpy/api/>`_
 
+`Jupyter notebook tutorials <https://github.com/letmaik/rawpy-notebooks/blob/master/README.md>`_
+
 Sample code
 -----------
 
