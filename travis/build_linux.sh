@@ -74,7 +74,9 @@ for PYBIN in ${PYBINS[@]}; do
     travis_retry ${PYBIN}/pip install -r dev-requirements.txt
     travis_retry ${PYBIN}/pip install numpy -U # scipy should trigger an update, but that doesn't happen
     
-    (cd $HOME; ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test)
+    pushd $HOME
+    ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test
+    popd
 done
 
 # Move wheels to dist/ folder for easier deployment
