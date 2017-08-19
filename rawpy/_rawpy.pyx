@@ -900,7 +900,7 @@ cdef class processed_image_wrapper:
     def __dealloc__(self):
         self.raw.p.dcraw_clear_mem(self.processed_image)        
     
-cdef char* _chars(s):
+def _chars(s):
     if isinstance(s, unicode):
         # convert unicode to chars
         s = (<unicode>s).encode('UTF-8')
