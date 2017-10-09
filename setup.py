@@ -333,7 +333,7 @@ if any(s in cmdline for s in ['clean', 'sdist']):
     shutil.rmtree(egg_info, ignore_errors=True)
 
 pyx_path = os.path.join('rawpy', '_rawpy.pyx')
-c_path = os.path.join('rawpy', '_rawpy.c')
+c_path = os.path.join('rawpy', '_rawpy.cpp')
 if not os.path.exists(pyx_path):
     # we are running from a source dist which doesn't include the .pyx
     use_cython = False
