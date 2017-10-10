@@ -1,14 +1,12 @@
+language: generic
+
 env:
   global:
     - PYPI_USER=letmaik
 
-# Default ruby is 2.0 which is too old for homebrew on macOS
-rvm: 2.3
-
 matrix:
   include:
     - os: linux
-      language: generic
       services:
         - docker
       env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
@@ -16,23 +14,19 @@ matrix:
     - os: osx
       # use oldest available image to be as compatible as possible when producing wheels
       osx_image: xcode6.4 # = OS X 10.10
-      language: ruby # so that the 'rvm' key can be used to select a version
       # (NumPy 1.7.2 has no macOS wheels)
       env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7.1
 
     - os: osx
       osx_image: xcode6.4
-      language: ruby
       env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.8.*
 
     - os: osx
       osx_image: xcode6.4
-      language: ruby
       env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.9.*
 
     - os: osx
       osx_image: xcode6.4
-      language: ruby
       env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11.*
 
 install:

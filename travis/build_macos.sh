@@ -3,6 +3,9 @@ set -e -x
 
 source travis/travis_retry.sh
 
+# temporary workaround for https://github.com/travis-ci/travis-ci/issues/8552
+brew update
+
 # Build wheel
 git clone https://github.com/MacPython/terryfy.git
 set +x # reduce noise
