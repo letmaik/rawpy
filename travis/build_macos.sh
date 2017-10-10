@@ -3,10 +3,6 @@ set -e -x
 
 source travis/travis_retry.sh
 
-# Update ruby as homebrew needs at least 2.3 and fails while trying to update it automatically
-rvm install ruby --latest
-rvm --default use ruby --latest
-
 # Build wheel
 git clone https://github.com/MacPython/terryfy.git
 set +x # reduce noise
