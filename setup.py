@@ -157,18 +157,6 @@ def windows_libraw_compile():
     
     files = [(cmake_url, 'external', cmake)]
     
-    # libraw's rawspeed support is based on the master branch which still requires libxml2
-    # the develop branch has this dependency removed
-    # -> let's wait until rawspeed develop is merged into master and libraw catches up
-    # see https://github.com/LibRaw/LibRaw/issues/40
-    use_rawspeed = False
-    if use_rawspeed:
-        # FIXME probably have to apply rawspeed patches 
-        
-        # dependencies for rawspeed
-        pthreads_url = 'http://mirrors.kernel.org/sourceware/pthreads-win32/pthreads-w32-2-9-1-release.zip'
-        files.extend([(pthreads_url, 'external/pthreads', 'external/pthreads/Pre-built.2')])
-    
     for url, extractdir, extractcheck in files:
         if not os.path.exists(extractcheck):
             path = 'external/' + os.path.basename(url)
@@ -210,10 +198,6 @@ def windows_libraw_compile():
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
-                    ('-DENABLE_RAWSPEED=ON -DRAWSPEED_RPATH=../rawspeed/RawSpeed ' +\
-                     '-DPTHREADS_INCLUDE_DIR=' + os.path.join(pthreads_dir, 'include') + ' ' +\
-                     '-DPTHREADS_LIBRARY=' + os.path.join(pthreads_dir, 'lib', arch, 'pthreadVC2.lib') + ' '
-                     if use_rawspeed else '') +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
             'nmake raw_r',
@@ -228,10 +212,6 @@ def windows_libraw_compile():
     
     # bundle runtime dlls
     dll_runtime_libs = [('raw_r.dll', os.path.join(install_dir, 'bin'))]
-    if use_rawspeed:
-        dll_runtime_libs.extend([
-            ('pthreadVC2.dll', os.path.join(pthreads_dir, 'lib', arch))
-            ])
     
     # openmp dll
     isVS2008 = sys.version_info < (3, 3)
