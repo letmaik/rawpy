@@ -1,10 +1,19 @@
+# build dependencies
+wheel>=0.25
+delocate;sys.platform == 'darwin'
 numpy>=1.7
 cython
-nose
-wheel>=0.25
-sphinx
-sphinx_rtd_theme
-imageio
-futures;python_version<3
-scipy
+
+# optional runtime dependencies
 scikit-image
+
+# test dependencies
+nose
+imageio
+# unlisted dependency of imageio's TIFF support
+# see https://github.com/imageio/imageio/pull/330
+futures;python_version < '3'
+
+# documentation dependencies
+sphinx_rtd_theme
+sphinx
