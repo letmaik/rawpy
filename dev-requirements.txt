@@ -5,5 +5,6 @@ wheel>=0.25
 sphinx
 sphinx_rtd_theme
 imageio
+futures;python_version<3
 scipy
 scikit-image
