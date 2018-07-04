@@ -623,6 +623,11 @@ cdef class RawPy:
         p.user_qual = params.user_qual
         p.half_size = params.half_size
         p.four_color_rgb = params.four_color_rgb
+        p.dcb_iterations = params.dcb_iterations
+        p.dcb_enhance_fl = params.dcb_enhance_fl
+        p.fbdd_noiserd = params.fbdd_noiserd
+        p.threshold = params.threshold
+        p.med_passes = params.med_passes
         p.use_camera_wb = params.use_camera_wb
         p.use_auto_wb = params.use_auto_wb
         if params.user_mul:
@@ -724,7 +729,15 @@ class DemosaicAlgorithm(Enum):
            libraw_version < min_version_dht_aahd:
             raise NotSupportedError('Demosaic algorithm ' + self.name, min_version_dht_aahd)
         return True
-    
+
+class FBDDNoiseReductionMode(Enum):
+    """
+    FBDD noise reduction modes.
+    """
+    Off=0
+    Light=1
+    Full=2
+
 class ColorSpace(Enum):
     """
     Color spaces.
@@ -768,11 +781,14 @@ class Params(object):
     A class that handles postprocessing parameters.
     """
     def __init__(self, demosaic_algorithm=None, half_size=False, four_color_rgb=False,
+                 dcb_iterations=0, dcb_enhance=False,
+                 fbdd_noise_reduction=FBDDNoiseReductionMode.Off,
+                 noise_thr=None, median_filter_passes=0,
                  use_camera_wb=False, use_auto_wb=False, user_wb=None,
                  output_color=ColorSpace.sRGB, output_bps=8, 
                  user_flip=None, user_black=None, user_sat=None,
                  no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
-                 bright=None, highlight_mode=HighlightMode.Clip,
+                 bright=1.0, highlight_mode=HighlightMode.Clip,
                  exp_shift=None, exp_preserve_highlights=0.0, no_auto_scale=False,
                  gamma=None, chromatic_aberration=None,
                  bad_pixels_path=None):
@@ -786,6 +802,11 @@ class Params(object):
         :param bool half_size: outputs image in half size by reducing each 2x2 block to one pixel
                                instead of interpolating
         :param bool four_color_rgb: whether to use separate interpolations for two green channels
+        :param int dcb_iterations: number of DCB correction passes, requires DCB demosaicing algorithm
+        :param bool dcb_enhance: DCB interpolation with enhanced interpolated colors
+        :param rawpy.FBDDNoiseReductionMode fbdd_noise_reduction: controls FBDD noise reduction before demosaicing
+        :param float noise_thr: threshold for wavelet denoising (default disabled)
+        :param int median_filter_passes: number of median filter passes after demosaicing to reduce color artifacts
         :param bool use_camera_wb: whether to use the as-shot white balance values
         :param bool use_auto_wb: whether to try automatically calculating the white balance 
         :param list user_wb: list of length 4 with white balance multipliers for each color 
@@ -800,7 +821,7 @@ class Params(object):
         :param float auto_bright_thr: ratio of clipped pixels when automatic brighness increase is used
                                       (see `no_auto_bright`). Default is 0.01 (1%).
         :param float adjust_maximum_thr: see libraw docs
-        :param float bright: brightness (default 1.0)
+        :param float bright: brightness scaling
         :param highlight_mode: highlight mode
         :type highlight_mode: :class:`rawpy.HighlightMode` | int
         :param float exp_shift: exposure shift in linear scale.
@@ -822,6 +843,11 @@ class Params(object):
             self.user_qual = -1
         self.half_size = half_size
         self.four_color_rgb = four_color_rgb
+        self.dcb_iterations = dcb_iterations
+        self.dcb_enhance_fl = dcb_enhance
+        self.fbdd_noiserd = fbdd_noise_reduction.value
+        self.threshold = noise_thr if noise_thr is not None else 0.0
+        self.med_passes = median_filter_passes
         self.use_camera_wb = use_camera_wb
         self.use_auto_wb = use_auto_wb
         if user_wb is not None:
@@ -845,7 +871,7 @@ class Params(object):
         else:
             self.auto_bright_thr = LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
         self.adjust_maximum_thr = adjust_maximum_thr
-        self.bright = bright if bright is not None else 1.0
+        self.bright = bright
         if isinstance(highlight_mode, HighlightMode):
             self.highlight = highlight_mode.value
         else:
