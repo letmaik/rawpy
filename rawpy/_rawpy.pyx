@@ -411,7 +411,10 @@ cdef class RawPy:
         """
         if self.p.imgdata.rawdata.raw_image == NULL:
             raise RuntimeError('RAW image is not flat')
-        return self.p.COLOR(row, column)
+        cdef ushort top_margin = self.p.imgdata.sizes.top_margin
+        cdef ushort left_margin = self.p.imgdata.sizes.left_margin
+        # COLOR's coordinates are relative to visible image size.
+        return self.p.COLOR(row - top_margin, column - left_margin)
     
     property raw_colors:
         """
@@ -470,7 +473,7 @@ cdef class RawPy:
             cdef int y, x
             for y in range(n):
                 for x in range(n):
-                    pattern[y,x] = self.p.COLOR(y, x)
+                    pattern[y,x] = self.raw_color(y, x)
             if n == 4:
                 if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
                    np.all(pattern[:2,:2] == pattern[2:,2:]) and \
