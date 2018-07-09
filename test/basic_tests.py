@@ -20,6 +20,9 @@ badPixelsTestPath = os.path.join(os.path.dirname(__file__), 'bad_pixels.gz')
 # Nikon D4
 raw2TestPath = os.path.join(os.path.dirname(__file__), 'iss042e297200.NEF')
 
+# Canon EOS 5D Mark 2
+raw3TestPath = os.path.join(os.path.dirname(__file__), 'RAW_CANON_5DMARK2_PREPROD.CR2')
+
 
 def testVersion():
     print('using libraw', rawpy.libraw_version)
@@ -106,6 +109,18 @@ def testProperties():
     # older versions have zeros at the end, was probably a bug
     if rawpy.libraw_version >= (0,16):
         assert_array_equal(raw.tone_curve, np.arange(65536))
+
+def testBayerPattern():
+    expected_desc = b'RGBG' # libraw hard-codes this and varies the color indices only
+    
+    for path in [rawTestPath, raw2TestPath]:
+        raw = rawpy.imread(path)
+        assert_equal(raw.color_desc, expected_desc)
+        assert_array_equal(raw.raw_pattern, [[0,1],[3,2]])
+
+    raw = rawpy.imread(raw3TestPath)
+    assert_equal(raw.color_desc, expected_desc)
+    assert_array_equal(raw.raw_pattern, [[3,2],[0,1]])
 
 def testBadPixelRepair():
     def getColorNeighbors(raw, y, x):

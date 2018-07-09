@@ -1,0 +1,1 @@
+RAW_CANON_5DMARK2_PREPROD.CR2 was downloaded from https://www.rawsamples.ch and is licensed under CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/).
