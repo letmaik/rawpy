@@ -28,4 +28,10 @@ HighlightMode
 .. autoclass:: rawpy.HighlightMode
    :members:
    :undoc-members:
-   
+
+FBDDNoiseReductionMode
+----------------------
+
+.. autoclass:: rawpy.FBDDNoiseReductionMode
+   :members:
+   :undoc-members:
