@@ -15,6 +15,7 @@ PYBINS=(
   "/opt/python/cp34-cp34m/bin"
   "/opt/python/cp35-cp35m/bin"
   "/opt/python/cp36-cp36m/bin"
+  "/opt/python/cp37-cp37m/bin"
   )
 
 # Install build tools
@@ -48,6 +49,7 @@ for PYBIN in ${PYBINS[@]}; do
         *34*) NUMPY_VERSION="1.8.*";;
         *35*) NUMPY_VERSION="1.9.*";;
         *36*) NUMPY_VERSION="1.11.*";;
+        *37*) NUMPY_VERSION="1.14.*";;
     esac
 
     # install compile-time dependencies
@@ -68,11 +70,11 @@ ${PYBINS[0]}/python setup.py sdist
 for PYBIN in ${PYBINS[@]}; do
     ${PYBIN}/pip install rawpy --no-index -f wheelhouse
     
-    # install older mpl version without subprocess32 dependency (install issues)
-    travis_retry ${PYBIN}/pip install matplotlib==1.5.*
+    # install older mpl version still supporting Python 2.7
+    travis_retry ${PYBIN}/pip install matplotlib==2.*
 
     travis_retry ${PYBIN}/pip install -r dev-requirements.txt
-    travis_retry ${PYBIN}/pip install numpy -U # scipy should trigger an update, but that doesn't happen
+    travis_retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
     
     pushd $HOME
     ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test

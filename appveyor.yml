@@ -54,6 +54,16 @@ environment:
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.11"
 
+    - PYTHON: C:\Python37_32
+      PYTHON_VERSION: "3.7.1"
+      PYTHON_ARCH: "32"
+      NUMPY_VERSION: "1.14"
+
+    - PYTHON: C:\Python37_64
+      PYTHON_VERSION: "3.7.1"
+      PYTHON_ARCH: "64"
+      NUMPY_VERSION: "1.14"
+
 install:
   - dir "C:\"
   - dir "C:\Program Files\Microsoft SDKs\Windows"

@@ -29,6 +29,10 @@ matrix:
       osx_image: xcode6.4
       env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11.*
 
+    - os: osx
+      osx_image: xcode6.4
+      env: PYTHON_VERSION=3.7 NUMPY_VERSION=1.14.*
+
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker pull $DOCKER_IMAGE; fi
 

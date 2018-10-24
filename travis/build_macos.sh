@@ -3,7 +3,9 @@ set -e -x
 
 source travis/travis_retry.sh
 
-# temporary workaround for https://github.com/travis-ci/travis-ci/issues/8552
+# brew tries to update itself and Ruby during 'brew install ..'' but fails doing so with
+# "Homebrew must be run under Ruby 2.3! You're running 2.0.0.".
+# Updating brew separately seems to avoid this issue.
 brew update
 
 # Build wheel

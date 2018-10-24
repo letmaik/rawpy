@@ -1,7 +1,7 @@
 # the original travis_retry is a shell function and not available inside scripts
 # therefore the following provides a source'able version of it
 
-# https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/templates/header.sh
+# https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/bash/travis_retry.bash
 travis_retry() {
   local result=0
   local count=1
