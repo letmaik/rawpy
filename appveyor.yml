@@ -117,4 +117,6 @@ test_script:
 
 deploy_script:
   - ps: .\appveyor\pypi_deploy.ps1
-  
+
+artifacts:
+  - path: 'dist\*.whl'

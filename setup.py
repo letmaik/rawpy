@@ -174,6 +174,33 @@ def windows_libraw_compile():
             
             if not os.path.exists(path):
                 raise RuntimeError(path + ' not found!')
+                
+    # openmp dll
+    isVS2008 = sys.version_info < (3, 3)
+    isVS2010 = (3, 3) <= sys.version_info < (3, 5)
+    isVS2015 = (3, 5) <= sys.version_info
+    
+    if isVS2008:
+        if is64Bit:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\vcomp90.dll',
+                   r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\Microsoft.VC90.OpenMP.manifest']
+        else:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\vcomp90.dll',
+                   r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\Microsoft.VC90.OpenMP.manifest']
+    elif isVS2010:
+        if is64Bit:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll']
+        else:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll']
+    elif isVS2015:
+        if is64Bit:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x64\Microsoft.VC140.OpenMP\vcomp140.dll']
+        else:
+            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x86\Microsoft.VC140.OPENMP\vcomp140.dll']
+    
+    # Some Visual Studio Express versions don't ship with OpenMP redistributable DLLs, even though the compile may support it.
+    # If we don't have the DLLs, then there is no point building with OpenMP enabled.
+    has_openmp_dll = all(os.path.exists(p) for p in omp)
     
     # configure and compile libraw
     cwd = os.getcwd()
@@ -191,10 +218,10 @@ def windows_libraw_compile():
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
     ext = lambda p: os.path.join(external_dir, p)
-    pthreads_dir = ext('pthreads/Pre-built.2')
     arch = 'x64' if is64Bit else 'x86'
+    enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
-                    '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=ON -DENABLE_RAWSPEED=OFF ' +\
+                    '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=' + enable_openmp_flag + ' -DENABLE_RAWSPEED=OFF ' +\
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
@@ -213,46 +240,15 @@ def windows_libraw_compile():
     # bundle runtime dlls
     dll_runtime_libs = [('raw_r.dll', os.path.join(install_dir, 'bin'))]
     
-    # openmp dll
-    isVS2008 = sys.version_info < (3, 3)
-    isVS2010 = (3, 3) <= sys.version_info < (3, 5)
-    isVS2015 = (3, 5) <= sys.version_info
-    
-    libraw_configh = os.path.join(install_dir, 'include', 'libraw', 'libraw_config.h')
-    match = '#define LIBRAW_USE_OPENMP 1'
-    hasOpenMpSupport = match in open(libraw_configh).read()
-    
-    if isVS2008:
-        if not hasOpenMpSupport:
-            raise Exception('OpenMP not available but should be, see error messages above')
-        if is64Bit:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\vcomp90.dll',
-                   r'C:\Windows\winsxs\amd64_microsoft.vc90.openmp_1fc8b3b9a1e18e3b_9.0.21022.8_none_a5325551f9d85633\vcomp90.dll']
-        else:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\vcomp90.dll',
-                   r'C:\Windows\winsxs\x86_microsoft.vc90.openmp_1fc8b3b9a1e18e3b_9.0.21022.8_none_ecdf8c290e547f39\vcomp90.dll']
-    elif isVS2010:
-        # Visual Studio 2010 Express and the free SDKs don't support OpenMP
-        if hasOpenMpSupport:
-            if is64Bit:
-                omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll']
-            else:
-                omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll']
-    elif isVS2015:
-        if not hasOpenMpSupport:
-            raise Exception('OpenMP not available but should be, see error messages above')
-        if is64Bit:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x64\Microsoft.VC140.OpenMP\vcomp140.dll']
-        else:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x86\Microsoft.VC140.OPENMP\vcomp140.dll']
-    
-    if hasOpenMpSupport:
-        try:
-            omp_dir = os.path.dirname(list(filter(os.path.exists, omp))[0])
-            dll_runtime_libs += [(os.path.basename(omp[0]), omp_dir)]
-        except KeyError:
-            raise Exception('OpenMP DLL not found, please read WINDOWS_COMPILE')
-        
+    if has_openmp_dll:
+        # Check if OpenMP was enabled in the CMake build, independent of the flag we supplied.
+        # If not, we don't have to bundle the DLL.
+        libraw_configh = os.path.join(install_dir, 'include', 'libraw', 'libraw_config.h')
+        match = '#define LIBRAW_USE_OPENMP 1'
+        has_openmp_support = match in open(libraw_configh).read()
+        if has_openmp_support:
+           dll_runtime_libs += [(os.path.basename(path), os.path.dirname(path)) for path in omp]
+ 
     for filename, folder in dll_runtime_libs:
         src = os.path.join(folder, filename)
         dest = 'rawpy/' + filename
