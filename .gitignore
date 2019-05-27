@@ -59,6 +59,8 @@ docs/_build/
 # mypy
 .mypy_cache/
 
+.vscode/
+
 *.zip
 *.dll
 *.png

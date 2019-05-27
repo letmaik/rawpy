@@ -57,9 +57,35 @@ Find bad pixels using multiple RAW files and repair them:
 Installation
 ------------
 
-Binary wheels for Linux, macOS, and Windows are provided for Python 2.7, 3.4, 3.5, and 3.6.
+Binary wheels for Linux, macOS, and Windows are provided for Python 2.7, 3.5, 3.6, and 3.7.
 These can be installed with a simple ``pip install rawpy``.
 Currently, Linux and macOS wheels are only available as 64 bit versions.
+
+The underlying LibRaw_ library supports several optional features.
+The following table shows which PyPI binary wheels support which features.
+
+================== ======= ===== =====
+Feature            Windows macOS Linux
+------------------ ------- ----- -----
+LCMS color engine  no      yes   yes
+RedCine codec      no      yes   yes
+DNG deflate codec  yes     yes   yes
+DNG lossy codec    yes     yes   yes
+Demosaic Pack GPL2 no      no    no
+Demosaic Pack GPL3 no      no    no
+OpenMP             yes     no    yes
+================== ======= ===== =====
+
+Tip: You can dynamically query supported features by inspecting the `rawpy.flags` dictionary.
+
+Note on Windows features: The LCMS color engine and RedCine codec features are currently not
+supported as the `automated build process <https://ci.appveyor.com/project/letmaik/rawpy>`_
+to generate wheels relies on Anaconda to supply any needed library dependencies.
+For RedCine codec support, the Windows variant of the `Jasper library <https://anaconda.org/anaconda/jasper>`_ is missing,
+and for LCMS color engine support, the `LCMS library <https://anaconda.org/anaconda/lcms>`_ is missing.
+
+Note on GPL demosaic packs: The GPL2 and GPL3 demosaic packs are not included as rawpy is licensed
+under the MIT license which is incompatible with GPL.
 
 Installation from source on Linux/macOS
 ---------------------------------------
@@ -82,7 +108,7 @@ Or install the latest release version from the source repository:
     git clone https://github.com/LibRaw/LibRaw.git libraw
     git clone https://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
     cd libraw
-    git checkout 0.19.0
+    git checkout 0.19.2
     cp -R ../libraw-cmake/* .
     cmake .
     sudo make install
@@ -109,7 +135,6 @@ rawpy depends on NumPy. The minimum supported NumPy version depends on your Pyth
 Python     NumPy
 ---------- ---------
 2.7        >= 1.7
-3.4        >= 1.8
 3.5        >= 1.9
 3.6        >= 1.11
 3.7        >= 1.14

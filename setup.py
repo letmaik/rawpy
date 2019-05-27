@@ -20,16 +20,9 @@ if sys.version_info < (2, 7):
     raise NotImplementedError('Minimum supported Python version is 2.7')
 
 # As rawpy is distributed under the MIT license, it cannot use or distribute
-# GPL'd code. This is relevant for the Windows and Mac binary wheels which
-# include a self-compiled version of LibRaw that is dynamically linked against.
-# Under Linux, the source distribution dynamically links against whatever
-# variant of LibRaw is installed on the users system. Common Linux distributions
-# such as Ubuntu don't compile LibRaw with the GPL'd code parts, therefore
-# it is safe to assume that the standard installed version is LGPL.
-# If a user compiles his own version of LibRaw including the GPL'd code
-# (either by flipping the switch below for Mac or Windows, or by manually
-# compiling under Linux) then the software produced by the user would have to
-# be released under GPL as well.
+# GPL'd code. This is relevant only for the binary wheels which would have to
+# bundle the GPL'd code/algorithms (extra demosaic packs).
+# TODO allow this to be set from the outside if users want to build from source
 buildGPLCode = False
 
 isWindows = os.name == 'nt'
@@ -361,9 +354,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',

@@ -23,6 +23,7 @@ cdef extern from "def_helper.h":
     # the following flags are only usable if _LIBRAW_HAS_FLAGS is 1
     # (this is the case for libraw >= 0.15.4 and only when cmake was used)
     cdef int _LIBRAW_USE_DNGLOSSYCODEC
+    cdef int _LIBRAW_USE_DNGDEFLATECODEC
     cdef int _LIBRAW_USE_OPENMP
     cdef int _LIBRAW_USE_LCMS
     cdef int _LIBRAW_USE_REDCINECODEC
@@ -192,6 +193,7 @@ libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSI
 
 if _LIBRAW_HAS_FLAGS:
     flags = {'DNGLOSSYCODEC': bool(_LIBRAW_USE_DNGLOSSYCODEC),
+             'DNGDEFLATECODEC': bool(_LIBRAW_USE_DNGDEFLATECODEC),
              'OPENMP': bool(_LIBRAW_USE_OPENMP),
              'LCMS': bool(_LIBRAW_USE_LCMS),
              'REDCINECODEC': bool(_LIBRAW_USE_REDCINECODEC),

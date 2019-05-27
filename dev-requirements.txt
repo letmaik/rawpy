@@ -10,9 +10,11 @@ scikit-image
 # test dependencies
 nose
 imageio
-# unlisted dependency of imageio's TIFF support
+# unlisted dependencies of imageio's TIFF support
 # see https://github.com/imageio/imageio/pull/330
+#     https://github.com/imageio/imageio/issues/436
 futures;python_version < '3'
+pathlib;python_version < '3'
 
 # documentation dependencies
 sphinx_rtd_theme

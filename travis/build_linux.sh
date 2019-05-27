@@ -12,7 +12,6 @@ ls /opt/python
 
 PYBINS=(
   "/opt/python/cp27-cp27mu/bin"
-  "/opt/python/cp34-cp34m/bin"
   "/opt/python/cp35-cp35m/bin"
   "/opt/python/cp36-cp36m/bin"
   "/opt/python/cp37-cp37m/bin"
@@ -21,13 +20,44 @@ PYBINS=(
 # Install build tools
 travis_retry yum install -y cmake
 
+# Install zlib:
+# - libraw DNG deflate codec support
+travis_retry yum install -y zlib-devel
+
+# Install liblcms2:
+# - libraw LCMS support
+travis_retry yum install -y lcms2-devel
+
+# Install libjpeg:
+# - pillow (a scikit-image dependency) dependency
+# - libraw DNG lossy codec support (requires libjpeg >= 8)
+# CentOS 6 has libjpeg 6 only, so build from source.
+curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
+pushd jpeg-9c
+./configure --prefix=/usr
+make install -j$(nproc)
+popd
+
+# Install libjasper:
+# - libraw RedCine codec support
+# CentOS 6 has libjasper, but since it depends on libjpeg we'll build from
+# source, otherwise we would use two different libjpeg versions.
+curl -L --retry 3 https://github.com/mdadams/jasper/archive/version-2.0.16.tar.gz | tar xz
+pushd jasper-version-2.0.16
+mkdir cmake_build
+cd cmake_build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+      -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF ..
+make install -j$(nproc)
+popd
+
 # Install libraw
 pushd external
 cp -R LibRaw-cmake/* LibRaw
 pushd LibRaw
 cmake . -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF
 make
-make install
+make install -j$(nproc)
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/99local.conf
 ldconfig
 popd
@@ -36,9 +66,6 @@ popd
 # Install matplotlib (a scikit-image dependency) dependencies
 travis_retry yum install -y libpng-devel freetype-devel
 
-# Install pillow (a scikit-image dependency) dependencies
-travis_retry yum install -y libjpeg-devel
-
 # Install numpy/scipy deps
 travis_retry yum install -y lapack-devel blas-devel
 
@@ -46,7 +73,6 @@ travis_retry yum install -y lapack-devel blas-devel
 for PYBIN in ${PYBINS[@]}; do
     case ${PYBIN} in
         *27*) NUMPY_VERSION="1.7.2";;
-        *34*) NUMPY_VERSION="1.8.*";;
         *35*) NUMPY_VERSION="1.9.*";;
         *36*) NUMPY_VERSION="1.11.*";;
         *37*) NUMPY_VERSION="1.14.*";;
