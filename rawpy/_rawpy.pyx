@@ -57,7 +57,7 @@ cdef extern from "libraw.h":
         float       cam_mul[4] 
         float       pre_mul[4]
         ushort      curve[0x10000] # 65536
-        unsigned    cblack[4]
+        unsigned    cblack[4102]
         unsigned    black
         float       cmatrix[3][4]
         float       cam_xyz[4][3]
@@ -490,10 +490,10 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
-            return [self.p.imgdata.rawdata.color.cam_mul[0],
-                    self.p.imgdata.rawdata.color.cam_mul[1],
-                    self.p.imgdata.rawdata.color.cam_mul[2],
-                    self.p.imgdata.rawdata.color.cam_mul[3]]
+            return [self.p.imgdata.color.cam_mul[0],
+                    self.p.imgdata.color.cam_mul[1],
+                    self.p.imgdata.color.cam_mul[2],
+                    self.p.imgdata.color.cam_mul[3]]
         
     property daylight_whitebalance:
         """
@@ -504,10 +504,10 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
-            return [self.p.imgdata.rawdata.color.pre_mul[0],
-                    self.p.imgdata.rawdata.color.pre_mul[1],
-                    self.p.imgdata.rawdata.color.pre_mul[2],
-                    self.p.imgdata.rawdata.color.pre_mul[3]]
+            return [self.p.imgdata.color.pre_mul[0],
+                    self.p.imgdata.color.pre_mul[1],
+                    self.p.imgdata.color.pre_mul[2],
+                    self.p.imgdata.color.pre_mul[3]]
             
     property black_level_per_channel:
         """
@@ -517,11 +517,11 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
-            cdef unsigned black = self.p.imgdata.rawdata.color.black
-            return [black + self.p.imgdata.rawdata.color.cblack[0],
-                    black + self.p.imgdata.rawdata.color.cblack[1],
-                    black + self.p.imgdata.rawdata.color.cblack[2],
-                    black + self.p.imgdata.rawdata.color.cblack[3]]
+            cdef unsigned black = self.p.imgdata.color.black
+            return [black + self.p.imgdata.color.cblack[0],
+                    black + self.p.imgdata.color.cblack[1],
+                    black + self.p.imgdata.color.cblack[2],
+                    black + self.p.imgdata.color.cblack[3]]
             
     property color_matrix:
         """
@@ -533,7 +533,7 @@ cdef class RawPy:
             cdef np.ndarray matrix = np.empty((3, 4), dtype=np.float32)
             for i in range(3):
                 for j in range(4):
-                    matrix[i,j] = self.p.imgdata.rawdata.color.cmatrix[i][j]
+                    matrix[i,j] = self.p.imgdata.color.cmatrix[i][j]
             return matrix
         
     property rgb_xyz_matrix:
@@ -548,7 +548,7 @@ cdef class RawPy:
             cdef np.ndarray matrix = np.empty((4, 3), dtype=np.float32)
             for i in range(4):
                 for j in range(3):
-                    matrix[i,j] = self.p.imgdata.rawdata.color.cam_xyz[i][j]
+                    matrix[i,j] = self.p.imgdata.color.cam_xyz[i][j]
             return matrix
     
     property tone_curve:
@@ -561,7 +561,7 @@ cdef class RawPy:
             cdef np.npy_intp shape[1]
             shape[0] = <np.npy_intp> 65536
             return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT,
-                                                &self.p.imgdata.rawdata.color.curve)
+                                                &self.p.imgdata.color.curve)
 
     def dcraw_process(self, params=None, **kw):
         """
