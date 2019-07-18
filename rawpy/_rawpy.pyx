@@ -174,6 +174,8 @@ cdef extern from "libraw.h":
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
 
+    ctypedef void (*data_callback)(void *callback_data, const char *file, const int offset)
+
     cdef cppclass LibRaw:
         libraw_data_t imgdata
         LibRaw()
@@ -185,6 +187,7 @@ cdef extern from "libraw.h":
         int dcraw_process()
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
         void dcraw_clear_mem(libraw_processed_image_t* img)
+        void set_dataerror_handler(data_callback func, void *callback_data)
         void free_image()
         const char* strerror(int p)
         void recycle()
@@ -221,6 +224,9 @@ class RawType(Enum):
     Stack = 1
     """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
 
+cdef void callback(void *method, const char* file, const int offset):
+    (<object>method)(file, offset)
+
 cdef class RawPy:
     """
     Load RAW images, work on their data, and create a postprocessed (demosaiced) image.
@@ -233,7 +239,10 @@ cdef class RawPy:
         
     def __cinit__(self):
         self.p = new LibRaw()
-        
+
+    def set_error_handler(self, method):
+        self.p.set_dataerror_handler(callback, <void *>method)
+
     def __dealloc__(self):
         del self.p
         

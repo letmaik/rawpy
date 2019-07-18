@@ -13,10 +13,18 @@ def imread(pathOrFile):
     :param str|file pathOrFile: path or file object of RAW image that will be read
     :rtype: :class:`rawpy.RawPy`
     """
+    global _callback_func
     d = RawPy()
+    if _callback_func is not None:
+        d.set_error_handler(_callback_func)
     if hasattr(pathOrFile, 'read'):
         d.open_buffer(pathOrFile)
     else:
         d.open_file(pathOrFile)
     d.unpack()
     return d
+
+_callback_func = None
+def set_error_callback(func):
+    global _callback_func
+    _callback_func = func
