@@ -15,12 +15,12 @@ environment:
   # Note that we use miniconda, so the minor versions are irrelevant here
   matrix:
     - PYTHON: C:\Python27_32
-      PYTHON_VERSION: "2.7.10"
+      PYTHON_VERSION: "2.7.16"
       PYTHON_ARCH: "32"
       NUMPY_VERSION: "1.7"
 
     - PYTHON: C:\Python27_64
-      PYTHON_VERSION: "2.7.10"
+      PYTHON_VERSION: "2.7.16"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.7"
       
