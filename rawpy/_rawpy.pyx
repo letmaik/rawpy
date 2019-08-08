@@ -31,6 +31,13 @@ cdef extern from "def_helper.h":
     cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL2
     cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL3
 
+cdef extern from "data_helper.h":
+    ctypedef struct libraw_colordata_black_level_t:
+        unsigned cblack[4102]
+        unsigned black
+
+    cdef libraw_colordata_black_level_t adjust_bl_(LibRaw* libraw)
+
 cdef extern from "libraw.h":
     ctypedef unsigned short ushort
     
@@ -57,7 +64,7 @@ cdef extern from "libraw.h":
         float       cam_mul[4] 
         float       pre_mul[4]
         ushort      curve[0x10000] # 65536
-        unsigned    cblack[4]
+        unsigned    cblack[4102]
         unsigned    black
         float       cmatrix[3][4]
         float       cam_xyz[4][3]
@@ -365,7 +372,7 @@ cdef class RawPy:
     cpdef ushort raw_value_visible(self, int row, int column):
         """
         Return RAW value at given position relative to visible area of image.
-        Only usable for flat RAW images (see raw_type property).        
+        Only usable for flat RAW images (see :attr:`~rawpy.RawPy.raw_type` property).        
         """
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
@@ -508,21 +515,20 @@ cdef class RawPy:
                     self.p.imgdata.rawdata.color.pre_mul[1],
                     self.p.imgdata.rawdata.color.pre_mul[2],
                     self.p.imgdata.rawdata.color.pre_mul[3]]
-            
+    
     property black_level_per_channel:
         """
         Per-channel black level correction.
-        NOTE: This equals black + cblack[N] in LibRaw.
         
         :rtype: list of length 4
         """
         def __get__(self):
-            cdef unsigned black = self.p.imgdata.rawdata.color.black
-            return [black + self.p.imgdata.rawdata.color.cblack[0],
-                    black + self.p.imgdata.rawdata.color.cblack[1],
-                    black + self.p.imgdata.rawdata.color.cblack[2],
-                    black + self.p.imgdata.rawdata.color.cblack[3]]
-            
+            cdef libraw_colordata_black_level_t bl = adjust_bl_(self.p)
+            return [bl.black + bl.cblack[0],
+                    bl.black + bl.cblack[1],
+                    bl.black + bl.cblack[2],
+                    bl.black + bl.cblack[3]]
+
     property color_matrix:
         """
         Color matrix, read from file for some cameras, calculated for others. 
