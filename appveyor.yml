@@ -69,31 +69,16 @@ install:
   # create conda environment
   # jpeg and zlib are native libraries used during the CMake build of libraw.
   # Note that jasper is currently only available for Linux/macOS on conda.
-  - conda create --yes --name pyenv python=%PYTHON_VERSION% jpeg zlib
-  - activate pyenv
+  - conda create --yes --name pyenv_build python=%PYTHON_VERSION% numpy=%NUMPY_VERSION% cython jpeg zlib
+  - activate pyenv_build
 
   # Check that we have the expected version and architecture for Python
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
-
-  # we use conda to prevent compiling extensions
-  # dask is pinned due to https://github.com/dask/dask/issues/4846
-  - conda install --yes numpy=%NUMPY_VERSION% cython "dask<=1.2.0"
-  - pip install -r dev-requirements.txt
-  
-  # force nose reinstall (not using possibly existing conda package)
-  # see https://github.com/conda/conda/issues/1183
-  - pip install -U nose
   
   # output what's installed
   - pip freeze
-  
-  # Install the build dependencies of the project. If some dependencies contain
-  # compiled extensions and are not provided as pre-built wheel packages,
-  # pip will build them from source using the MSVC compiler matching the
-  # target Python version and architecture
-  #- %CMD_IN_ENV% pip install -r dev-requirements.txt
-  
+    
   # Build the compiled extension and install wheel.
   # -u disables output buffering which caused intermixing of lines
   #  when the external tools were started  
@@ -103,6 +88,9 @@ install:
 build: false  # Not a C# project, build stuff at the install step instead.
 
 test_script:
+  - conda create --yes --name pyenv_test python=%PYTHON_VERSION% numpy scikit-image
+  - activate pyenv_test
+  - pip install -r dev-requirements.txt
   - mkdir tmp_for_test
   - cd tmp_for_test
   - nosetests --verbosity=3 --nocapture ../test
