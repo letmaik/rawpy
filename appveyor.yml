@@ -77,7 +77,8 @@ install:
   - python -c "import struct; print(struct.calcsize('P') * 8)"
 
   # we use conda to prevent compiling extensions
-  - conda install --yes numpy=%NUMPY_VERSION% cython
+  # dask is pinned due to https://github.com/dask/dask/issues/4846
+  - conda install --yes numpy=%NUMPY_VERSION% cython "dask<=1.2.0"
   - pip install -r dev-requirements.txt
   
   # force nose reinstall (not using possibly existing conda package)
