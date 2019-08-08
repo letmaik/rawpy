@@ -15,42 +15,42 @@ environment:
   # Note that we use miniconda, so the minor versions are irrelevant here
   matrix:
     - PYTHON: C:\Python27_32
-      PYTHON_VERSION: "2.7.16"
+      PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
       NUMPY_VERSION: "1.7"
 
     - PYTHON: C:\Python27_64
-      PYTHON_VERSION: "2.7.16"
+      PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.7"
       
     - PYTHON: C:\Python35_32
-      PYTHON_VERSION: "3.5.0"
+      PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
       NUMPY_VERSION: "1.9"
 
     - PYTHON: C:\Python35_64
-      PYTHON_VERSION: "3.5.0"
+      PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.9"
 
     - PYTHON: C:\Python36_32
-      PYTHON_VERSION: "3.6.8"
+      PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "32"
       NUMPY_VERSION: "1.11"
 
     - PYTHON: C:\Python36_64
-      PYTHON_VERSION: "3.6.8"
+      PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.11"
 
     - PYTHON: C:\Python37_32
-      PYTHON_VERSION: "3.7.3"
+      PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "32"
       NUMPY_VERSION: "1.14"
 
     - PYTHON: C:\Python37_64
-      PYTHON_VERSION: "3.7.3"
+      PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "1.14"
 
