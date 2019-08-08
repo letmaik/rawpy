@@ -64,7 +64,7 @@ install:
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart
   # the parent CMD process).
-  - SET PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - CALL "%PYTHON%\\Scripts\\activate.bat"
   
   # create conda environment
   # jpeg and zlib are native libraries used during the CMake build of libraw.
