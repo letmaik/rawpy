@@ -79,17 +79,17 @@ install:
   # output what's installed
   - pip freeze
     
-  # Build the compiled extension and install wheel.
+  # Build the compiled extension.
   # -u disables output buffering which caused intermixing of lines
   #  when the external tools were started  
   - '%CMD_IN_ENV% python -u setup.py bdist_wheel'
-  - ps: ls dist\*.whl | % { pip install $_ }
 
 build: false  # Not a C# project, build stuff at the install step instead.
 
 test_script:
   - conda create --yes --name pyenv_test python=%PYTHON_VERSION% numpy scikit-image
   - activate pyenv_test
+  - ps: ls dist\*.whl | % { pip install $_ }
   - pip install -r dev-requirements.txt
   - mkdir tmp_for_test
   - cd tmp_for_test
