@@ -77,7 +77,7 @@ install:
   - python -c "import struct; print(struct.calcsize('P') * 8)"
 
   # we use conda to prevent compiling extensions
-  - conda install --yes numpy=%NUMPY_VERSION% cython scikit-image
+  - conda install --yes numpy=%NUMPY_VERSION% cython
   - pip install -r dev-requirements.txt
   
   # force nose reinstall (not using possibly existing conda package)
