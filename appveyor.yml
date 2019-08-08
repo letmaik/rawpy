@@ -17,12 +17,12 @@ environment:
     - PYTHON: C:\Python27_32
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
-      NUMPY_VERSION: "1.7"
+      NUMPY_VERSION: "1.9"
 
     - PYTHON: C:\Python27_64
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
-      NUMPY_VERSION: "1.7"
+      NUMPY_VERSION: "1.9"
       
     - PYTHON: C:\Python35_32
       PYTHON_VERSION: "3.5"
@@ -77,8 +77,7 @@ install:
   - python -c "import struct; print(struct.calcsize('P') * 8)"
 
   # we use conda to prevent compiling extensions
-  # dask is pinned due to https://github.com/dask/dask/issues/4846
-  - conda install --yes numpy=%NUMPY_VERSION% cython scikit-image "dask<=1.2.0"
+  - conda install --yes numpy=%NUMPY_VERSION% cython scikit-image
   - pip install -r dev-requirements.txt
   
   # force nose reinstall (not using possibly existing conda package)
