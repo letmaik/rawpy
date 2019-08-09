@@ -524,10 +524,10 @@ cdef class RawPy:
         """
         def __get__(self):
             cdef libraw_colordata_black_level_t bl = adjust_bl_(self.p)
-            return [bl.black + bl.cblack[0],
-                    bl.black + bl.cblack[1],
-                    bl.black + bl.cblack[2],
-                    bl.black + bl.cblack[3]]
+            return [bl.cblack[0],
+                    bl.cblack[1],
+                    bl.cblack[2],
+                    bl.cblack[3]]
 
     property color_matrix:
         """
