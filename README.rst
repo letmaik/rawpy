@@ -134,7 +134,7 @@ rawpy depends on NumPy. The minimum supported NumPy version depends on your Pyth
 ========== =========
 Python     NumPy
 ---------- ---------
-2.7        >= 1.7
+2.7        >= 1.9
 3.5        >= 1.9
 3.6        >= 1.11
 3.7        >= 1.14

@@ -108,7 +108,7 @@ for PYBIN in ${PYBINS[@]}; do
 done
 
 # Move wheels to dist/ folder for easier deployment
-mv wheelhouse/rawpy*manylinux1*.whl dist/
+mv wheelhouse/rawpy*manylinux2010*.whl dist/
 
 # deploy if git tag
 # make first python available so that the deploy script can use twine
