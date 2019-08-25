@@ -12,21 +12,24 @@ jobs:
           os-name: linux
           docker-image: quay.io/pypa/manylinux2010_x86_64
 
-        # TODO Travis CI has macOS 10.11 (produces wheels more widely compatible)
         - os-image: macos-10.14
           os-name: mac
+          macos-sdk-version: '10.12'
           python-version: '2.7'
           numpy-version: '1.7.1'
         - os-image: macos-10.14
           os-name: mac
+          macos-sdk-version: '10.12'
           python-version: '3.5'
           numpy-version: '1.9.*'
         - os-image: macos-10.14
           os-name: mac
+          macos-sdk-version: '10.12'
           python-version: '3.6'
           numpy-version: '1.11.*'
         - os-image: macos-10.14
           os-name: mac
+          macos-sdk-version: '10.12'
           python-version: '3.7'
           numpy-version: '1.14.*'
 
@@ -88,6 +91,8 @@ jobs:
         # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
         PYTHON_VERSION: ${{ matrix.python-version }}
         NUMPY_VERSION: ${{ matrix.numpy-version }}
+        # https://stackoverflow.com/q/25352389
+        MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macos-sdk-version }}
 
     - name: Build wheels and deploy
       if: matrix.os-name == 'windows'
