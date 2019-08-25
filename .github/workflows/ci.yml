@@ -1,0 +1,106 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        include:
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2010_x86_64
+
+        # TODO Travis CI has macOS 10.11 (produces wheels more widely compatible)
+        - os-image: macos-10.14
+          os-name: mac
+          python-version: '2.7'
+          numpy-version: '1.7.1'
+        - os-image: macos-10.14
+          os-name: mac
+          python-version: '3.5'
+          numpy-version: '1.9.*'
+        - os-image: macos-10.14
+          os-name: mac
+          python-version: '3.6'
+          numpy-version: '1.11.*'
+        - os-image: macos-10.14
+          os-name: mac
+          python-version: '3.7'
+          numpy-version: '1.14.*'
+
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '2.7'
+          python-arch: '32'
+          numpy-version: '1.9'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '2.7'
+          python-arch: '64'
+          numpy-version: '1.9'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.5'
+          python-arch: '32'
+          numpy-version: '1.9'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.5'
+          python-arch: '64'
+          numpy-version: '1.9'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.6'
+          python-arch: '32'
+          numpy-version: '1.11'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.6'
+          python-arch: '64'
+          numpy-version: '1.11'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.7'
+          python-arch: '32'
+          numpy-version: '1.14'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.7'
+          python-arch: '64'
+          numpy-version: '1.14'
+
+    runs-on: ${{ matrix.os-image }}
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build wheels and deploy
+      if: matrix.os-name == 'linux'
+      # TODO -e TRAVIS_TAG -e PYPI_USER -e PYPI_PASS
+      run: docker run --rm -v `pwd`:/io ${{ matrix.docker-image }} /io/travis/build_linux.sh
+
+    - name: Build wheels and deploy
+      if: matrix.os-name == 'mac'
+      run: travis/build_macos.sh
+      env:
+        # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
+        PYTHON_VERSION: ${{ matrix.python-version }}
+        NUMPY_VERSION: ${{ matrix.numpy-version }}
+
+    - name: Build wheels and deploy
+      if: matrix.os-name == 'windows'
+      run: .github/scripts/build-windows.bat
+      env:
+        # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
+        PYTHON_VERSION: ${{ matrix.python-version }}
+        PYTHON_ARCH: ${{ matrix.python-arch }}
+        NUMPY_VERSION: ${{ matrix.numpy-version }}
+
+    - name: Dump output files
+      shell: bash
+      run: |
+        ls dist/
+        ls build/
+
