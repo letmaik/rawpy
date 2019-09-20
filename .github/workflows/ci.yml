@@ -7,11 +7,8 @@ jobs:
 
     strategy:
       matrix:
-        os-image: []
-        os-name: []
-        docker-image: []
-        
-        include:
+        # FIXME should be include:, but individual entries are not supported yet, so work-around
+        config:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2010_x86_64
@@ -78,34 +75,34 @@ jobs:
           python-arch: '64'
           numpy-version: '1.14'
 
-    runs-on: ${{ matrix.os-image }}
+    runs-on: ${{ matrix.config.os-image }}
 
     steps:
     - uses: actions/checkout@v1
 
     - name: Build wheels and deploy
-      if: matrix.os-name == 'linux'
+      if: matrix.config.os-name == 'linux'
       # TODO -e TRAVIS_TAG -e PYPI_USER -e PYPI_PASS
-      run: docker run --rm -v `pwd`:/io ${{ matrix.docker-image }} /io/travis/build_linux.sh
+      run: docker run --rm -v `pwd`:/io ${{ matrix.config.docker-image }} /io/travis/build_linux.sh
 
     - name: Build wheels and deploy
-      if: matrix.os-name == 'mac'
+      if: matrix.config.os-name == 'mac'
       run: travis/build_macos.sh
       env:
         # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
-        PYTHON_VERSION: ${{ matrix.python-version }}
-        NUMPY_VERSION: ${{ matrix.numpy-version }}
+        PYTHON_VERSION: ${{ matrix.config.python-version }}
+        NUMPY_VERSION: ${{ matrix.config.numpy-version }}
         # https://stackoverflow.com/q/25352389
-        MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macos-sdk-version }}
+        MACOSX_DEPLOYMENT_TARGET: ${{ matrix.config.macos-sdk-version }}
 
     - name: Build wheels and deploy
-      if: matrix.os-name == 'windows'
+      if: matrix.config.os-name == 'windows'
       run: .github/scripts/build-windows.bat
       env:
         # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
-        PYTHON_VERSION: ${{ matrix.python-version }}
-        PYTHON_ARCH: ${{ matrix.python-arch }}
-        NUMPY_VERSION: ${{ matrix.numpy-version }}
+        PYTHON_VERSION: ${{ matrix.config.python-version }}
+        PYTHON_ARCH: ${{ matrix.config.python-arch }}
+        NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Dump output files
       shell: bash
