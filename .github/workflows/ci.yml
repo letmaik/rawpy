@@ -7,6 +7,10 @@ jobs:
 
     strategy:
       matrix:
+        os-image: []
+        os-name: []
+        docker-image: []
+        
         include:
         - os-image: ubuntu-latest
           os-name: linux
