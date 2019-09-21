@@ -92,7 +92,8 @@ jobs:
 
     - name: Build wheels and deploy (Windows)
       if: matrix.config.os-name == 'windows'
-      run: powershell .github/scripts/build-windows.ps1
+      run: .github/scripts/build-windows.ps1
+      shell: pwsh
       env:
         # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
         PYTHON_VERSION: ${{ matrix.config.python-version }}

@@ -1,6 +1,3 @@
-
-$ErrorActionPreference = "Stop"
-
 function exec {
     [CmdletBinding()]
     param([Parameter(Position=0,Mandatory=1)][scriptblock]$cmd)
