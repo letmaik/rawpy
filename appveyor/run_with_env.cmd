@@ -12,6 +12,9 @@
 :: License: CC0 1.0 Universal: http://creativecommons.org/publicdomain/zero/1.0/
 @ECHO OFF
 
+where python
+python --version
+
 SET COMMAND_TO_RUN=%*
 SET VS2015_ROOT=C:\Program Files (x86)\Microsoft Visual Studio 14.0
 
