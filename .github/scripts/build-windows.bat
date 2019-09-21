@@ -8,6 +8,7 @@ dir "C:\Program Files (x86)\Microsoft SDKs"
 
 CALL "%CONDA%\Scripts\activate.bat"
 
+conda update -n base -c defaults conda
 conda create --yes --name pyenv_build python=%PYTHON_VERSION% numpy=%NUMPY_VERSION% cython jpeg zlib
 conda activate pyenv_build || goto :error
 

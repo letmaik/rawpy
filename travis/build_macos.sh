@@ -23,6 +23,7 @@ export CFLAGS="-arch x86_64"
 export CXXFLAGS=$CFLAGS
 export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
+echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET"
 python setup.py bdist_wheel
 delocate-listdeps --all dist/*.whl # lists library dependencies
 delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel

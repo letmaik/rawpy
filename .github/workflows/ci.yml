@@ -80,7 +80,7 @@ jobs:
         python-version: ${{ matrix.config.python-version }}
         architecture: 'x64'
 
-    - name: Build wheels and deploy (mac)
+    - name: Build wheels and deploy (macOS)
       if: matrix.config.os-name == 'mac'
       run: travis/build_macos.sh
       env:
