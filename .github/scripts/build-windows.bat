@@ -6,13 +6,10 @@ dir "C:\Program Files\Microsoft SDKs"
 dir "C:\Program Files (x86)"
 dir "C:\Program Files (x86)\Microsoft SDKs"
 
-rem Install Python and pip
-rem pwsh .\appveyor\install.ps1 || goto :error
-
 CALL "%CONDA%\Scripts\activate.bat"
 
 conda create --yes --name pyenv_build python=%PYTHON_VERSION% numpy=%NUMPY_VERSION% cython jpeg zlib || goto :error
-activate pyenv_build || goto :error
+conda activate pyenv_build || goto :error
 
 rem Check that we have the expected version and architecture for Python
 python --version
