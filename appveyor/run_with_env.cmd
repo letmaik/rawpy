@@ -60,6 +60,11 @@ IF "%PYTHON_ARCH%"=="64" (
 	    "%VS2017_ROOT%\Common7\Tools\vsdevcmd.bat" -arch=x64
 	    ECHO Executing: %COMMAND_TO_RUN%
 		call %COMMAND_TO_RUN% || EXIT 1
+	) ELSE IF %VS_VERSION%=="2019" (
+	    ECHO Configuring VS2019 for Python %MAJOR_PYTHON_VERSION%.%MINOR_PYTHON_VERSION% on a 64 bit architecture
+	    "%VS2019_ROOT%\Common7\Tools\vsdevcmd.bat" -arch=x64
+	    ECHO Executing: %COMMAND_TO_RUN%
+		call %COMMAND_TO_RUN% || EXIT 1
 	)
 ) ELSE (
 	IF %VS_VERSION%=="2015" (
@@ -70,6 +75,11 @@ IF "%PYTHON_ARCH%"=="64" (
 	) ELSE IF %VS_VERSION%=="2017" (
 	    ECHO Configuring VS2017 for Python %MAJOR_PYTHON_VERSION%.%MINOR_PYTHON_VERSION% on a 32 bit architecture
 	    "%VS2017_ROOT%\Common7\Tools\vsdevcmd.bat" -arch=x86
+	    ECHO Executing: %COMMAND_TO_RUN%
+		call %COMMAND_TO_RUN% || EXIT 1
+	) ELSE IF %VS_VERSION%=="2019" (
+	    ECHO Configuring VS2019 for Python %MAJOR_PYTHON_VERSION%.%MINOR_PYTHON_VERSION% on a 32 bit architecture
+	    "%VS2019_ROOT%\Common7\Tools\vsdevcmd.bat" -arch=x86
 	    ECHO Executing: %COMMAND_TO_RUN%
 		call %COMMAND_TO_RUN% || EXIT 1
 	)
