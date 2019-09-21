@@ -17,11 +17,6 @@ jobs:
         - os-image: macos-10.14
           os-name: mac
           macos-sdk-version: '10.12'
-          python-version: '2.7'
-          numpy-version: '1.7.1'
-        - os-image: macos-10.14
-          os-name: mac
-          macos-sdk-version: '10.12'
           python-version: '3.5'
           numpy-version: '1.9.*'
         - os-image: macos-10.14
@@ -35,16 +30,6 @@ jobs:
           python-version: '3.7'
           numpy-version: '1.14.*'
 
-        - os-image: windows-latest
-          os-name: windows
-          python-version: '2.7'
-          python-arch: '32'
-          numpy-version: '1.9'
-        - os-image: windows-latest
-          os-name: windows
-          python-version: '2.7'
-          python-arch: '64'
-          numpy-version: '1.9'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.5'
@@ -80,6 +65,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+      with:
+        submodules: true
 
     - name: Build wheels and deploy
       if: matrix.config.os-name == 'linux'

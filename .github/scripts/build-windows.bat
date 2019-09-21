@@ -1,5 +1,8 @@
+@ECHO ON
+
 dir "C:\"
-dir "C:\Program Files\Microsoft SDKs\Windows"
+dir "C:\Program Files"
+dir "C:\Program Files (x86)"
 
 rem Install Python and pip
 rem pwsh .\appveyor\install.ps1 || goto :error

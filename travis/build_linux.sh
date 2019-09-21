@@ -11,7 +11,6 @@ source travis/travis_retry.sh
 ls /opt/python
 
 PYBINS=(
-  "/opt/python/cp27-cp27mu/bin"
   "/opt/python/cp35-cp35m/bin"
   "/opt/python/cp36-cp36m/bin"
   "/opt/python/cp37-cp37m/bin"
