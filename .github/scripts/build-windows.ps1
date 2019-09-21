@@ -1,8 +1,13 @@
+$ErrorActionPreference = 'Stop'
+
 function exec {
     [CmdletBinding()]
     param([Parameter(Position=0,Mandatory=1)][scriptblock]$cmd)
     Write-Host "$cmd"
-    & $cmd 2>&1
+    # https://stackoverflow.com/q/2095088
+    $ErrorActionPreference = 'Continue'
+    & $cmd
+    $ErrorActionPreference = 'Stop'
     if ($lastexitcode -ne 0) {
         throw ("ERROR exit code " -f $lastexitcode)
     }
