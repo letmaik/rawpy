@@ -96,5 +96,4 @@ jobs:
       shell: bash
       run: |
         ls dist/
-        ls build/
 
