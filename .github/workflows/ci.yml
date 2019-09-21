@@ -109,3 +109,8 @@ jobs:
       run: |
         ls dist/
 
+    - uses: actions/upload-artifact@v1
+      with:
+        name: wheels
+        path: dist
+
