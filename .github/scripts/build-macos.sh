@@ -43,4 +43,4 @@ nosetests --verbosity=3 --nocapture ../test
 popd
 
 # deploy if git tag
-travis/deploy_pypi.sh
+.github/scripts/deploy-pypi.sh

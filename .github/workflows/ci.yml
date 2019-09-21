@@ -70,8 +70,10 @@ jobs:
 
     - name: Build wheels and deploy (Linux)
       if: matrix.config.os-name == 'linux'
-      # TODO -e TRAVIS_TAG -e PYPI_USER -e PYPI_PASS
-      run: docker run --rm -v `pwd`:/io ${{ matrix.config.docker-image }} /io/travis/build_linux.sh
+      run: docker run --rm -e PYPI_USER -e PYPI_PASS -v `pwd`:/io ${{ matrix.config.docker-image }} /io/.github/scripts/build-linux.sh
+      env:
+        PYPI_USER: ${{ secrets.PYPI_USER }}
+        PYPI_PASS: ${{ secrets.PYPI_PASS }}
 
     - name: Setup Python (macOS)
       if: matrix.config.os-name == 'mac'
@@ -82,23 +84,25 @@ jobs:
 
     - name: Build wheels and deploy (macOS)
       if: matrix.config.os-name == 'mac'
-      run: travis/build_macos.sh
+      run: .github/scripts/build-macos.sh
       env:
-        # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
         # https://stackoverflow.com/q/25352389
         # TODO not working, getting $MACOSX_DEPLOYMENT_TARGET mismatch: now "10.12" but "10.14" during configure
         #MACOSX_DEPLOYMENT_TARGET: ${{ matrix.config.macos-sdk-version }}
+        PYPI_USER: ${{ secrets.PYPI_USER }}
+        PYPI_PASS: ${{ secrets.PYPI_PASS }}
 
     - name: Build wheels and deploy (Windows)
       if: matrix.config.os-name == 'windows'
       run: .github/scripts/build-windows.ps1
       shell: pwsh
       env:
-        # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
+        PYPI_USER: ${{ secrets.PYPI_USER }}
+        PYPI_PASS: ${{ secrets.PYPI_PASS }}
 
     - name: Dump output files
       shell: bash

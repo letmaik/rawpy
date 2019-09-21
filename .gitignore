@@ -69,3 +69,5 @@ docs/_build/
 /external/cmake*
 /external/libjpeg-turbo
 /external/pthreads
+/external/miniconda*
+Miniconda*.exe
