@@ -197,8 +197,8 @@ def windows_libraw_compile():
     
     # configure and compile libraw
     cwd = os.getcwd()
-    if not os.path.exists(cmake_build):
-        os.mkdir(cmake_build)
+    shutil.rmtree(cmake_build, ignore_errors=True)
+    os.makedirs(cmake_build, exist_ok=True)
     os.chdir(cmake_build)
     
     # We only want to build and install the raw_r target (to make builds faster).
@@ -220,8 +220,8 @@ def windows_libraw_compile():
                      if buildGPLCode else '') +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
-            'nmake raw_r',
-            'nmake install'
+            'cmake --build . --target raw_r',
+            'cmake --build . --target install',
             ]
     for cmd in cmds:
         print(cmd)

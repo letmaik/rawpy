@@ -13,6 +13,7 @@ function exec {
 
 & $env:CONDA\shell\condabin\conda-hook.ps1
 
+conda env remove -n pyenv_build
 exec { conda create --yes --name pyenv_build python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION cython jpeg zlib }
 exec { conda activate pyenv_build }
 
