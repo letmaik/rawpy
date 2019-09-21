@@ -15,8 +15,7 @@
 SET COMMAND_TO_RUN=%*
 SET "VS2015_ROOT=C:\Program Files (x86)\Microsoft Visual Studio 14.0"
 SET "VS2017_ROOT=C:\Program Files (x86)\Microsoft Visual Studio\2017"
-
-dir %VS2017_ROOT%
+SET "VS2019_ROOT=C:\Program Files (x86)\Microsoft Visual Studio\2019"
 
 :: Extract the major and minor versions, and allow for the minor version to be
 :: more than 9.  This requires the version number to have two dots in it.
@@ -34,6 +33,13 @@ IF %MAJOR_PYTHON_VERSION% == 3 (
 			SET "VS2017_ROOT=%VS2017_ROOT%\Enterprise"
 		) ELSE (
 			SET "VS2017_ROOT=%VS2017_ROOT%\Community"
+		)
+	) ELSE IF EXIST "%VS2019_ROOT%" (
+		SET VS_VERSION="2019"
+		IF EXIST "%VS2019_ROOT%\Enterprise" (
+			SET "VS2019_ROOT=%VS2019_ROOT%\Enterprise"
+		) ELSE (
+			SET "VS2019_ROOT=%VS2019_ROOT%\Community"
 		)
 	) ELSE (
 		SET VS_VERSION="2015"
