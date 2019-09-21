@@ -30,32 +30,32 @@ jobs:
           python-version: '3.7'
           numpy-version: '1.14.*'
 
-        - os-image: windows-latest
+        - os-image: windows-2016
           os-name: windows
           python-version: '3.5'
           python-arch: '32'
           numpy-version: '1.9'
-        - os-image: windows-latest
+        - os-image: windows-2016
           os-name: windows
           python-version: '3.5'
           python-arch: '64'
           numpy-version: '1.9'
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.6'
           python-arch: '32'
           numpy-version: '1.11'
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.6'
           python-arch: '64'
           numpy-version: '1.11'
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.7'
           python-arch: '32'
           numpy-version: '1.14'
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.7'
           python-arch: '64'

@@ -22,13 +22,12 @@ exec { conda create --yes --name pyenv_build python=$env:PYTHON_VERSION numpy=$e
 exec { conda activate pyenv_build }
 
 # Check that we have the expected version and architecture for Python
-# FIXME powershell exits if a command outputs to stderr, and redirection is broken?!
-#exec { python --version }
+exec { python --version }
 exec { python -c "import struct; print(struct.calcsize('P') * 8)" }
-  
+
 # output what's installed
 exec { pip freeze }
-    
+
 # Build the compiled extension.
 # -u disables output buffering which caused intermixing of lines
 # when the external tools were started  
