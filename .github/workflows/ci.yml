@@ -68,22 +68,28 @@ jobs:
       with:
         submodules: true
 
-    - name: Build wheels and deploy
+    - name: Build wheels and deploy (Linux)
       if: matrix.config.os-name == 'linux'
       # TODO -e TRAVIS_TAG -e PYPI_USER -e PYPI_PASS
       run: docker run --rm -v `pwd`:/io ${{ matrix.config.docker-image }} /io/travis/build_linux.sh
 
-    - name: Build wheels and deploy
+    - name: Setup Python (macOS)
+      if: matrix.config.os-name == 'mac'
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.config.python-version }}
+        architecture: 'x64'
+
+    - name: Build wheels and deploy (mac)
       if: matrix.config.os-name == 'mac'
       run: travis/build_macos.sh
       env:
         # TODO $TRAVIS_TAG $PYPI_USER $PYPI_PASS
-        PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
         # https://stackoverflow.com/q/25352389
         MACOSX_DEPLOYMENT_TARGET: ${{ matrix.config.macos-sdk-version }}
 
-    - name: Build wheels and deploy
+    - name: Build wheels and deploy (Windows)
       if: matrix.config.os-name == 'windows'
       run: .github/scripts/build-windows.bat
       env:

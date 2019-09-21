@@ -13,11 +13,6 @@ export HOMEBREW_NO_INSTALL_CLEANUP=1
 travis_retry brew update
 
 # Build wheel
-travis_retry git clone https://github.com/MacPython/terryfy.git
-set +x # reduce noise
-source terryfy/travis_tools.sh
-travis_retry get_python_environment macpython $PYTHON_VERSION venv
-set -x
 travis_retry pip install numpy==$NUMPY_VERSION cython wheel delocate
 pip freeze
 brew rm --ignore-dependencies jpeg || true

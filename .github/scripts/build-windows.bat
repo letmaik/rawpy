@@ -8,7 +8,7 @@ dir "C:\Program Files (x86)\Microsoft SDKs"
 
 CALL "%CONDA%\Scripts\activate.bat"
 
-conda create --yes --name pyenv_build python=%PYTHON_VERSION% numpy=%NUMPY_VERSION% cython jpeg zlib || goto :error
+conda create --yes --name pyenv_build python=%PYTHON_VERSION% numpy=%NUMPY_VERSION% cython jpeg zlib
 conda activate pyenv_build || goto :error
 
 rem Check that we have the expected version and architecture for Python
