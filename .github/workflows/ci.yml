@@ -6,6 +6,7 @@ jobs:
   build:
 
     strategy:
+      fail-fast: false
       matrix:
         # FIXME should be include:, but individual entries are not supported yet, so work-around
         config:
