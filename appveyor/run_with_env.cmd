@@ -16,6 +16,8 @@ SET COMMAND_TO_RUN=%*
 SET "VS2015_ROOT=C:\Program Files (x86)\Microsoft Visual Studio 14.0"
 SET "VS2017_ROOT=C:\Program Files (x86)\Microsoft Visual Studio\2017"
 
+dir %VS2017_ROOT%
+
 :: Extract the major and minor versions, and allow for the minor version to be
 :: more than 9.  This requires the version number to have two dots in it.
 SET MAJOR_PYTHON_VERSION=%PYTHON_VERSION:~0,1%
