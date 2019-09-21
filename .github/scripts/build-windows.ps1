@@ -2,7 +2,7 @@ function exec {
     [CmdletBinding()]
     param([Parameter(Position=0,Mandatory=1)][scriptblock]$cmd)
     Write-Host "$cmd"
-    & $cmd
+    & $cmd 2>&1
     if ($lastexitcode -ne 0) {
         throw ("ERROR exit code " -f $lastexitcode)
     }
