@@ -5,7 +5,7 @@ bash --version
 
 cd /io
 
-source travis/travis_retry.sh
+source .github/scripts/travis_retry.sh
 
 # List python versions
 ls /opt/python

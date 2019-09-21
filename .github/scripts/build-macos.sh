@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-source travis/travis_retry.sh
+source .github/scripts/travis_retry.sh
 
 export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
 export HOMEBREW_CURL_RETRIES=3
