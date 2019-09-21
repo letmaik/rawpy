@@ -17,6 +17,8 @@ dir env:
 
 dir env:
 
+conda update -n base -c defaults conda
+
 conda env remove -n pyenv_build
 exec { conda create --yes --name pyenv_build python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION cython jpeg zlib }
 exec { conda activate pyenv_build }
