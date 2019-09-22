@@ -77,12 +77,11 @@ travis_retry yum install -y lapack-devel blas-devel
 travis_retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
 
 # Build rawpy wheel
+rm -rf wheelhouse
 travis_retry ${PYBIN}/pip wheel . -w wheelhouse
 
-# Bundle external shared libraries into the wheels
-for whl in wheelhouse/rawpy*.whl; do
-    auditwheel repair $whl -w wheelhouse
-done
+# Bundle external shared libraries into wheel
+auditwheel repair wheelhouse/rawpy*.whl -w wheelhouse
 
 # Install package and test
 ${PYBIN}/pip install rawpy --no-index -f wheelhouse
@@ -95,4 +94,5 @@ ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test
 popd
 
 # Move wheel to dist/ folder for easier deployment
+mkdir -p dist
 mv wheelhouse/rawpy*manylinux2010*.whl dist/
