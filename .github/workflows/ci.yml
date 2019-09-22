@@ -102,10 +102,41 @@ jobs:
         name: wheels
         path: dist
 
-  deploy:
+  docs:
     runs-on: ubuntu-latest
 
     needs: build
+
+    steps:
+    - uses: actions/checkout@v1
+   
+    - name: Setup Python
+      uses: actions/setup-python@v1
+
+    - name: Download wheels from artifact storage
+      uses: actions/download-artifact@v1
+      with:
+        name: wheels
+        path: dist
+
+    - name: Install rawpy from wheel
+      run: |
+        pip install --no-deps rawpy --no-index -f dist
+        pip install -r dev-requirements.txt
+
+    - name: Build docs
+      run: sphinx-build -b html docs dist-docs
+
+    - name: Store docs HTML as artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: docs
+        path: dist-docs
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    needs: [build, docs]
 
     # TODO 'if' at job level not documented/supported
     # see https://github.community/t5/GitHub-API-Development-and/jobs-lt-job-id-gt-if-not-working/m-p/28980
@@ -117,7 +148,13 @@ jobs:
       with:
         name: wheels
         path: dist
-    
+
+    - name: Download docs HTML from artifact storage
+      uses: actions/download-artifact@v1
+      with:
+        name: docs
+        path: dist-docs
+
     - name: Setup Python
       uses: actions/setup-python@v1
     
@@ -126,5 +163,9 @@ jobs:
         pip install twine
         twine upload -u ${{ secrets.PYPI_USER }} -p ${{ secrets.PYPI_PASS }} --skip-existing dist/*
 
-    # TODO build docs (in build jobs) and upload to GitHub Pages (in deploy job)
-      
+    - name: Upload docs to GitHub Pages
+      uses: peaceiris/actions-gh-pages@47a6d63ea8b47b19328e258563aa1fbe224c0a23
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: ./dist-docs

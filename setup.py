@@ -333,9 +333,6 @@ if use_cython:
 exec(open('rawpy/_version.py').read())
 
 install_requires = ['numpy']
-if sys.version_info < (3, 4):
-    # Backport of Python 3.4 enums to earlier versions
-    install_requires.append('enum34')
 
 setup(
       name = 'rawpy',
