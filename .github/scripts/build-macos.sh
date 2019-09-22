@@ -3,6 +3,9 @@ set -e -x
 
 source .github/scripts/travis_retry.sh
 
+ls -al /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs || true
+ls -al /Developer/SDKs || true
+
 # Used by CMake and clang
 export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 
@@ -11,7 +14,7 @@ export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 #  a minimum deployment target of OS X 10.9 [-Wdeprecated]
 #  ld: library not found for -lstdc++""
 if [ $MACOS_MIN_VERSION == "10.6" ]; then
-    export SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+    export SDKROOT=/Developer/SDKs/MacOSX10.12.sdk
 fi
 
 # Install Python
