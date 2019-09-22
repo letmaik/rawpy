@@ -3,6 +3,19 @@ set -e -x
 
 source .github/scripts/travis_retry.sh
 
+# Install Python
+# Note: The GitHub Actions supplied Python versions are not used
+# as they are built against the latest OS X SDK instead of the oldest one.
+# Instead we install python.org binaries which are built against
+# older SDKs and hence provide wider compatibility for the wheels we create.
+pushd external
+git clone https://github.com/matthew-brett/multibuild.git
+cd multibuild
+source osx_utils.sh
+get_macpython_environment $PYTHON_VERSION venv $MACOSX_DEPLOYMENT_TARGET
+source venv/bin/activate
+popd
+
 export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
 export HOMEBREW_CURL_RETRIES=3
 export HOMEBREW_NO_INSTALL_CLEANUP=1
@@ -23,7 +36,6 @@ export CFLAGS="-arch x86_64"
 export CXXFLAGS=$CFLAGS
 export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
-echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET"
 python setup.py bdist_wheel
 delocate-listdeps --all dist/*.whl # lists library dependencies
 delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
