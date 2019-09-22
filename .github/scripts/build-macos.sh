@@ -4,7 +4,7 @@ set -e -x
 source .github/scripts/travis_retry.sh
 
 ls -al /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs || true
-ls -al /Developer/SDKs || true
+xcodebuild -sdk -version
 
 # Used by CMake and clang
 export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
