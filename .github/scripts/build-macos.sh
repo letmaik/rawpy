@@ -3,16 +3,28 @@ set -e -x
 
 source .github/scripts/travis_retry.sh
 
+# Used by CMake and clang
+export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
+
+# Use older SDK if 10.6 is targeted, otherwise the build errors:
+# "clang: warning: libstdc++ is deprecated; move to libc++ with
+#  a minimum deployment target of OS X 10.9 [-Wdeprecated]
+#  ld: library not found for -lstdc++""
+if [ $MACOS_MIN_VERSION == "10.6" ]; then
+    export SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+fi
+
 # Install Python
 # Note: The GitHub Actions supplied Python versions are not used
-# as they are built against the latest OS X SDK instead of the oldest one.
-# Instead we install python.org binaries which are built against
-# older SDKs and hence provide wider compatibility for the wheels we create.
+# as they are built without MACOSX_DEPLOYMENT_TARGET/-mmacosx-version-min
+# being set to an older target for widest wheel compatibility.
+# Instead we install python.org binaries which are built with 10.6/10.9 target
+# and hence provide wider compatibility for the wheels we create.
 pushd external
 git clone https://github.com/matthew-brett/multibuild.git
 cd multibuild
 source osx_utils.sh
-get_macpython_environment $PYTHON_VERSION venv $MACOSX_DEPLOYMENT_TARGET
+get_macpython_environment $PYTHON_VERSION venv $MACOS_MIN_VERSION
 source venv/bin/activate
 popd
 

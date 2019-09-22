@@ -27,17 +27,17 @@ jobs:
 
         - os-image: macos-10.14
           os-name: mac
-          macos-sdk-version: '10.6'
+          macos-min-version: '10.6'
           python-version: '3.5'
           numpy-version: '1.9.*'
         - os-image: macos-10.14
           os-name: mac
-          macos-sdk-version: '10.9'
+          macos-min-version: '10.9'
           python-version: '3.6'
           numpy-version: '1.11.*'
         - os-image: macos-10.14
           os-name: mac
-          macos-sdk-version: '10.9'
+          macos-min-version: '10.9'
           python-version: '3.7'
           numpy-version: '1.14.*'
 
@@ -90,7 +90,7 @@ jobs:
       if: matrix.config.os-name == 'mac'
       run: .github/scripts/build-macos.sh
       env:
-        MACOSX_DEPLOYMENT_TARGET: ${{ matrix.config.macos-sdk-version }}
+        MACOS_MIN_VERSION: ${{ matrix.config.macos-min-version }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
