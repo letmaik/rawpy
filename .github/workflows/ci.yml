@@ -27,7 +27,7 @@ jobs:
 
         - os-image: macos-10.14
           os-name: mac
-          macos-sdk-version: '10.9'
+          macos-sdk-version: '10.6'
           python-version: '3.5'
           numpy-version: '1.9.*'
         - os-image: macos-10.14
