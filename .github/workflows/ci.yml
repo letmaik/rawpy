@@ -140,10 +140,7 @@ jobs:
         pip install -r dev-requirements.txt
 
     - name: Build docs
-      run: |
-        mkdir tmp
-        cd tmp
-        sphinx-build -b html ../docs ../dist-docs
+      run: sphinx-build -b html docs dist-docs
 
     - name: Store docs HTML as artifact
       uses: actions/upload-artifact@v1
