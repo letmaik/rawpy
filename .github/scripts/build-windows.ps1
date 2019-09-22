@@ -47,12 +47,3 @@ mkdir tmp_for_test
 cd tmp_for_test
 exec { nosetests --verbosity=3 --nocapture ../test }
 cd ..
-
-# Deploy
-Write-Host "GITHUB_REF: $env:GITHUB_REF"
-
-if ($env:GITHUB_REF.StartsWith("refs/tags/v")) {
-    exec { pip install twine }
-    exec { twine upload -u $env:PYPI_USER -p $env:PYPI_PASS --skip-existing dist/* }
-}
-
