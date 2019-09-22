@@ -113,7 +113,14 @@ Or install the latest release version from the source repository:
     cmake .
     sudo make install
     
-After that, install rawpy using ``pip install rawpy --no-binary rawpy``.
+After that, install rawpy using:
+
+.. code-block:: sh
+
+	git clone https://github.com/letmaik/rawpy
+	cd rawpy
+	pip install numpy cython
+	pip install .
     
 If you get the error "ImportError: libraw.so: cannot open shared object file: No such file or directory"
 when trying to use rawpy, then do the following:

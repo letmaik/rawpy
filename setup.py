@@ -1,7 +1,4 @@
-from __future__ import print_function
-
 from setuptools import setup, Extension, find_packages
-import numpy
 import subprocess
 import errno
 import os
@@ -9,15 +6,10 @@ import shutil
 import sys
 import zipfile
 import re
-try:
-    # Python 3
-    from urllib.request import urlretrieve
-except ImportError:
-    # Python 2
-    from urllib import urlretrieve
+from urllib.request import urlretrieve
 
-if sys.version_info < (2, 7):
-    raise NotImplementedError('Minimum supported Python version is 2.7')
+import numpy
+from Cython.Build import cythonize
 
 # As rawpy is distributed under the MIT license, it cannot use or distribute
 # GPL'd code. This is relevant only for the binary wheels which would have to
@@ -301,38 +293,18 @@ if any(s in cmdline for s in ['clean', 'sdist']):
     print('removing', egg_info)
     shutil.rmtree(egg_info, ignore_errors=True)
 
-pyx_path = os.path.join('rawpy', '_rawpy.pyx')
-c_path = os.path.join('rawpy', '_rawpy.cpp')
-if not os.path.exists(pyx_path):
-    # we are running from a source dist which doesn't include the .pyx
-    use_cython = False
-else:
-    try:
-        from Cython.Build import cythonize
-    except ImportError:
-        use_cython = False
-    else:
-        use_cython = True
-
-source_path = pyx_path if use_cython else c_path
-
-extensions = [Extension("rawpy._rawpy",
+extensions = cythonize([Extension("rawpy._rawpy",
               include_dirs=include_dirs,
-              sources=[source_path],
+              sources=[os.path.join('rawpy', '_rawpy.pyx')],
               libraries=libraries,
               library_dirs=library_dirs,
               define_macros=define_macros,
               extra_compile_args=extra_compile_args,
               extra_link_args=extra_link_args,
-             )]
-
-if use_cython:
-    extensions = cythonize(extensions)
+             )])
 
 # make __version__ available (https://stackoverflow.com/a/16084844)
 exec(open('rawpy/_version.py').read())
-
-install_requires = ['numpy']
 
 setup(
       name = 'rawpy',
@@ -348,8 +320,6 @@ setup(
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Cython',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
@@ -364,5 +334,5 @@ setup(
       packages = find_packages(),
       ext_modules = extensions,
       package_data = package_data,
-      install_requires=install_requires
+      install_requires=['numpy']
 )

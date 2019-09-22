@@ -10,11 +10,16 @@ source .github/scripts/travis_retry.sh
 # List python versions
 ls /opt/python
 
-PYBINS=(
-  "/opt/python/cp35-cp35m/bin"
-  "/opt/python/cp36-cp36m/bin"
-  "/opt/python/cp37-cp37m/bin"
-  )
+if [ $PYTHON_VERSION == "3.5" ]; then
+    PYBIN="/opt/python/cp35-cp35m/bin"
+elif [ $PYTHON_VERSION == "3.6" ]; then
+    PYBIN="/opt/python/cp36-cp36m/bin"
+elif [ $PYTHON_VERSION == "3.7" ]; then
+    PYBIN="/opt/python/cp37-cp37m/bin"
+else
+    echo "Unsupported Python version $PYTHON_VERSION"
+    exit 1
+fi
 
 # Install build tools
 travis_retry yum install -y cmake
@@ -68,43 +73,26 @@ travis_retry yum install -y libpng-devel freetype-devel
 # Install numpy/scipy deps
 travis_retry yum install -y lapack-devel blas-devel
 
-# Build rawpy wheels
-for PYBIN in ${PYBINS[@]}; do
-    case ${PYBIN} in
-        *27*) NUMPY_VERSION="1.7.2";;
-        *35*) NUMPY_VERSION="1.9.*";;
-        *36*) NUMPY_VERSION="1.11.*";;
-        *37*) NUMPY_VERSION="1.14.*";;
-    esac
+# install compile-time dependencies
+travis_retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
 
-    # install compile-time dependencies
-    travis_retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
-
-    travis_retry ${PYBIN}/pip wheel . -w wheelhouse
-done
+# Build rawpy wheel
+travis_retry ${PYBIN}/pip wheel . -w wheelhouse
 
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/rawpy*.whl; do
     auditwheel repair $whl -w wheelhouse
 done
 
-# Build sdist
-${PYBINS[0]}/python setup.py sdist
+# Install package and test
+${PYBIN}/pip install rawpy --no-index -f wheelhouse
 
-# Install packages and test
-for PYBIN in ${PYBINS[@]}; do
-    ${PYBIN}/pip install rawpy --no-index -f wheelhouse
-    
-    # install older mpl version still supporting Python 2.7
-    travis_retry ${PYBIN}/pip install matplotlib==2.*
+travis_retry ${PYBIN}/pip install -r dev-requirements.txt
+travis_retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
 
-    travis_retry ${PYBIN}/pip install -r dev-requirements.txt
-    travis_retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
-    
-    pushd $HOME
-    ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test
-    popd
-done
+pushd $HOME
+${PYBIN}/nosetests --verbosity=3 --nocapture /io/test
+popd
 
-# Move wheels to dist/ folder for easier deployment
+# Move wheel to dist/ folder for easier deployment
 mv wheelhouse/rawpy*manylinux2010*.whl dist/

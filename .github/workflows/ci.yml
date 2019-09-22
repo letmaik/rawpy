@@ -12,6 +12,18 @@ jobs:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2010_x86_64
+          python-version: '3.5'
+          numpy-version: '1.9.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2010_x86_64
+          python-version: '3.6'
+          numpy-version: '1.11.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2010_x86_64
+          python-version: '3.7'
+          numpy-version: '1.14.*'
 
         - os-image: macos-10.14
           os-name: mac
@@ -69,7 +81,10 @@ jobs:
 
     - name: Build wheels (Linux)
       if: matrix.config.os-name == 'linux'
-      run: docker run --rm -v `pwd`:/io ${{ matrix.config.docker-image }} /io/.github/scripts/build-linux.sh
+      run: docker run --rm -e PYTHON_VERSION -e NUMPY_VERSION -v `pwd`:/io ${{ matrix.config.docker-image }} /io/.github/scripts/build-linux.sh
+      env:
+        PYTHON_VERSION: ${{ matrix.config.python-version }}
+        NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Setup Python (macOS)
       if: matrix.config.os-name == 'mac'
@@ -125,7 +140,10 @@ jobs:
         pip install -r dev-requirements.txt
 
     - name: Build docs
-      run: sphinx-build -b html docs dist-docs
+      run: |
+        mkdir tmp
+        cd tmp
+        sphinx-build -b html ../docs ../dist-docs
 
     - name: Store docs HTML as artifact
       uses: actions/upload-artifact@v1
