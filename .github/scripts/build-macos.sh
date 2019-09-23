@@ -66,15 +66,15 @@ delocate-listdeps --all dist/*.whl # verify
 # Dump target versions of dependend libraries.
 # Currently, delocate does not support checking those.
 # See https://github.com/matthew-brett/delocate/issues/56.
+echo "Dumping LC_VERSION_MIN_MACOSX"
 mkdir tmp_wheel
 pushd tmp_wheel
 unzip ../dist/*.whl
-cd rawpy/.dylibs
-ls -al
-echo "Dumping LC_VERSION_MIN_MACOSX"
-for file in *.dylib; do
+echo rawpy/*.so
+otool -l rawpy/*.so | grep -A 3 LC_VERSION_MIN_MACOSX || true
+for file in rawpy/.dylibs/*.dylib; do
     echo $file
-    otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX
+    otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX || true
 done
 popd
 
