@@ -21,9 +21,11 @@ fi
 pushd external
 git clone https://github.com/matthew-brett/multibuild.git
 cd multibuild
+set +x # reduce noise
 source osx_utils.sh
 get_macpython_environment $PYTHON_VERSION venv $MACOS_MIN_VERSION
 source venv/bin/activate
+set -x
 popd
 
 export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
@@ -39,6 +41,10 @@ travis_retry brew update
 travis_retry pip install numpy==$NUMPY_VERSION cython wheel delocate
 pip freeze
 brew rm --ignore-dependencies jpeg || true
+# TODO is it save to use prebuilt bottles?
+#     which macOS deployment target would bottles have? -> likely same as host os
+#     would delocate-wheel detect incompatibilities?
+# see https://github.com/matthew-brett/delocate/issues/56
 brew install jpeg jasper little-cms2
 export CC=clang
 export CXX=clang++

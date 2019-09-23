@@ -1,5 +1,6 @@
 # distutils: language = c++
 # cython: embedsignature=True
+# cython: language_level=3
 
 from __future__ import print_function
 

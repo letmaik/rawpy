@@ -43,7 +43,7 @@ exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy sci
 exec { conda activate pyenv_test }
 ls dist\*.whl | % { exec { pip install $_ } }
 exec { pip install -r dev-requirements.txt }
-mkdir tmp_for_test
+mkdir tmp_for_test | out-null
 cd tmp_for_test
 exec { nosetests --verbosity=3 --nocapture ../test }
 cd ..
