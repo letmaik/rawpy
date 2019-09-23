@@ -6,8 +6,14 @@ source .github/scripts/travis_retry.sh
 # Used by CMake and clang
 export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 
+# Work-around issue building on newer XCode versions.
 # https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981
 if [ $MACOS_MIN_VERSION == "10.6" ]; then
+    # Note that distutils allows higher but not lower target versions,
+    # relative to the target version of Python itself.
+    # The resulting wheel platform tags still have 10.6 (=target of Python itself),
+    # even though technically the wheel should only be run on 10.9 upwards. Bug?
+    # See https://github.com/python/cpython/blob/9c42f8cda/Lib/distutils/spawn.py#L103-L111.
     export MACOSX_DEPLOYMENT_TARGET=10.9
 fi
 
@@ -56,6 +62,20 @@ python setup.py bdist_wheel
 delocate-listdeps --all dist/*.whl # lists library dependencies
 delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all dist/*.whl # verify
+
+# Dump target versions of dependend libraries.
+# Currently, delocate does not support checking those.
+# See https://github.com/matthew-brett/delocate/issues/56.
+mkdir tmp_wheel
+pushd tmp_wheel
+unzip ../dist/*.whl
+ls -al rawpy/.dylibs
+echo "Dumping LC_VERSION_MIN_MACOSX"
+for file in rawpy/.dylibs/* do
+    echo $file
+    otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX
+done
+popd
 
 # Install rawpy
 pip install dist/*.whl
