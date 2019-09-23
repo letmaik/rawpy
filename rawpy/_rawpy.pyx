@@ -441,7 +441,7 @@ cdef class RawPy:
             cdef int n = pattern.shape[0]
             cdef int height = self.p.imgdata.sizes.raw_height
             cdef int width = self.p.imgdata.sizes.raw_width
-            return np.tile(pattern, (height/n, width/n))
+            return np.tile(pattern, (height//n, width//n))
     
     property raw_colors_visible:
         """

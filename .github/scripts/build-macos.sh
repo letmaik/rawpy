@@ -3,7 +3,12 @@ set -e -x
 
 source .github/scripts/travis_retry.sh
 
-# Used by CMake and clang
+# General note:
+# Apple guarantees forward, but not backward ABI compatibility unless
+# the deployment target is set for the oldest supported OS. 
+# (https://trac.macports.org/ticket/54332#comment:2)
+
+# Used by CMake, clang, and Python's distutils
 export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 
 # Work-around issue building on newer XCode versions.
