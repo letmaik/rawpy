@@ -69,9 +69,10 @@ delocate-listdeps --all dist/*.whl # verify
 mkdir tmp_wheel
 pushd tmp_wheel
 unzip ../dist/*.whl
-ls -al rawpy/.dylibs
+cd rawpy/.dylibs
+ls -al
 echo "Dumping LC_VERSION_MIN_MACOSX"
-for file in rawpy/.dylibs/*; do
+for file in *.dylib; do
     echo $file
     otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX
 done
