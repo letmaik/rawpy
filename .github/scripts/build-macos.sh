@@ -71,7 +71,7 @@ pushd tmp_wheel
 unzip ../dist/*.whl
 ls -al rawpy/.dylibs
 echo "Dumping LC_VERSION_MIN_MACOSX"
-for file in rawpy/.dylibs/* do
+for file in rawpy/.dylibs/*; do
     echo $file
     otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX
 done
