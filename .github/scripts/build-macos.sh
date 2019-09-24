@@ -71,7 +71,15 @@ mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
       -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF \
-      -DCMAKE_SKIP_RPATH=ON ..
+      -DCMAKE_INSTALL_NAME_DIR=$LIB_INSTALL_PREFIX/lib ..
+make install -j
+popd
+
+# Install Little CMS 2:
+# - libraw lcms support
+curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.9/lcms2-2.9.tar.gz | tar xz
+pushd lcms2-2.9
+./configure --prefix=$LIB_INSTALL_PREFIX
 make install -j
 popd
 
