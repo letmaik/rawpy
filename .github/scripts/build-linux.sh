@@ -5,7 +5,7 @@ bash --version
 
 cd /io
 
-source .github/scripts/travis_retry.sh
+source .github/scripts/retry.sh
 
 # List python versions
 ls /opt/python
@@ -22,15 +22,15 @@ else
 fi
 
 # Install build tools
-travis_retry yum install -y cmake
+retry yum install -y cmake
 
 # Install zlib:
 # - libraw DNG deflate codec support
-travis_retry yum install -y zlib-devel
+retry yum install -y zlib-devel
 
 # Install liblcms2:
 # - libraw LCMS support
-travis_retry yum install -y lcms2-devel
+retry yum install -y lcms2-devel
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
@@ -68,17 +68,17 @@ popd
 popd
 
 # Install matplotlib (a scikit-image dependency) dependencies
-travis_retry yum install -y libpng-devel freetype-devel
+retry yum install -y libpng-devel freetype-devel
 
 # Install numpy/scipy deps
-travis_retry yum install -y lapack-devel blas-devel
+retry yum install -y lapack-devel blas-devel
 
 # install compile-time dependencies
-travis_retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
+retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
 
 # Build rawpy wheel
 rm -rf wheelhouse
-travis_retry ${PYBIN}/pip wheel . -w wheelhouse
+retry ${PYBIN}/pip wheel . -w wheelhouse
 
 # Bundle external shared libraries into wheel
 auditwheel repair wheelhouse/rawpy*.whl -w wheelhouse
@@ -86,8 +86,8 @@ auditwheel repair wheelhouse/rawpy*.whl -w wheelhouse
 # Install package and test
 ${PYBIN}/pip install rawpy --no-index -f wheelhouse
 
-travis_retry ${PYBIN}/pip install -r dev-requirements.txt
-travis_retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
+retry ${PYBIN}/pip install -r dev-requirements.txt
+retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
 
 pushd $HOME
 ${PYBIN}/nosetests --verbosity=3 --nocapture /io/test

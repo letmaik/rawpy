@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-source .github/scripts/travis_retry.sh
+source .github/scripts/retry.sh
 
 # General note:
 # Apple guarantees forward, but not backward ABI compatibility unless
@@ -40,7 +40,7 @@ set -x
 popd
 
 # Install dependencies
-travis_retry pip install numpy==$NUMPY_VERSION cython wheel delocate
+retry pip install numpy==$NUMPY_VERSION cython wheel delocate
 pip freeze
 brew rm --ignore-dependencies jpeg || true
 
@@ -63,7 +63,7 @@ LIB_INSTALL_PREFIX=$(pwd)/external/libs
 curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
 pushd jpeg-9c
 ./configure --prefix=$LIB_INSTALL_PREFIX
-make install -j$(nproc)
+make install -j
 popd
 
 # Install libjasper:
@@ -74,7 +74,7 @@ mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
       -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF ..
-make install -j$(nproc)
+make install -j
 popd
 
 export CC=clang
@@ -85,8 +85,9 @@ export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
 
 # Build wheel
-export LD_LIBRARY_PATH=$LIB_INSTALL_PREFIX
+export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
 python setup.py bdist_wheel
+export LD_LIBRARY_PATH=$LIB_INSTALL_PREFIX
 delocate-listdeps --all dist/*.whl # lists library dependencies
 delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all dist/*.whl # verify
@@ -114,8 +115,8 @@ set -x
 pip install dist/*.whl
 
 # Test installed rawpy
-travis_retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
-travis_retry pip install -r dev-requirements.txt
+retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
+retry pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed
 #brew rm --ignore-dependencies jpeg jasper little-cms2
 rm -rf $LIB_INSTALL_PREFIX
