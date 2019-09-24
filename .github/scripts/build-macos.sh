@@ -56,6 +56,7 @@ LIB_INSTALL_PREFIX=$(pwd)/external/libs
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
+# - libtiff dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
 pushd jpeg-9c
@@ -75,11 +76,25 @@ cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
 make install -j
 popd
 
+# Install libtiff:
+# - Little CMS 2 dependency
+curl -L --retry 3 https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz | tar xz
+pushd tiff-4.0.10
+./configure --prefix=$LIB_INSTALL_PREFIX \
+            --disable-lzma \
+            --with-jpeg-include-dir=$LIB_INSTALL_PREFIX/include \
+            --with-jpeg-lib-dir=$LIB_INSTALL_PREFIX/lib \
+            --without-x
+make install -j
+popd
+
 # Install Little CMS 2:
 # - libraw lcms support
 curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.9/lcms2-2.9.tar.gz | tar xz
 pushd lcms2-2.9
-./configure --prefix=$LIB_INSTALL_PREFIX
+./configure --prefix=$LIB_INSTALL_PREFIX \
+            --with-jpeg=$LIB_INSTALL_PREFIX \
+            --with-tiff=$LIB_INSTALL_PREFIX            
 make install -j
 popd
 
