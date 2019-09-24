@@ -249,14 +249,13 @@ def mac_libraw_compile():
     
     patch_cmakelists()
     
-    install_name_dir = os.path.join(install_dir, 'lib')
     cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ' +\
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
-                    '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_MACOSX_RPATH=OFF -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
+                    '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_SKIP_RPATH=ON',
             'cmake --build . --target raw_r',
             'cmake --build . --target install',
             ]
