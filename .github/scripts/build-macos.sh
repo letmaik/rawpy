@@ -73,15 +73,17 @@ delocate-listdeps --all dist/*.whl # verify
 # Currently, delocate does not support checking those.
 # See https://github.com/matthew-brett/delocate/issues/56.
 set +x # reduce noise
-echo "Dumping LC_VERSION_MIN_MACOSX"
+echo "Dumping LC_VERSION_MIN_MACOSX & LC_BUILD_VERSION"
 mkdir tmp_wheel
 pushd tmp_wheel
 unzip ../dist/*.whl
 echo rawpy/*.so
 otool -l rawpy/*.so | grep -A 3 LC_VERSION_MIN_MACOSX || true
+otool -l rawpy/*.so | grep -A 3 LC_BUILD_VERSION || true
 for file in rawpy/.dylibs/*.dylib; do
     echo $file
     otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX || true
+    otool -l $file | grep -A 3 LC_BUILD_VERSION || true
 done
 popd
 set -x
