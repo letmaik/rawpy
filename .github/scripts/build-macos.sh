@@ -52,6 +52,8 @@ brew rm --ignore-dependencies jpeg || true
 # See https://discourse.brew.sh/t/it-is-possible-to-build-packages-that-are-compatible-with-older-macos-versions/4421
 #brew install jpeg jasper little-cms2
 
+# temporary test
+export MACOSX_DEPLOYMENT_TARGET=
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
@@ -83,6 +85,7 @@ export ARCHFLAGS=$CFLAGS
 # Build wheel
 python setup.py bdist_wheel
 delocate-listdeps --all dist/*.whl # lists library dependencies
+export LD_LIBRARY_PATH=/usr/local
 delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all dist/*.whl # verify
 
