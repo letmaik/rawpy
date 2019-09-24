@@ -58,8 +58,8 @@ brew rm --ignore-dependencies jpeg || true
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
 pushd jpeg-9c
-./configure --prefix=/usr
-sudo make install -j$(nproc)
+./configure --prefix=/usr/local
+make install -j$(nproc)
 popd
 
 # Install libjasper:
@@ -68,9 +68,9 @@ curl -L --retry 3 https://github.com/mdadams/jasper/archive/version-2.0.16.tar.g
 pushd jasper-version-2.0.16
 mkdir cmake_build
 cd cmake_build
-cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release \
       -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF ..
-sudo make install -j$(nproc)
+make install -j$(nproc)
 popd
 
 export CC=clang
