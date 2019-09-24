@@ -79,11 +79,11 @@ pushd tmp_wheel
 unzip ../dist/*.whl
 echo rawpy/*.so
 otool -l rawpy/*.so | grep -A 3 LC_VERSION_MIN_MACOSX || true
-otool -l rawpy/*.so | grep -A 3 LC_BUILD_VERSION || true
+otool -l rawpy/*.so | grep -A 10 LC_BUILD_VERSION || true
 for file in rawpy/.dylibs/*.dylib; do
     echo $file
     otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX || true
-    otool -l $file | grep -A 3 LC_BUILD_VERSION || true
+    otool -l $file | grep -A 10 LC_BUILD_VERSION || true
 done
 popd
 set -x
