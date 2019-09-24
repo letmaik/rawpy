@@ -39,21 +39,12 @@ source venv/bin/activate
 set -x
 popd
 
-export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
-export HOMEBREW_CURL_RETRIES=3
-export HOMEBREW_NO_INSTALL_CLEANUP=1
-
-# brew tries to update itself and Ruby during 'brew install ..'' but fails doing so with
-# "Homebrew must be run under Ruby 2.3! You're running 2.0.0.".
-# Updating brew separately seems to avoid this issue.
-travis_retry brew update
-
 # Install dependencies
 travis_retry pip install numpy==$NUMPY_VERSION cython wheel delocate
 pip freeze
 brew rm --ignore-dependencies jpeg || true
 
-# Dependencies are built from source to respect MACOSX_DEPLOYMENT_TARGET.
+# Shared library dependencies are built from source to respect MACOSX_DEPLOYMENT_TARGET.
 # Bottles from Homebrew cannot be used as they always have a target that
 # matches the host OS. Unfortunately, building from source with Homebrew
 # is also not an option as the MACOSX_DEPLOYMENT_TARGET env var cannot
@@ -65,24 +56,21 @@ brew rm --ignore-dependencies jpeg || true
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-# CentOS 6 has libjpeg 6 only, so build from source.
 curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
 pushd jpeg-9c
 ./configure --prefix=/usr
-make install -j$(nproc)
+sudo make install -j$(nproc)
 popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-# CentOS 6 has libjasper, but since it depends on libjpeg we'll build from
-# source, otherwise we would use two different libjpeg versions.
 curl -L --retry 3 https://github.com/mdadams/jasper/archive/version-2.0.16.tar.gz | tar xz
 pushd jasper-version-2.0.16
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
       -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF ..
-make install -j$(nproc)
+sudo make install -j$(nproc)
 popd
 
 export CC=clang
@@ -124,7 +112,8 @@ pip install dist/*.whl
 travis_retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
 travis_retry pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed
-brew rm --ignore-dependencies jpeg jasper little-cms2
+# FIXME
+#brew rm --ignore-dependencies jpeg jasper little-cms2
 mkdir tmp_for_test
 pushd tmp_for_test
 nosetests --verbosity=3 --nocapture ../test
