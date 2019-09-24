@@ -53,14 +53,16 @@ brew rm --ignore-dependencies jpeg || true
 #brew install jpeg jasper little-cms2
 
 # temporary test
-export MACOSX_DEPLOYMENT_TARGET=
+unset MACOSX_DEPLOYMENT_TARGET
+
+LIB_INSTALL_PREFIX=$(pwd)/external/libs
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
 pushd jpeg-9c
-./configure --prefix=/usr/local
+./configure --prefix=$LIB_INSTALL_PREFIX
 make install -j$(nproc)
 popd
 
@@ -70,7 +72,7 @@ curl -L --retry 3 https://github.com/mdadams/jasper/archive/version-2.0.16.tar.g
 pushd jasper-version-2.0.16
 mkdir cmake_build
 cd cmake_build
-cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release \
+cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
       -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF ..
 make install -j$(nproc)
 popd
@@ -83,9 +85,9 @@ export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
 
 # Build wheel
+export LD_LIBRARY_PATH=$LIB_INSTALL_PREFIX
 python setup.py bdist_wheel
 delocate-listdeps --all dist/*.whl # lists library dependencies
-export LD_LIBRARY_PATH=/usr/local
 delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all dist/*.whl # verify
 
@@ -115,8 +117,8 @@ pip install dist/*.whl
 travis_retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
 travis_retry pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed
-# FIXME
 #brew rm --ignore-dependencies jpeg jasper little-cms2
+rm -rf $LIB_INSTALL_PREFIX
 mkdir tmp_for_test
 pushd tmp_for_test
 nosetests --verbosity=3 --nocapture ../test
