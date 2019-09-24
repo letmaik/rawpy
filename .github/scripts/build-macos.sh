@@ -98,6 +98,8 @@ pushd lcms2-2.9
 make install -j
 popd
 
+ls -al $LIB_INSTALL_PREFIX/lib
+
 export CC=clang
 export CXX=clang++
 export CFLAGS="-arch x86_64"
