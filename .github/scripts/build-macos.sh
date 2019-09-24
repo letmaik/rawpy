@@ -42,7 +42,6 @@ popd
 # Install dependencies
 retry pip install numpy==$NUMPY_VERSION cython wheel delocate
 pip freeze
-brew rm --ignore-dependencies jpeg || true
 
 # Shared library dependencies are built from source to respect MACOSX_DEPLOYMENT_TARGET.
 # Bottles from Homebrew cannot be used as they always have a target that
@@ -50,13 +49,11 @@ brew rm --ignore-dependencies jpeg || true
 # is also not an option as the MACOSX_DEPLOYMENT_TARGET env var cannot
 # be forwarded to the build (Homebrew cleans the environment).
 # See https://discourse.brew.sh/t/it-is-possible-to-build-packages-that-are-compatible-with-older-macos-versions/4421
-#brew install jpeg jasper little-cms2
 
 LIB_INSTALL_PREFIX=$(pwd)/external/libs
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
-# - libtiff dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
 pushd jpeg-9c
@@ -76,25 +73,13 @@ cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
 make install -j
 popd
 
-# Install libtiff:
-# - Little CMS 2 dependency
-curl -L --retry 3 https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz | tar xz
-pushd tiff-4.0.10
-./configure --prefix=$LIB_INSTALL_PREFIX \
-            --disable-lzma \
-            --with-jpeg-include-dir=$LIB_INSTALL_PREFIX/include \
-            --with-jpeg-lib-dir=$LIB_INSTALL_PREFIX/lib \
-            --without-x
-make install -j
-popd
-
 # Install Little CMS 2:
 # - libraw lcms support
 curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.9/lcms2-2.9.tar.gz | tar xz
 pushd lcms2-2.9
+# Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
 ./configure --prefix=$LIB_INSTALL_PREFIX \
-            --with-jpeg=$LIB_INSTALL_PREFIX \
-            --with-tiff=$LIB_INSTALL_PREFIX            
+            --without-jpeg --without-tiff           
 make install -j
 popd
 
@@ -140,7 +125,6 @@ pip install dist/*.whl
 retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
 retry pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed
-#brew rm --ignore-dependencies jpeg jasper little-cms2
 rm -rf $LIB_INSTALL_PREFIX
 mkdir tmp_for_test
 pushd tmp_for_test
