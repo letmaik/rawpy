@@ -70,7 +70,8 @@ pushd jasper-version-2.0.16
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
-      -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF ..
+      -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF \
+      -DCMAKE_MACOSX_RPATH=OFF ..
 make install -j
 popd
 
@@ -84,7 +85,6 @@ export ARCHFLAGS=$CFLAGS
 # Build wheel
 export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
 python setup.py bdist_wheel
-export LD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib
 delocate-listdeps --all dist/*.whl # lists library dependencies
 delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all dist/*.whl # verify

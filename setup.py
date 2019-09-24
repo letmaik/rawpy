@@ -106,7 +106,7 @@ if isWindows:
 include_dirs += [numpy.get_include()]
 
 def clone_submodules():
-    if not os.path.exists('external/LibRaw/README'):
+    if not os.path.exists('external/LibRaw/README.md'):
         print('LibRaw git submodule is not cloned yet, will invoke "git submodule update --init" now')
         if os.system('git submodule update --init') != 0:
             raise Exception('git failed')
@@ -202,8 +202,6 @@ def windows_libraw_compile():
     
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
-    ext = lambda p: os.path.join(external_dir, p)
-    arch = 'x64' if is64Bit else 'x86'
     enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=' + enable_openmp_flag + ' -DENABLE_RAWSPEED=OFF ' +\
@@ -258,9 +256,9 @@ def mac_libraw_compile():
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
-                    '-DCMAKE_INSTALL_PREFIX:PATH=install -DCMAKE_MACOSX_RPATH=0 -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
-            'make raw_r',
-            'make install'
+                    '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_MACOSX_RPATH=OFF -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
+            'cmake --build . --target raw_r',
+            'cmake --build . --target install',
             ]
     for cmd in cmds:
         print(cmd)
