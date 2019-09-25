@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>RawPy class &mdash; rawpy 0.13.1 documentation</title>
+  <title>RawPy class &mdash; rawpy 0.14.0a1 documentation</title>
   
 
   
@@ -17,34 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Params class" href="rawpy.Params.html" />
     <link rel="prev" title="Classes" href="classes.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -58,7 +60,7 @@
             
             
               <div class="version">
-                0.13.1
+                0.14.0a1
               </div>
             
           
@@ -167,12 +169,12 @@
 <h1>RawPy class<a class="headerlink" href="#rawpy-class" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="rawpy.RawPy">
-<em class="property">class </em><code class="descclassname">rawpy.</code><code class="descname">RawPy</code><a class="headerlink" href="#rawpy.RawPy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">RawPy</code><a class="headerlink" href="#rawpy.RawPy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load RAW images, work on their data, and create a postprocessed (demosaiced) image.</p>
 <p>All operations are implemented using numpy arrays.</p>
 <dl class="method">
 <dt id="rawpy.RawPy.close">
-<code class="descname">close</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.close" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Release all resources and close the RAW image.</p>
 <p>Consider using context managers for the same effect:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">rawpy</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;image.nef&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">raw</span><span class="p">:</span>
@@ -183,82 +185,71 @@
 
 <dl class="method">
 <dt id="rawpy.RawPy.postprocess">
-<code class="descname">postprocess</code><span class="sig-paren">(</span><em>self</em>, <em>params=None</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.postprocess" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">postprocess</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">params=None</em>, <em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.postprocess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Postprocess the currently loaded RAW image and return the
 new resulting image as numpy array.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> (<a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><em>rawpy.Params</em></a>) – The parameters to use for postprocessing.</li>
-<li><strong>**kw</strong> – <p>Alternative way to provide postprocessing parameters.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><em>rawpy.Params</em></a>) – The parameters to use for postprocessing.</p></li>
+<li><p><strong>**kw</strong> – <p>Alternative way to provide postprocessing parameters.
 The keywords are used to construct a <a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Params</span></code></a> instance.
 If keywords are given, then <cite>params</cite> must be omitted.</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray of shape (h,w,c)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray of shape (h,w,c)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rawpy.RawPy.raw_color">
-<code class="descname">raw_color</code><span class="sig-paren">(</span><em>self</em>, <em>int row</em>, <em>int column</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#rawpy.RawPy.raw_color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_color</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">int row</em>, <em class="sig-param">int column</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#rawpy.RawPy.raw_color" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return color index for the given coordinates relative to the full RAW size.
 Only usable for flat RAW images (see raw_type property).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rawpy.RawPy.raw_value">
-<code class="descname">raw_value</code><span class="sig-paren">(</span><em>self</em>, <em>int row</em>, <em>int column</em><span class="sig-paren">)</span> &#x2192; ushort<a class="headerlink" href="#rawpy.RawPy.raw_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_value</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">int row</em>, <em class="sig-param">int column</em><span class="sig-paren">)</span> &#x2192; ushort<a class="headerlink" href="#rawpy.RawPy.raw_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return RAW value at given position relative to the full RAW image.
 Only usable for flat RAW images (see <a class="reference internal" href="#rawpy.RawPy.raw_type" title="rawpy.RawPy.raw_type"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw_type</span></code></a> property).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rawpy.RawPy.raw_value_visible">
-<code class="descname">raw_value_visible</code><span class="sig-paren">(</span><em>self</em>, <em>int row</em>, <em>int column</em><span class="sig-paren">)</span> &#x2192; ushort<a class="headerlink" href="#rawpy.RawPy.raw_value_visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_value_visible</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">int row</em>, <em class="sig-param">int column</em><span class="sig-paren">)</span> &#x2192; ushort<a class="headerlink" href="#rawpy.RawPy.raw_value_visible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return RAW value at given position relative to visible area of image.
-Only usable for flat RAW images (see raw_type property).</p>
+Only usable for flat RAW images (see <a class="reference internal" href="#rawpy.RawPy.raw_type" title="rawpy.RawPy.raw_type"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw_type</span></code></a> property).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.black_level_per_channel">
-<code class="descname">black_level_per_channel</code><a class="headerlink" href="#rawpy.RawPy.black_level_per_channel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Per-channel black level correction.
-NOTE: This equals black + cblack[N] in LibRaw.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of length 4</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">black_level_per_channel</code><a class="headerlink" href="#rawpy.RawPy.black_level_per_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Per-channel black level correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of length 4</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.camera_whitebalance">
-<code class="descname">camera_whitebalance</code><a class="headerlink" href="#rawpy.RawPy.camera_whitebalance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">camera_whitebalance</code><a class="headerlink" href="#rawpy.RawPy.camera_whitebalance" title="Permalink to this definition">¶</a></dt>
 <dd><p>White balance coefficients (as shot). Either read from file or calculated.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of length 4</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of length 4</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.color_desc">
-<code class="descname">color_desc</code><a class="headerlink" href="#rawpy.RawPy.color_desc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_desc</code><a class="headerlink" href="#rawpy.RawPy.color_desc" title="Permalink to this definition">¶</a></dt>
 <dd><p>String description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).
 Note that same letters may not refer strictly to the same color.
 There are cameras with two different greens for example.</p>
@@ -266,37 +257,31 @@ There are cameras with two different greens for example.</p>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.color_matrix">
-<code class="descname">color_matrix</code><a class="headerlink" href="#rawpy.RawPy.color_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_matrix</code><a class="headerlink" href="#rawpy.RawPy.color_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Color matrix, read from file for some cameras, calculated for others.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of shape (3,4)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (3,4)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.daylight_whitebalance">
-<code class="descname">daylight_whitebalance</code><a class="headerlink" href="#rawpy.RawPy.daylight_whitebalance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">daylight_whitebalance</code><a class="headerlink" href="#rawpy.RawPy.daylight_whitebalance" title="Permalink to this definition">¶</a></dt>
 <dd><p>White balance coefficients for daylight (daylight balance). 
 Either read from file, or calculated on the basis of file data, 
 or taken from hardcoded constants.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of length 4</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of length 4</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.num_colors">
-<code class="descname">num_colors</code><a class="headerlink" href="#rawpy.RawPy.num_colors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">num_colors</code><a class="headerlink" href="#rawpy.RawPy.num_colors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of colors.
 Note that e.g. for RGBG this can be 3 or 4, depending on the camera model,
 as some use two different greens.</p>
@@ -304,134 +289,110 @@ as some use two different greens.</p>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.raw_colors">
-<code class="descname">raw_colors</code><a class="headerlink" href="#rawpy.RawPy.raw_colors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_colors</code><a class="headerlink" href="#rawpy.RawPy.raw_colors" title="Permalink to this definition">¶</a></dt>
 <dd><p>An array of color indices for each pixel in the RAW image.
 Equivalent to calling raw_color(y,x) for each pixel.
 Only usable for flat RAW images (see raw_type property).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of shape (h,w)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (h,w)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.raw_colors_visible">
-<code class="descname">raw_colors_visible</code><a class="headerlink" href="#rawpy.RawPy.raw_colors_visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_colors_visible</code><a class="headerlink" href="#rawpy.RawPy.raw_colors_visible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like raw_colors but without margin.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of shape (hv,wv)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (hv,wv)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.raw_image">
-<code class="descname">raw_image</code><a class="headerlink" href="#rawpy.RawPy.raw_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_image</code><a class="headerlink" href="#rawpy.RawPy.raw_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>View of Bayer-pattern RAW image, one channel. Includes margin.</p>
 <p>Modifying the returned array directly influences the result of
 calling <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a>.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">The returned numpy array can only be accessed while this RawPy instance
+<p class="admonition-title">Warning</p>
+<p>The returned numpy array can only be accessed while this RawPy instance
 is not closed yet, that is, within a <code class="code docutils literal notranslate"><span class="pre">with</span></code> block or before calling <a class="reference internal" href="#rawpy.RawPy.close" title="rawpy.RawPy.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a>.
 If you need to work on the array after closing the RawPy instance,
 make sure to create a copy of it with <code class="code docutils literal notranslate"><span class="pre">raw_image</span> <span class="pre">=</span> <span class="pre">raw.raw_image.copy()</span></code>.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of shape (h,w)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (h,w)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.raw_image_visible">
-<code class="descname">raw_image_visible</code><a class="headerlink" href="#rawpy.RawPy.raw_image_visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_image_visible</code><a class="headerlink" href="#rawpy.RawPy.raw_image_visible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like raw_image but without margin.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of shape (hv,wv)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (hv,wv)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.raw_pattern">
-<code class="descname">raw_pattern</code><a class="headerlink" href="#rawpy.RawPy.raw_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_pattern</code><a class="headerlink" href="#rawpy.RawPy.raw_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>The smallest possible Bayer pattern of this image.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray, or None if not a flat RAW image</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray, or None if not a flat RAW image</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.raw_type">
-<code class="descname">raw_type</code><a class="headerlink" href="#rawpy.RawPy.raw_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">raw_type</code><a class="headerlink" href="#rawpy.RawPy.raw_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the RAW type.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="enums.html#rawpy.RawType" title="rawpy.RawType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.RawType</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="enums.html#rawpy.RawType" title="rawpy.RawType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.RawType</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.rgb_xyz_matrix">
-<code class="descname">rgb_xyz_matrix</code><a class="headerlink" href="#rawpy.RawPy.rgb_xyz_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rgb_xyz_matrix</code><a class="headerlink" href="#rawpy.RawPy.rgb_xyz_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Camera RGB - XYZ conversion matrix.
 This matrix is constant (different for different models).
 Last row is zero for RGB cameras and non-zero for different color models (CMYG and so on).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of shape (4,3)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (4,3)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.sizes">
-<code class="descname">sizes</code><a class="headerlink" href="#rawpy.RawPy.sizes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sizes</code><a class="headerlink" href="#rawpy.RawPy.sizes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="namedtuples.html#rawpy.ImageSizes" title="rawpy.ImageSizes"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.ImageSizes</span></code></a> instance with size information of
 the RAW image and postprocessed image.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rawpy.RawPy.tone_curve">
-<code class="descname">tone_curve</code><a class="headerlink" href="#rawpy.RawPy.tone_curve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tone_curve</code><a class="headerlink" href="#rawpy.RawPy.tone_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Camera tone curve, read from file for Nikon, Sony and some other cameras.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of length 65536</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of length 65536</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -439,95 +400,82 @@ the RAW image and postprocessed image.</p>
 <p>Additional low-level methods:</p>
 <dl class="class">
 <dt>
-<em class="property">class </em><code class="descclassname">rawpy.</code><code class="descname">RawPy</code></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">RawPy</code></dt>
 <dd><p>Load RAW images, work on their data, and create a postprocessed (demosaiced) image.</p>
 <p>All operations are implemented using numpy arrays.</p>
 <dl class="method">
 <dt id="rawpy.RawPy.dcraw_make_mem_image">
-<code class="descname">dcraw_make_mem_image</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.dcraw_make_mem_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dcraw_make_mem_image</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.dcraw_make_mem_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the postprocessed image (see <a class="reference internal" href="#rawpy.RawPy.dcraw_process" title="rawpy.RawPy.dcraw_process"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dcraw_process()</span></code></a>) as numpy array.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a> instead.</p>
+<p class="admonition-title">Note</p>
+<p>This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a> instead.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray of shape (h,w,c)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (h,w,c)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rawpy.RawPy.dcraw_process">
-<code class="descname">dcraw_process</code><span class="sig-paren">(</span><em>self</em>, <em>params=None</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.dcraw_process" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dcraw_process</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">params=None</em>, <em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.dcraw_process" title="Permalink to this definition">¶</a></dt>
 <dd><p>Postprocess the currently loaded RAW image.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a> instead.</p>
+<p class="admonition-title">Note</p>
+<p>This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a> instead.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>params</strong> (<a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><em>rawpy.Params</em></a>) – The parameters to use for postprocessing.</li>
-<li><strong>**kw</strong> – <p>Alternative way to provide postprocessing parameters.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><em>rawpy.Params</em></a>) – The parameters to use for postprocessing.</p></li>
+<li><p><strong>**kw</strong> – <p>Alternative way to provide postprocessing parameters.
 The keywords are used to construct a <a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Params</span></code></a> instance.
 If keywords are given, then <cite>params</cite> must be omitted.</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rawpy.RawPy.open_buffer">
-<code class="descname">open_buffer</code><span class="sig-paren">(</span><em>self</em>, <em>fileobj</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.open_buffer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">open_buffer</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">fileobj</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.open_buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Opens the given RAW image file-like object. Should be followed by a call to <a class="reference internal" href="#rawpy.RawPy.unpack" title="rawpy.RawPy.unpack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">unpack()</span></code></a>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
+<p class="admonition-title">Note</p>
+<p>This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fileobj</strong> (<em>file</em>) – The file-like object.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fileobj</strong> (<em>file</em>) – The file-like object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rawpy.RawPy.open_file">
-<code class="descname">open_file</code><span class="sig-paren">(</span><em>self</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.open_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">open_file</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.open_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Opens the given RAW image file. Should be followed by a call to <a class="reference internal" href="#rawpy.RawPy.unpack" title="rawpy.RawPy.unpack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">unpack()</span></code></a>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
+<p class="admonition-title">Note</p>
+<p>This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – The path to the RAW image.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to the RAW image.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rawpy.RawPy.unpack">
-<code class="descname">unpack</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.unpack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unpack</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.unpack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unpacks/decodes the opened RAW image.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
+<p class="admonition-title">Note</p>
+<p>This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
 </div>
 </dd></dl>
 
@@ -546,7 +494,7 @@ If keywords are given, then <cite>params</cite> must be omitted.</p>
         <a href="rawpy.Params.html" class="btn btn-neutral float-right" title="Params class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="classes.html" class="btn btn-neutral" title="Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="classes.html" class="btn btn-neutral float-left" title="Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -572,25 +520,16 @@ If keywords are given, then <cite>params</cite> must be omitted.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

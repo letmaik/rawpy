@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Params class &mdash; rawpy 0.13.1 documentation</title>
+  <title>Params class &mdash; rawpy 0.14.0a1 documentation</title>
   
 
   
@@ -17,34 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Exceptions" href="exceptions.html" />
     <link rel="prev" title="RawPy class" href="rawpy.RawPy.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -58,7 +60,7 @@
             
             
               <div class="version">
-                0.13.1
+                0.14.0a1
               </div>
             
           
@@ -167,56 +169,52 @@
 <h1>Params class<a class="headerlink" href="#params-class" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="rawpy.Params">
-<em class="property">class </em><code class="descclassname">rawpy.</code><code class="descname">Params</code><span class="sig-paren">(</span><em>self</em>, <em>demosaic_algorithm=None</em>, <em>half_size=False</em>, <em>four_color_rgb=False</em>, <em>dcb_iterations=0</em>, <em>dcb_enhance=False</em>, <em>fbdd_noise_reduction=FBDDNoiseReductionMode.Off</em>, <em>noise_thr=None</em>, <em>median_filter_passes=0</em>, <em>use_camera_wb=False</em>, <em>use_auto_wb=False</em>, <em>user_wb=None</em>, <em>output_color=ColorSpace.sRGB</em>, <em>output_bps=8</em>, <em>user_flip=None</em>, <em>user_black=None</em>, <em>user_sat=None</em>, <em>no_auto_bright=False</em>, <em>auto_bright_thr=None</em>, <em>adjust_maximum_thr=0.75</em>, <em>bright=1.0</em>, <em>highlight_mode=HighlightMode.Clip</em>, <em>exp_shift=None</em>, <em>exp_preserve_highlights=0.0</em>, <em>no_auto_scale=False</em>, <em>gamma=None</em>, <em>chromatic_aberration=None</em>, <em>bad_pixels_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.Params" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">Params</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">demosaic_algorithm=None</em>, <em class="sig-param">half_size=False</em>, <em class="sig-param">four_color_rgb=False</em>, <em class="sig-param">dcb_iterations=0</em>, <em class="sig-param">dcb_enhance=False</em>, <em class="sig-param">fbdd_noise_reduction=FBDDNoiseReductionMode.Off</em>, <em class="sig-param">noise_thr=None</em>, <em class="sig-param">median_filter_passes=0</em>, <em class="sig-param">use_camera_wb=False</em>, <em class="sig-param">use_auto_wb=False</em>, <em class="sig-param">user_wb=None</em>, <em class="sig-param">output_color=ColorSpace.sRGB</em>, <em class="sig-param">output_bps=8</em>, <em class="sig-param">user_flip=None</em>, <em class="sig-param">user_black=None</em>, <em class="sig-param">user_sat=None</em>, <em class="sig-param">no_auto_bright=False</em>, <em class="sig-param">auto_bright_thr=None</em>, <em class="sig-param">adjust_maximum_thr=0.75</em>, <em class="sig-param">bright=1.0</em>, <em class="sig-param">highlight_mode=HighlightMode.Clip</em>, <em class="sig-param">exp_shift=None</em>, <em class="sig-param">exp_preserve_highlights=0.0</em>, <em class="sig-param">no_auto_scale=False</em>, <em class="sig-param">gamma=None</em>, <em class="sig-param">chromatic_aberration=None</em>, <em class="sig-param">bad_pixels_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.Params" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class that handles postprocessing parameters.</p>
 <p>If use_camera_wb and use_auto_wb are False and user_wb is None, then
 daylight white balance correction is used.
 If both use_camera_wb and use_auto_wb are True, then use_auto_wb has priority.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>demosaic_algorithm</strong> (<a class="reference internal" href="enums.html#rawpy.DemosaicAlgorithm" title="rawpy.DemosaicAlgorithm"><em>rawpy.DemosaicAlgorithm</em></a>) – default is AHD</li>
-<li><strong>half_size</strong> (<em>bool</em>) – outputs image in half size by reducing each 2x2 block to one pixel
-instead of interpolating</li>
-<li><strong>four_color_rgb</strong> (<em>bool</em>) – whether to use separate interpolations for two green channels</li>
-<li><strong>dcb_iterations</strong> (<em>int</em>) – number of DCB correction passes, requires DCB demosaicing algorithm</li>
-<li><strong>dcb_enhance</strong> (<em>bool</em>) – DCB interpolation with enhanced interpolated colors</li>
-<li><strong>fbdd_noise_reduction</strong> (<a class="reference internal" href="enums.html#rawpy.FBDDNoiseReductionMode" title="rawpy.FBDDNoiseReductionMode"><em>rawpy.FBDDNoiseReductionMode</em></a>) – controls FBDD noise reduction before demosaicing</li>
-<li><strong>noise_thr</strong> (<em>float</em>) – threshold for wavelet denoising (default disabled)</li>
-<li><strong>median_filter_passes</strong> (<em>int</em>) – number of median filter passes after demosaicing to reduce color artifacts</li>
-<li><strong>use_camera_wb</strong> (<em>bool</em>) – whether to use the as-shot white balance values</li>
-<li><strong>use_auto_wb</strong> (<em>bool</em>) – whether to try automatically calculating the white balance</li>
-<li><strong>user_wb</strong> (<em>list</em>) – list of length 4 with white balance multipliers for each color</li>
-<li><strong>output_color</strong> (<a class="reference internal" href="enums.html#rawpy.ColorSpace" title="rawpy.ColorSpace"><em>rawpy.ColorSpace</em></a>) – output color space</li>
-<li><strong>output_bps</strong> (<em>int</em>) – 8 or 16</li>
-<li><strong>user_flip</strong> (<em>int</em>) – 0=none, 3=180, 5=90CCW, 6=90CW,
-default is to use image orientation from the RAW image if available</li>
-<li><strong>user_black</strong> (<em>int</em>) – custom black level</li>
-<li><strong>user_sat</strong> (<em>int</em>) – saturation adjustment</li>
-<li><strong>no_auto_scale</strong> (<em>bool</em>) – Whether to disable pixel value scaling</li>
-<li><strong>no_auto_bright</strong> (<em>bool</em>) – whether to disable automatic increase of brightness</li>
-<li><strong>auto_bright_thr</strong> (<em>float</em>) – ratio of clipped pixels when automatic brighness increase is used
-(see <cite>no_auto_bright</cite>). Default is 0.01 (1%).</li>
-<li><strong>adjust_maximum_thr</strong> (<em>float</em>) – see libraw docs</li>
-<li><strong>bright</strong> (<em>float</em>) – brightness scaling</li>
-<li><strong>highlight_mode</strong> (<a class="reference internal" href="enums.html#rawpy.HighlightMode" title="rawpy.HighlightMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.HighlightMode</span></code></a> | int) – highlight mode</li>
-<li><strong>exp_shift</strong> (<em>float</em>) – exposure shift in linear scale.
-Usable range from 0.25 (2-stop darken) to 8.0 (3-stop lighter).</li>
-<li><strong>exp_preserve_highlights</strong> (<em>float</em>) – preserve highlights when lightening the image with <cite>exp_shift</cite>.
-From 0.0 to 1.0 (full preservation).</li>
-<li><strong>gamma</strong> (<em>tuple</em>) – pair (power,slope), default is (2.222, 4.5) for rec. BT.709</li>
-<li><strong>chromatic_aberration</strong> (<em>tuple</em>) – pair (red_scale, blue_scale), default is (1,1),
-corrects chromatic aberration by scaling the red and blue channels</li>
-<li><strong>bad_pixels_path</strong> (<em>str</em>) – path to dcraw bad pixels file. Each bad pixel will be corrected using
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>demosaic_algorithm</strong> (<a class="reference internal" href="enums.html#rawpy.DemosaicAlgorithm" title="rawpy.DemosaicAlgorithm"><em>rawpy.DemosaicAlgorithm</em></a>) – default is AHD</p></li>
+<li><p><strong>half_size</strong> (<em>bool</em>) – outputs image in half size by reducing each 2x2 block to one pixel
+instead of interpolating</p></li>
+<li><p><strong>four_color_rgb</strong> (<em>bool</em>) – whether to use separate interpolations for two green channels</p></li>
+<li><p><strong>dcb_iterations</strong> (<em>int</em>) – number of DCB correction passes, requires DCB demosaicing algorithm</p></li>
+<li><p><strong>dcb_enhance</strong> (<em>bool</em>) – DCB interpolation with enhanced interpolated colors</p></li>
+<li><p><strong>fbdd_noise_reduction</strong> (<a class="reference internal" href="enums.html#rawpy.FBDDNoiseReductionMode" title="rawpy.FBDDNoiseReductionMode"><em>rawpy.FBDDNoiseReductionMode</em></a>) – controls FBDD noise reduction before demosaicing</p></li>
+<li><p><strong>noise_thr</strong> (<em>float</em>) – threshold for wavelet denoising (default disabled)</p></li>
+<li><p><strong>median_filter_passes</strong> (<em>int</em>) – number of median filter passes after demosaicing to reduce color artifacts</p></li>
+<li><p><strong>use_camera_wb</strong> (<em>bool</em>) – whether to use the as-shot white balance values</p></li>
+<li><p><strong>use_auto_wb</strong> (<em>bool</em>) – whether to try automatically calculating the white balance</p></li>
+<li><p><strong>user_wb</strong> (<em>list</em>) – list of length 4 with white balance multipliers for each color</p></li>
+<li><p><strong>output_color</strong> (<a class="reference internal" href="enums.html#rawpy.ColorSpace" title="rawpy.ColorSpace"><em>rawpy.ColorSpace</em></a>) – output color space</p></li>
+<li><p><strong>output_bps</strong> (<em>int</em>) – 8 or 16</p></li>
+<li><p><strong>user_flip</strong> (<em>int</em>) – 0=none, 3=180, 5=90CCW, 6=90CW,
+default is to use image orientation from the RAW image if available</p></li>
+<li><p><strong>user_black</strong> (<em>int</em>) – custom black level</p></li>
+<li><p><strong>user_sat</strong> (<em>int</em>) – saturation adjustment</p></li>
+<li><p><strong>no_auto_scale</strong> (<em>bool</em>) – Whether to disable pixel value scaling</p></li>
+<li><p><strong>no_auto_bright</strong> (<em>bool</em>) – whether to disable automatic increase of brightness</p></li>
+<li><p><strong>auto_bright_thr</strong> (<em>float</em>) – ratio of clipped pixels when automatic brighness increase is used
+(see <cite>no_auto_bright</cite>). Default is 0.01 (1%).</p></li>
+<li><p><strong>adjust_maximum_thr</strong> (<em>float</em>) – see libraw docs</p></li>
+<li><p><strong>bright</strong> (<em>float</em>) – brightness scaling</p></li>
+<li><p><strong>highlight_mode</strong> (<a class="reference internal" href="enums.html#rawpy.HighlightMode" title="rawpy.HighlightMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.HighlightMode</span></code></a> | int) – highlight mode</p></li>
+<li><p><strong>exp_shift</strong> (<em>float</em>) – exposure shift in linear scale.
+Usable range from 0.25 (2-stop darken) to 8.0 (3-stop lighter).</p></li>
+<li><p><strong>exp_preserve_highlights</strong> (<em>float</em>) – preserve highlights when lightening the image with <cite>exp_shift</cite>.
+From 0.0 to 1.0 (full preservation).</p></li>
+<li><p><strong>gamma</strong> (<em>tuple</em>) – pair (power,slope), default is (2.222, 4.5) for rec. BT.709</p></li>
+<li><p><strong>chromatic_aberration</strong> (<em>tuple</em>) – pair (red_scale, blue_scale), default is (1,1),
+corrects chromatic aberration by scaling the red and blue channels</p></li>
+<li><p><strong>bad_pixels_path</strong> (<em>str</em>) – path to dcraw bad pixels file. Each bad pixel will be corrected using
 the mean of the neighbor pixels. See the <a class="reference internal" href="rawpy.enhance.html#module-rawpy.enhance" title="rawpy.enhance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">rawpy.enhance</span></code></a> module
-for alternative repair algorithms, e.g. using the median.</li>
+for alternative repair algorithms, e.g. using the median.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -232,7 +230,7 @@ for alternative repair algorithms, e.g. using the median.</li>
         <a href="exceptions.html" class="btn btn-neutral float-right" title="Exceptions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="rawpy.RawPy.html" class="btn btn-neutral" title="RawPy class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="rawpy.RawPy.html" class="btn btn-neutral float-left" title="RawPy class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -258,25 +256,16 @@ for alternative repair algorithms, e.g. using the median.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

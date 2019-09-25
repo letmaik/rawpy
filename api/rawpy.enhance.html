@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>enhance module &mdash; rawpy 0.13.1 documentation</title>
+  <title>enhance module &mdash; rawpy 0.14.0a1 documentation</title>
   
 
   
@@ -17,33 +17,35 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="Modules" href="modules.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -57,7 +59,7 @@
             
             
               <div class="version">
-                0.13.1
+                0.14.0a1
               </div>
             
           
@@ -165,77 +167,65 @@
 <span id="enhance-module"></span><h1>enhance module<a class="headerlink" href="#module-rawpy.enhance" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="rawpy.enhance.find_bad_pixels">
-<code class="descclassname">rawpy.enhance.</code><code class="descname">find_bad_pixels</code><span class="sig-paren">(</span><em>paths</em>, <em>find_hot=True</em>, <em>find_dead=True</em>, <em>confirm_ratio=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.find_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">find_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param">paths</em>, <em class="sig-param">find_hot=True</em>, <em class="sig-param">find_dead=True</em>, <em class="sig-param">confirm_ratio=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.find_bad_pixels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find and return coordinates of hot/dead pixels in the given RAW images.</p>
 <p>The probability that a detected bad pixel is really a bad pixel gets
 higher the more input images are given. The images should be taken around
 the same time, that is, each image must contain the same bad pixels.
 Also, there should be movement between the images to avoid the false detection
 of bad pixels in non-moving high-contrast areas.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>paths</strong> (<em>iterable of str</em>) – paths to RAW images shot with the same camera</li>
-<li><strong>find_hot</strong> (<em>bool</em>) – whether to find hot pixels</li>
-<li><strong>find_dead</strong> (<em>bool</em>) – whether to find dead pixels</li>
-<li><strong>confirm_ratio</strong> (<em>float</em>) – ratio of how many out of all given images
-must contain a bad pixel to confirm it as such</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paths</strong> (<em>iterable of str</em>) – paths to RAW images shot with the same camera</p></li>
+<li><p><strong>find_hot</strong> (<em>bool</em>) – whether to find hot pixels</p></li>
+<li><p><strong>find_dead</strong> (<em>bool</em>) – whether to find dead pixels</p></li>
+<li><p><strong>confirm_ratio</strong> (<em>float</em>) – ratio of how many out of all given images
+must contain a bad pixel to confirm it as such</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">coordinates of confirmed bad pixels</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray of shape (n,2) with y,x coordinates relative to visible RAW size</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>coordinates of confirmed bad pixels</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (n,2) with y,x coordinates relative to visible RAW size</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="rawpy.enhance.repair_bad_pixels">
-<code class="descclassname">rawpy.enhance.</code><code class="descname">repair_bad_pixels</code><span class="sig-paren">(</span><em>raw</em>, <em>coords</em>, <em>method='median'</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.repair_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">repair_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param">raw</em>, <em class="sig-param">coords</em>, <em class="sig-param">method='median'</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.repair_bad_pixels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Repair bad pixels in the given RAW image.</p>
 <p>Note that the function works in-place on the RAW image data.
 It has to be called before postprocessing the image.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>raw</strong> (<a class="reference internal" href="rawpy.RawPy.html#rawpy.RawPy" title="rawpy.RawPy"><em>rawpy.RawPy</em></a>) – the RAW image to repair</li>
-<li><strong>coords</strong> (<em>array-like</em>) – coordinates of bad pixels to repair, 
-array of shape (n,2) with y,x coordinates relative to visible RAW size</li>
-<li><strong>method</strong> (<em>str</em>) – currently only ‘median’ is supported</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw</strong> (<a class="reference internal" href="rawpy.RawPy.html#rawpy.RawPy" title="rawpy.RawPy"><em>rawpy.RawPy</em></a>) – the RAW image to repair</p></li>
+<li><p><strong>coords</strong> (<em>array-like</em>) – coordinates of bad pixels to repair, 
+array of shape (n,2) with y,x coordinates relative to visible RAW size</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – currently only ‘median’ is supported</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="rawpy.enhance.save_dcraw_bad_pixels">
-<code class="descclassname">rawpy.enhance.</code><code class="descname">save_dcraw_bad_pixels</code><span class="sig-paren">(</span><em>path</em>, <em>bad_pixels</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.save_dcraw_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">save_dcraw_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">bad_pixels</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.save_dcraw_bad_pixels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the given bad pixel coordinates in 
 <a class="reference external" href="http://www.cybercom.net/~dcoffin/dcraw/.badpixels">dcraw file format</a>.</p>
 <p>Note that timestamps cannot be set and will be written as zero.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path</strong> (<em>str</em>) – path of the badpixels file that will be written</li>
-<li><strong>bad_pixels</strong> (<em>array-like</em>) – array of shape (n,2) with y,x coordinates
-relative to visible image area</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – path of the badpixels file that will be written</p></li>
+<li><p><strong>bad_pixels</strong> (<em>array-like</em>) – array of shape (n,2) with y,x coordinates
+relative to visible image area</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -249,7 +239,7 @@ relative to visible image area</li>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="modules.html" class="btn btn-neutral" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -275,25 +265,16 @@ relative to visible image area</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
