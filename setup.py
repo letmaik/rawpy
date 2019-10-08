@@ -1,7 +1,4 @@
-from __future__ import print_function
-
 from setuptools import setup, Extension, find_packages
-import numpy
 import subprocess
 import errno
 import os
@@ -9,21 +6,21 @@ import shutil
 import sys
 import zipfile
 import re
-try:
-    # Python 3
-    from urllib.request import urlretrieve
-except ImportError:
-    # Python 2
-    from urllib import urlretrieve
+import glob
+from urllib.request import urlretrieve
 
-if sys.version_info < (2, 7):
-    raise NotImplementedError('Minimum supported Python version is 2.7')
+import numpy
+from Cython.Build import cythonize
 
 # As rawpy is distributed under the MIT license, it cannot use or distribute
 # GPL'd code. This is relevant only for the binary wheels which would have to
 # bundle the GPL'd code/algorithms (extra demosaic packs).
-# TODO allow this to be set from the outside if users want to build from source
-buildGPLCode = False
+# Note: RAWPY_BUILD_GPL_CODE=1 only has an effect for macOS and Windows builds
+#       because libraw is built from source here, whereas for Linux we look
+#       for the library on the system.
+# Note: Building GPL demosaic packs only works with libraw <= 0.18.
+#       See https://github.com/letmaik/rawpy/issues/72.
+buildGPLCode = os.getenv('RAWPY_BUILD_GPL_CODE') == '1'
 
 isWindows = os.name == 'nt'
 isMac = sys.platform == 'darwin'
@@ -114,7 +111,7 @@ if isWindows:
 include_dirs += [numpy.get_include()]
 
 def clone_submodules():
-    if not os.path.exists('external/LibRaw/README'):
+    if not os.path.exists('external/LibRaw/README.md'):
         print('LibRaw git submodule is not cloned yet, will invoke "git submodule update --init" now')
         if os.system('git submodule update --init') != 0:
             raise Exception('git failed')
@@ -169,36 +166,33 @@ def windows_libraw_compile():
                 raise RuntimeError(path + ' not found!')
                 
     # openmp dll
-    isVS2008 = sys.version_info < (3, 3)
-    isVS2010 = (3, 3) <= sys.version_info < (3, 5)
-    isVS2015 = (3, 5) <= sys.version_info
-    
-    if isVS2008:
-        if is64Bit:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\vcomp90.dll',
-                   r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\amd64\microsoft.vc90.openmp\Microsoft.VC90.OpenMP.manifest']
-        else:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\vcomp90.dll',
-                   r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\microsoft.vc90.openmp\Microsoft.VC90.OpenMP.manifest']
-    elif isVS2010:
-        if is64Bit:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x86\microsoft.vc100.openmp\vcomp100.dll']
-        else:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\amd64\microsoft.vc100.openmp\vcomp100.dll']
-    elif isVS2015:
-        if is64Bit:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x64\Microsoft.VC140.OpenMP\vcomp140.dll']
-        else:
-            omp = [r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x86\Microsoft.VC140.OPENMP\vcomp140.dll']
-    
-    # Some Visual Studio Express versions don't ship with OpenMP redistributable DLLs, even though the compile may support it.
-    # If we don't have the DLLs, then there is no point building with OpenMP enabled.
-    has_openmp_dll = all(os.path.exists(p) for p in omp)
+    # VS 2017 and higher
+    vc_redist_dir = os.getenv('VCToolsRedistDir')
+    vs_target_arch = os.getenv('VSCMD_ARG_TGT_ARCH')
+    if not vc_redist_dir:
+        # VS 2015
+        vc_redist_dir = os.path.join(os.environ['VCINSTALLDIR'], 'redist')            
+        vs_target_arch = 'x64' if is64Bit else 'x86'
+        
+    omp_glob = os.path.join(vc_redist_dir, vs_target_arch, 'Microsoft.VC*.OpenMP', 'vcomp*.dll')
+    omp_dlls = glob.glob(omp_glob)
+
+    if len(omp_dlls) == 1:
+        has_openmp_dll = True
+        omp = omp_dlls[0]
+    elif len(omp_dlls) > 1:
+        print('WARNING: disabling OpenMP because multiple runtime DLLs were found:')
+        for omp_dll in omp_dlls:
+            print(omp_dll)
+        has_openmp_dll = False
+    else:
+        print('WARNING: disabling OpenMP because no runtime DLLs were found')
+        has_openmp_dll = False
     
     # configure and compile libraw
     cwd = os.getcwd()
-    if not os.path.exists(cmake_build):
-        os.mkdir(cmake_build)
+    shutil.rmtree(cmake_build, ignore_errors=True)
+    os.makedirs(cmake_build, exist_ok=True)
     os.chdir(cmake_build)
     
     # We only want to build and install the raw_r target (to make builds faster).
@@ -210,8 +204,6 @@ def windows_libraw_compile():
     
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
-    ext = lambda p: os.path.join(external_dir, p)
-    arch = 'x64' if is64Bit else 'x86'
     enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=' + enable_openmp_flag + ' -DENABLE_RAWSPEED=OFF ' +\
@@ -220,8 +212,8 @@ def windows_libraw_compile():
                      if buildGPLCode else '') +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
-            'nmake raw_r',
-            'nmake install'
+            cmake + ' --build . --target raw_r',
+            cmake + ' --build . --target install',
             ]
     for cmd in cmds:
         print(cmd)
@@ -240,7 +232,10 @@ def windows_libraw_compile():
         match = '#define LIBRAW_USE_OPENMP 1'
         has_openmp_support = match in open(libraw_configh).read()
         if has_openmp_support:
-           dll_runtime_libs += [(os.path.basename(path), os.path.dirname(path)) for path in omp]
+            dll_runtime_libs.append((os.path.basename(omp), os.path.dirname(omp)))
+        else:
+            print('WARNING: "#define LIBRAW_USE_OPENMP 1" not found even though OpenMP was enabled')
+            print('Will not bundle OpenMP runtime DLL')
  
     for filename, folder in dll_runtime_libs:
         src = os.path.join(folder, filename)
@@ -266,9 +261,9 @@ def mac_libraw_compile():
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
-                    '-DCMAKE_INSTALL_PREFIX:PATH=install -DCMAKE_MACOSX_RPATH=0 -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
-            'make raw_r',
-            'make install'
+                    '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
+            'cmake --build . --target raw_r',
+            'cmake --build . --target install',
             ]
     for cmd in cmds:
         print(cmd)
@@ -301,47 +296,25 @@ if any(s in cmdline for s in ['clean', 'sdist']):
     print('removing', egg_info)
     shutil.rmtree(egg_info, ignore_errors=True)
 
-pyx_path = os.path.join('rawpy', '_rawpy.pyx')
-c_path = os.path.join('rawpy', '_rawpy.cpp')
-if not os.path.exists(pyx_path):
-    # we are running from a source dist which doesn't include the .pyx
-    use_cython = False
-else:
-    try:
-        from Cython.Build import cythonize
-    except ImportError:
-        use_cython = False
-    else:
-        use_cython = True
-
-source_path = pyx_path if use_cython else c_path
-
-extensions = [Extension("rawpy._rawpy",
+extensions = cythonize([Extension("rawpy._rawpy",
               include_dirs=include_dirs,
-              sources=[source_path],
+              sources=[os.path.join('rawpy', '_rawpy.pyx')],
               libraries=libraries,
               library_dirs=library_dirs,
               define_macros=define_macros,
               extra_compile_args=extra_compile_args,
               extra_link_args=extra_link_args,
-             )]
-
-if use_cython:
-    extensions = cythonize(extensions)
+             )])
 
 # make __version__ available (https://stackoverflow.com/a/16084844)
 exec(open('rawpy/_version.py').read())
-
-install_requires = ['numpy']
-if sys.version_info < (3, 4):
-    # Backport of Python 3.4 enums to earlier versions
-    install_requires.append('enum34')
 
 setup(
       name = 'rawpy',
       version = __version__,
       description = 'RAW image processing for Python, a wrapper for libraw',
-      long_description = open('README.rst').read(),
+      long_description = open('README.md').read(),
+      long_description_content_type='text/markdown',
       author = 'Maik Riechert',
       author_email = 'maik.riechert@arcor.de',
       url = 'https://github.com/letmaik/rawpy',
@@ -351,8 +324,6 @@ setup(
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Cython',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
@@ -367,5 +338,5 @@ setup(
       packages = find_packages(),
       ext_modules = extensions,
       package_data = package_data,
-      install_requires=install_requires
+      install_requires=['numpy']
 )
