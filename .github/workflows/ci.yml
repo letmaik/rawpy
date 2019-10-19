@@ -24,6 +24,11 @@ jobs:
           docker-image: quay.io/pypa/manylinux2010_x86_64
           python-version: '3.7'
           numpy-version: '1.14.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2010_x86_64
+          python-version: '3.8'
+          numpy-version: '1.17.*'
 
         - os-image: macos-10.14
           os-name: mac
@@ -44,6 +49,11 @@ jobs:
           macos-min-version: '10.9'
           python-version: '3.7'
           numpy-version: '1.14.*'
+        - os-image: macos-10.14
+          os-name: mac
+          macos-min-version: '10.9'
+          python-version: '3.8'
+          numpy-version: '1.17.*'
 
         # Use 2016 image for 3.5 as 2019 does not have VC++ 14.0 compiler.
         # https://github.community/t5/GitHub-Actions/Microsoft-Visual-C-14-0-compiler-not-available-on-Windows-2019/m-p/32871 
@@ -77,6 +87,16 @@ jobs:
           python-version: '3.7'
           python-arch: '64'
           numpy-version: '1.14'
+        - os-image: windows-2016
+          os-name: windows
+          python-version: '3.8'
+          python-arch: '32'
+          numpy-version: '1.17'
+        - os-image: windows-2016
+          os-name: windows
+          python-version: '3.8'
+          python-arch: '64'
+          numpy-version: '1.17'
 
     runs-on: ${{ matrix.config.os-image }}
 

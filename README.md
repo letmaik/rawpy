@@ -49,7 +49,7 @@ for path in paths:
 Installation
 ------------
 
-Binary wheels for Linux, macOS, and Windows are provided for Python 3.5, 3.6, and 3.7.
+Binary wheels for Linux, macOS, and Windows are provided for Python 3.5 - 3.8.
 These can be installed with a simple `pip install rawpy`.
 Currently, Linux and macOS wheels are only available as 64 bit versions.
 
@@ -151,6 +151,7 @@ rawpy depends on NumPy. The minimum supported NumPy version depends on your Pyth
 | 3.5    | >= 1.9   |
 | 3.6    | >= 1.11  |
 | 3.7    | >= 1.14  |
+| 3.8    | >= 1.17  |
 
 
 [libraw]: https://www.libraw.org
