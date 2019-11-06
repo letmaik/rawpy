@@ -54,7 +54,7 @@ function Init-VS {
                 $VS_ROOT = "$VS2017_ROOT\Community"
             }
             $VS_INIT_CMD = "$VS_ROOT\Common7\Tools\vsdevcmd.bat"
-            $VS_INIT_ARCH = "-arch=$VS_ARCH -no_logo"
+            $VS_INIT_ARGS = "-arch=$VS_ARCH -no_logo"
         } elseif (exists $VS2019_ROOT) {
             $VS_VERSION = "2019"
             if (exists "$VS2019_ROOT\Enterprise") {
@@ -63,7 +63,7 @@ function Init-VS {
                 $VS_ROOT = "$VS2019_ROOT\Community"
             }
             $VS_INIT_CMD = "$VS_ROOT\Common7\Tools\vsdevcmd.bat"
-            $VS_INIT_ARCH = "-arch=$VS_ARCH -no_logo"
+            $VS_INIT_ARGS = "-arch=$VS_ARCH -no_logo"
         } else {
             throw ("No suitable Visual Studio installation found")
         }
@@ -71,7 +71,7 @@ function Init-VS {
         throw ("Unsupported Python version: $PYTHON_VERSION_MAJOR")
     }
     Write-Host "Configuring VS$VS_VERSION for Python $env:PYTHON_VERSION on a $env:PYTHON_ARCH bit architecture"
-    Write-Host "Executing: $VS_INIT_CMD $VS_INIT_ARCH"
+    Write-Host "Executing: $VS_INIT_CMD $VS_INIT_ARGS"
 
     # https://github.com/Microsoft/vswhere/wiki/Start-Developer-Command-Prompt
     & "${env:COMSPEC}" /s /c "`"$VS_INIT_CMD`" $VS_INIT_ARGS && set" | foreach-object {
