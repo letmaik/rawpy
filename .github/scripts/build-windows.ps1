@@ -122,6 +122,7 @@ exec { python -u setup.py bdist_wheel }
 # Test
 exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy scikit-image --force }
 exec { conda activate pyenv_test }
+exec { pip install --upgrade pip }
 ls dist\*.whl | % { exec { pip install $_ } }
 exec { pip install -r dev-requirements.txt }
 mkdir tmp_for_test | out-null
