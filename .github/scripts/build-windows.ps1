@@ -110,22 +110,37 @@ exec { conda activate pyenv_build }
 # Check that we have the expected version and architecture for Python
 exec { python --version }
 exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
+exec { python -c "import sys; print(sys.prefix)" }
 
 # output what's installed
-exec { pip freeze }
+exec { python -m pip freeze }
 
 # Build the compiled extension.
 # -u disables output buffering which caused intermixing of lines
 # when the external tools were started  
 exec { python -u setup.py bdist_wheel }
 
+# Necessary to avoid bug when switching to test env.
+exec { conda deactivate }
+
 # Test
 exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy scikit-image --force }
 exec { conda activate pyenv_test }
-pip uninstall -y rawpy
-ls dist\*.whl | % { exec { pip install $_ } }
-exec { pip install -r dev-requirements.txt }
+
+# Avoid using in-source package
 New-Item -Force -ItemType directory tmp_for_test | out-null
 cd tmp_for_test
+
+# Check that we have the expected version and architecture for Python
+exec { python --version }
+exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
+exec { python -c "import sys; print(sys.prefix)" }
+
+# output what's installed
+exec { python -m pip freeze }
+
+python -m pip uninstall -y rawpy
+ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
+exec { python -m pip install -r ..\dev-requirements.txt }
 exec { nosetests --verbosity=3 --nocapture ../test }
 cd ..
