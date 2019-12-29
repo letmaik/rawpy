@@ -54,7 +54,7 @@ function Init-VS {
                 $VS_ROOT = "$VS2017_ROOT\Community"
             }
             $VS_INIT_CMD = "$VS_ROOT\Common7\Tools\vsdevcmd.bat"
-            $VS_INIT_ARCH = "-arch=$VS_ARCH -no_logo"
+            $VS_INIT_ARGS = "-arch=$VS_ARCH -no_logo"
         } elseif (exists $VS2019_ROOT) {
             $VS_VERSION = "2019"
             if (exists "$VS2019_ROOT\Enterprise") {
@@ -63,7 +63,7 @@ function Init-VS {
                 $VS_ROOT = "$VS2019_ROOT\Community"
             }
             $VS_INIT_CMD = "$VS_ROOT\Common7\Tools\vsdevcmd.bat"
-            $VS_INIT_ARCH = "-arch=$VS_ARCH -no_logo"
+            $VS_INIT_ARGS = "-arch=$VS_ARCH -no_logo"
         } else {
             throw ("No suitable Visual Studio installation found")
         }
@@ -71,7 +71,7 @@ function Init-VS {
         throw ("Unsupported Python version: $PYTHON_VERSION_MAJOR")
     }
     Write-Host "Configuring VS$VS_VERSION for Python $env:PYTHON_VERSION on a $env:PYTHON_ARCH bit architecture"
-    Write-Host "Executing: $VS_INIT_CMD $VS_INIT_ARCH"
+    Write-Host "Executing: $VS_INIT_CMD $VS_INIT_ARGS"
 
     # https://github.com/Microsoft/vswhere/wiki/Start-Developer-Command-Prompt
     & "${env:COMSPEC}" /s /c "`"$VS_INIT_CMD`" $VS_INIT_ARGS && set" | foreach-object {
@@ -110,22 +110,37 @@ exec { conda activate pyenv_build }
 # Check that we have the expected version and architecture for Python
 exec { python --version }
 exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
+exec { python -c "import sys; print(sys.prefix)" }
 
 # output what's installed
-exec { pip freeze }
+exec { python -m pip freeze }
 
 # Build the compiled extension.
 # -u disables output buffering which caused intermixing of lines
 # when the external tools were started  
 exec { python -u setup.py bdist_wheel }
 
+# Necessary to avoid bug when switching to test env.
+exec { conda deactivate }
+
 # Test
 exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy scikit-image --force }
 exec { conda activate pyenv_test }
-exec { python -m pip install --upgrade pip }
-ls dist\*.whl | % { exec { pip install $_ } }
-exec { pip install -r dev-requirements.txt }
-mkdir tmp_for_test | out-null
+
+# Avoid using in-source package
+New-Item -Force -ItemType directory tmp_for_test | out-null
 cd tmp_for_test
+
+# Check that we have the expected version and architecture for Python
+exec { python --version }
+exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
+exec { python -c "import sys; print(sys.prefix)" }
+
+# output what's installed
+exec { python -m pip freeze }
+
+python -m pip uninstall -y rawpy
+ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
+exec { python -m pip install -r ..\dev-requirements.txt }
 exec { nosetests --verbosity=3 --nocapture ../test }
 cd ..

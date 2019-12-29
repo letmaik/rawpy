@@ -30,7 +30,7 @@ jobs:
           python-version: '3.8'
           numpy-version: '1.17.*'
 
-        - os-image: macos-10.14
+        - os-image: macos-latest
           os-name: mac
           # Ideally 10.6 (same as offical Python installer) but there
           # are issues targeting that with newer XCode versions.
@@ -39,12 +39,12 @@ jobs:
           macos-min-version: '10.9'
           python-version: '3.5'
           numpy-version: '1.9.*'
-        - os-image: macos-10.14
+        - os-image: macos-latest
           os-name: mac
           macos-min-version: '10.9'
           python-version: '3.6'
           numpy-version: '1.11.*'
-        - os-image: macos-10.14
+        - os-image: macos-latest
           os-name: mac
           macos-min-version: '10.9'
           python-version: '3.7'
@@ -145,6 +145,8 @@ jobs:
    
     - name: Setup Python
       uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
 
     - name: Download wheels from artifact storage
       uses: actions/download-artifact@v1

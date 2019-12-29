@@ -74,11 +74,8 @@ cdef extern from "libraw.h":
 
     ctypedef struct libraw_rawdata_t:
         ushort *raw_image # 1 component per pixel, for b/w and Bayer type sensors
-        # color4_image and color3_image supported since 0.15
-        # There is no easy way to include these conditionally, so for now (as we support 0.14)
-        # we don't support them.
-        #ushort        (*color4_image)[4] # 4 components per pixel, the 4th component can be void
-        #ushort        (*color3_image)[3] # 3 components per pixel, sRAW/mRAW files, RawSpeed decoding
+        ushort (*color4_image)[4] # 4 components per pixel, the 4th component can be void
+        ushort (*color3_image)[3] # 3 components per pixel, sRAW/mRAW files, RawSpeed decoding
         libraw_colordata_t          color
         
     ctypedef struct libraw_output_params_t:
@@ -316,7 +313,11 @@ cdef class RawPy:
     
     property raw_image:
         """
-        View of Bayer-pattern RAW image, one channel. Includes margin.
+        View of RAW image. Includes margin.
+
+        For Bayer images, a 2D ndarray is returned.
+        For Foveon and other RGB-type images, a 3D ndarray is returned.
+        Note that there may be 4 color channels, where the 4th channel can be blank (zeros).
         
         Modifying the returned array directly influences the result of
         calling :meth:`~rawpy.RawPy.postprocess`.
@@ -326,17 +327,29 @@ cdef class RawPy:
             If you need to work on the array after closing the RawPy instance,
             make sure to create a copy of it with :code:`raw_image = raw.raw_image.copy()`.
         
-        :rtype: ndarray of shape (h,w)
+        :rtype: ndarray of shape (h,w[,c])
         """
         def __get__(self):
-            cdef ushort* raw = self.p.imgdata.rawdata.raw_image
-            if raw == NULL:
-                raise NotImplementedError('3 or 4 channel RAW images currently not supported')
-            cdef np.npy_intp shape[2]
-            shape[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
-            shape[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+            cdef np.npy_intp shape_bayer[2]
+            cdef np.npy_intp shape_rgb[3]
             cdef np.ndarray ndarr
-            ndarr = np.PyArray_SimpleNewFromData(2, shape, np.NPY_USHORT, raw)
+            if self.p.imgdata.rawdata.raw_image != NULL:
+                shape_bayer[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+                shape_bayer[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+                ndarr = np.PyArray_SimpleNewFromData(2, shape_bayer, np.NPY_USHORT, self.p.imgdata.rawdata.raw_image)
+            elif self.p.imgdata.rawdata.color3_image != NULL:
+                shape_rgb[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+                shape_rgb[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+                shape_rgb[2] = <np.npy_intp> 3
+                ndarr = np.PyArray_SimpleNewFromData(3, shape_rgb, np.NPY_USHORT, self.p.imgdata.rawdata.color3_image)
+            elif self.p.imgdata.rawdata.color4_image != NULL:
+                shape_rgb[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+                shape_rgb[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+                shape_rgb[2] = <np.npy_intp> 4
+                ndarr = np.PyArray_SimpleNewFromData(3, shape_rgb, np.NPY_USHORT, self.p.imgdata.rawdata.color4_image)
+            else:
+                raise RuntimeError('unsupported raw data')
+
             # ndarr must hold a reference to this object,
             # otherwise the underlying data gets lost when the RawPy instance gets out of scope
             # (which would trigger __dealloc__)
@@ -349,15 +362,12 @@ cdef class RawPy:
         """
         Like raw_image but without margin.
         
-        :rtype: ndarray of shape (hv,wv)
+        :rtype: ndarray of shape (hv,wv[,c])
         """
-        def __get__(self):
-            raw_image = self.raw_image
-            if raw_image is None:
-                return None
+        def __get__(self):           
             s = self.sizes
-            return raw_image[s.top_margin:s.top_margin+s.height,
-                             s.left_margin:s.left_margin+s.width]
+            return self.raw_image[s.top_margin:s.top_margin+s.height,
+                                  s.left_margin:s.left_margin+s.width]
             
     cpdef ushort raw_value(self, int row, int column):
         """

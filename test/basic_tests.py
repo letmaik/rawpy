@@ -23,6 +23,11 @@ raw2TestPath = os.path.join(os.path.dirname(__file__), 'iss042e297200.NEF')
 # Canon EOS 5D Mark 2
 raw3TestPath = os.path.join(os.path.dirname(__file__), 'RAW_CANON_5DMARK2_PREPROD.CR2')
 
+# Sigma SD9 (Foveon)
+raw4TestPath = os.path.join(os.path.dirname(__file__), 'RAW_SIGMA_SD9_SRGB.X3F')
+
+# Canon 40D in sRAW format with 4 channels
+raw5TestPath = os.path.join(os.path.dirname(__file__), 'RAW_CANON_40D_SRAW_V103.CR2')
 
 def testVersion():
     print('using libraw', rawpy.libraw_version)
@@ -57,7 +62,30 @@ def testFileOpenAndPostProcess():
                           gamma=(1,1), output_bps=16)
     print_stats(rgb)
     save('test_16daylight_linear.tiff', rgb)
+
+def testFoveonFileOpenAndPostProcess():
+    raw = rawpy.imread(raw4TestPath)
     
+    assert_array_equal(raw.raw_image.shape, [1531, 2304, 3])
+    save('test_foveon_raw.tiff', raw.raw_image)
+        
+    rgb = raw.postprocess()
+    assert_array_equal(rgb.shape, [1510, 2266, 3])
+    print_stats(rgb)
+    save('test_foveon.tiff', rgb)
+
+def testSRawFileOpenAndPostProcess():
+    raw = rawpy.imread(raw5TestPath)
+    
+    assert_array_equal(raw.raw_image.shape, [1296, 1944, 4])
+    assert_equal(raw.raw_image[:,:,3].max(), 0)
+    save('test_sraw_raw.tiff', raw.raw_image[:,:,:3])
+        
+    rgb = raw.postprocess()
+    assert_array_equal(rgb.shape, [1296, 1944, 3])
+    print_stats(rgb)
+    save('test_sraw.tiff', rgb)
+
 def testBufferOpen():
     with open(rawTestPath, 'rb') as rawfile:
         with rawpy.imread(rawfile) as raw:
