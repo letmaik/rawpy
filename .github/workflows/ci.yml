@@ -49,7 +49,7 @@ jobs:
           macos-min-version: '10.9'
           python-version: '3.7'
           numpy-version: '1.14.*'
-        - os-image: macos-10.14
+        - os-image: macos-latest
           os-name: mac
           macos-min-version: '10.9'
           python-version: '3.8'
