@@ -124,6 +124,13 @@ def testWindowsFileLockRelease():
     os.remove(copyPath)
     assert_array_equal(rgb.shape, [2844, 4284, 3])
 
+def testThumbExtract():
+    with rawpy.imread(rawTestPath) as raw:
+        thumb = raw.extract_thumb()
+        assert thumb.format == rawpy.ThumbFormat.JPEG
+        img = imageio.imread(thumb.data)
+        assert_array_equal(img.shape, [2832, 4256, 3])
+
 def testProperties():
     raw = rawpy.imread(rawTestPath)
     

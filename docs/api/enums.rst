@@ -7,6 +7,13 @@ RawType
 .. autoclass:: rawpy.RawType
    :members:
    :undoc-members:
+
+ThumbFormat
+-----------
+
+.. autoclass:: rawpy.ThumbFormat
+   :members:
+   :undoc-members:
    
 DemosaicAlgorithm
 -----------------

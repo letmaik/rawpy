@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 from cpython.ref cimport PyObject, Py_INCREF
+from cpython.bytes cimport PyBytes_FromStringAndSize
 from cython.operator cimport dereference as deref
 
 import numpy as np
@@ -52,6 +53,14 @@ cdef extern from "libraw.h":
     cdef enum LibRaw_image_formats:
         LIBRAW_IMAGE_JPEG
         LIBRAW_IMAGE_BITMAP
+
+    cdef enum LibRaw_thumbnail_formats:
+        #LIBRAW_THUMBNAIL_UNKNOWN
+        LIBRAW_THUMBNAIL_JPEG
+        #LIBRAW_THUMBNAIL_BITMAP
+        #LIBRAW_THUMBNAIL_BITMAP16
+        #LIBRAW_THUMBNAIL_LAYER
+        #LIBRAW_THUMBNAIL_ROLLEI
     
     ctypedef struct libraw_image_sizes_t:
         ushort raw_height, raw_width
@@ -77,6 +86,13 @@ cdef extern from "libraw.h":
         ushort (*color4_image)[4] # 4 components per pixel, the 4th component can be void
         ushort (*color3_image)[3] # 3 components per pixel, sRAW/mRAW files, RawSpeed decoding
         libraw_colordata_t          color
+
+    ctypedef struct libraw_thumbnail_t:
+        LibRaw_thumbnail_formats tformat
+        #ushort twidth, theight
+        unsigned tlength
+        #int tcolors
+        char *thumb
         
     ctypedef struct libraw_output_params_t:
         unsigned    greybox[4]     # -A  x1 y1 x2 y2 
@@ -169,7 +185,7 @@ cdef extern from "libraw.h":
 #         unsigned int                process_warnings
         libraw_colordata_t          color
 #         libraw_imgother_t           other
-#         libraw_thumbnail_t          thumbnail
+        libraw_thumbnail_t          thumbnail
         libraw_rawdata_t            rawdata
 #         void                *parent_class
 
@@ -185,10 +201,12 @@ cdef extern from "libraw.h":
         int open_file(const char *fname)
         int open_buffer(void *buffer, size_t bufsize)
         int unpack()
+        int unpack_thumb()
         int COLOR(int row, int col)
 #         int raw2image()
         int dcraw_process()
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
+        libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
         void dcraw_clear_mem(libraw_processed_image_t* img)
         void free_image()
         const char* strerror(int p)
@@ -226,6 +244,15 @@ class RawType(Enum):
     Stack = 1
     """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
 
+class ThumbFormat(Enum):
+    """
+    Thumbnail/preview image type.
+    """
+
+    JPEG = 0
+
+Thumbnail = namedtuple('Thumbnail', ['format', 'data'])
+
 cdef class RawPy:
     """
     Load RAW images, work on their data, and create a postprocessed (demosaiced) image.
@@ -234,9 +261,12 @@ cdef class RawPy:
     """
     cdef LibRaw* p
     cdef bint needs_reopening
+    cdef bint unpack_thumb_called
     cdef object bytes
         
     def __cinit__(self):
+        self.needs_reopening = False
+        self.unpack_thumb_called = False
         self.p = new LibRaw()
         
     def __dealloc__(self):
@@ -298,6 +328,15 @@ cdef class RawPy:
         """
         self.handle_error(self.p.unpack())
         self.bytes = None
+
+    def unpack_thumb(self):
+        """
+        Unpacks/decodes the thumbnail/preview image, whichever is bigger.
+        
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.extract_thumb` instead.
+        """
+        self.handle_error(self.p.unpack_thumb())
+        self.unpack_thumb_called = True
     
     property raw_type:
         """
@@ -621,6 +660,47 @@ cdef class RawPy:
         wrapped.set_data(self, img)
         ndarr = wrapped.__array__()
         return ndarr
+
+    def dcraw_make_mem_thumb(self):
+        """
+        Return the thumbnail/preview image (see :meth:`~rawpy.RawPy.unpack_thumb`) as bytes object.
+        Currently, only JPEG is supported.
+        
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.extract_thumb` instead.
+        
+        :rtype: bytes
+        """
+        cdef int errcode = 0
+        cdef libraw_processed_image_t* img
+        if self.p.imgdata.thumbnail.tformat != LIBRAW_THUMBNAIL_JPEG:
+            raise NotImplementedError('thumbnail/preview is not JPEG')
+        img = self.p.dcraw_make_mem_thumb(&errcode)
+        self.handle_error(errcode)
+        # Note: This creates a copy.
+        res = PyBytes_FromStringAndSize(<char*>img.data, img.data_size)
+        self.p.dcraw_clear_mem(img)
+        return res
+
+    def extract_thumb(self):
+        """
+        Extracts and returns the thumbnail/preview image (whichever is bigger)
+        of the opened RAW image as :class:`rawpy.Thumbnail` object.
+        If no image exists or the format is unsupported, an exception is raised.
+
+        .. code-block:: python
+        
+            with rawpy.imread('image.nef') as raw:
+              thumb = raw.extract_thumb()
+              assert thumb.format == rawpy.ThumbFormat.JPEG
+              with open('thumb.jpg') as fp:
+                f.write(thumb.data)
+        
+        :rtype: Thumbnail
+        """
+        if not self.unpack_thumb_called:
+            self.unpack_thumb()
+        res = self.dcraw_make_mem_thumb()
+        return Thumbnail(ThumbFormat.JPEG, res)
     
     def postprocess(self, params=None, **kw):
         """
