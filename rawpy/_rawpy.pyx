@@ -772,7 +772,7 @@ cdef class RawPy:
                 print('unsupported thumbnail')
               else:
                 if thumb.format == rawpy.ThumbFormat.JPEG:
-                  with open('thumb.jpg') as fp:
+                  with open('thumb.jpg') as f:
                     f.write(thumb.data)
                 elif thumb.format == rawpy.ThumbFormat.BITMAP:
                   imageio.imsave('thumb.tiff', thumb.data)
