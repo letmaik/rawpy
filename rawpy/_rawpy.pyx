@@ -53,14 +53,6 @@ cdef extern from "libraw.h":
     cdef enum LibRaw_image_formats:
         LIBRAW_IMAGE_JPEG
         LIBRAW_IMAGE_BITMAP
-
-    cdef enum LibRaw_thumbnail_formats:
-        #LIBRAW_THUMBNAIL_UNKNOWN
-        LIBRAW_THUMBNAIL_JPEG
-        #LIBRAW_THUMBNAIL_BITMAP
-        #LIBRAW_THUMBNAIL_BITMAP16
-        #LIBRAW_THUMBNAIL_LAYER
-        #LIBRAW_THUMBNAIL_ROLLEI
     
     ctypedef struct libraw_image_sizes_t:
         ushort raw_height, raw_width
@@ -86,13 +78,6 @@ cdef extern from "libraw.h":
         ushort (*color4_image)[4] # 4 components per pixel, the 4th component can be void
         ushort (*color3_image)[3] # 3 components per pixel, sRAW/mRAW files, RawSpeed decoding
         libraw_colordata_t          color
-
-    ctypedef struct libraw_thumbnail_t:
-        LibRaw_thumbnail_formats tformat
-        #ushort twidth, theight
-        unsigned tlength
-        #int tcolors
-        char *thumb
         
     ctypedef struct libraw_output_params_t:
         unsigned    greybox[4]     # -A  x1 y1 x2 y2 
@@ -185,7 +170,7 @@ cdef extern from "libraw.h":
 #         unsigned int                process_warnings
         libraw_colordata_t          color
 #         libraw_imgother_t           other
-        libraw_thumbnail_t          thumbnail
+#         libraw_thumbnail_t          thumbnail
         libraw_rawdata_t            rawdata
 #         void                *parent_class
 
@@ -244,14 +229,92 @@ class RawType(Enum):
     Stack = 1
     """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
 
+# LibRaw_thumbnail_formats
 class ThumbFormat(Enum):
     """
     Thumbnail/preview image type.
     """
 
-    JPEG = 0
+    JPEG = 1
+    """ JPEG image as bytes object. """
+
+    BITMAP = 2
+    """ RGB image as ndarray object. """
 
 Thumbnail = namedtuple('Thumbnail', ['format', 'data'])
+
+class LibRawError(Exception):
+    pass
+
+class LibRawFatalError(LibRawError):
+    pass
+
+class LibRawNonFatalError(LibRawError):
+    pass
+
+class LibRawUnspecifiedError(LibRawNonFatalError):
+    pass
+
+class LibRawFileUnsupportedError(LibRawNonFatalError):
+    pass
+
+class LibRawRequestForNonexistentImageError(LibRawNonFatalError):
+    pass
+
+class LibRawOutOfOrderCallError(LibRawNonFatalError):
+    pass
+
+class LibRawNoThumbnailError(LibRawNonFatalError):
+    pass
+
+class LibRawUnsupportedThumbnailError(LibRawNonFatalError):
+    pass
+
+class LibRawInputClosedError(LibRawNonFatalError):
+    pass
+
+class LibRawNotImplementedError(LibRawNonFatalError):
+    pass
+
+class LibRawUnsufficientMemoryError(LibRawFatalError):
+    pass
+
+class LibRawDataError(LibRawFatalError):
+    pass
+
+class LibRawIOError(LibRawFatalError):
+    pass
+
+class LibRawCancelledByCallbackError(LibRawFatalError):
+    pass
+
+class LibRawBadCropError(LibRawFatalError):
+    pass
+
+class LibRawTooBigError(LibRawFatalError):
+    pass
+
+class LibRawMemPoolOverflowError(LibRawFatalError):
+    pass
+
+# From LibRaw_errors in libraw_const.h
+_LIBRAW_ERROR_MAP = {
+    -1: LibRawUnspecifiedError,
+    -2: LibRawFileUnsupportedError,
+    -3: LibRawRequestForNonexistentImageError,
+    -4: LibRawOutOfOrderCallError,
+    -5: LibRawNoThumbnailError,
+    -6: LibRawUnsupportedThumbnailError,
+    -7: LibRawInputClosedError,
+    -8: LibRawNotImplementedError,
+    -100007: LibRawUnsufficientMemoryError,
+    -100008: LibRawDataError,
+    -100009: LibRawIOError,
+    -100010: LibRawCancelledByCallbackError,
+    -100011: LibRawBadCropError,
+    -100012: LibRawTooBigError,
+    -100013: LibRawMemPoolOverflowError
+}
 
 cdef class RawPy:
     """
@@ -654,8 +717,7 @@ cdef class RawPy:
         cdef int errcode = 0
         cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
         self.handle_error(errcode)
-        if img.type != LIBRAW_IMAGE_BITMAP:
-            raise NotImplementedError
+        assert img.type == LIBRAW_IMAGE_BITMAP
         wrapped = processed_image_wrapper()
         wrapped.set_data(self, img)
         ndarr = wrapped.__array__()
@@ -663,44 +725,64 @@ cdef class RawPy:
 
     def dcraw_make_mem_thumb(self):
         """
-        Return the thumbnail/preview image (see :meth:`~rawpy.RawPy.unpack_thumb`) as bytes object.
-        Currently, only JPEG is supported.
+        Return the thumbnail/preview image (see :meth:`~rawpy.RawPy.unpack_thumb`)
+        as :class:`rawpy.Thumbnail` object.
+        For JPEG thumbnails, data is a bytes object and can be written as-is to file.
+        For bitmap thumbnails, data is an ndarray of shape (h,w,c).
+        If no image exists or the format is unsupported, an exception is raised.
         
         .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.extract_thumb` instead.
         
-        :rtype: bytes
+        :rtype: :class:`rawpy.Thumbnail`
         """
         cdef int errcode = 0
         cdef libraw_processed_image_t* img
-        if self.p.imgdata.thumbnail.tformat != LIBRAW_THUMBNAIL_JPEG:
-            raise NotImplementedError('thumbnail/preview is not JPEG')
         img = self.p.dcraw_make_mem_thumb(&errcode)
         self.handle_error(errcode)
-        # Note: This creates a copy.
-        res = PyBytes_FromStringAndSize(<char*>img.data, img.data_size)
-        self.p.dcraw_clear_mem(img)
-        return res
+        # TODO add test for bitmap thumb
+        if img.type == LIBRAW_IMAGE_BITMAP:
+            wrapped = processed_image_wrapper()
+            wrapped.set_data(self, img)
+            data = wrapped.__array__()
+            return Thumbnail(ThumbFormat.BITMAP, data)
+        elif img.type == LIBRAW_IMAGE_JPEG:
+            # Note: This creates a copy.
+            data = PyBytes_FromStringAndSize(<char*>img.data, img.data_size)
+            self.p.dcraw_clear_mem(img)
+            return Thumbnail(ThumbFormat.JPEG, data)
+        else:
+            raise NotImplementedError('thumb type: {}'.format(img.type))
 
     def extract_thumb(self):
         """
         Extracts and returns the thumbnail/preview image (whichever is bigger)
         of the opened RAW image as :class:`rawpy.Thumbnail` object.
+        For JPEG thumbnails, data is a bytes object and can be written as-is to file.
+        For bitmap thumbnails, data is an ndarray of shape (h,w,c).
         If no image exists or the format is unsupported, an exception is raised.
 
         .. code-block:: python
         
             with rawpy.imread('image.nef') as raw:
-              thumb = raw.extract_thumb()
-              assert thumb.format == rawpy.ThumbFormat.JPEG
-              with open('thumb.jpg') as fp:
-                f.write(thumb.data)
+              try:
+                thumb = raw.extract_thumb()
+              except rawpy.LibRawNoThumbnailError:
+                print('no thumbnail found')
+              except rawpy.LibRawUnsupportedThumbnailError:
+                print('unsupported thumbnail')
+              else:
+                if thumb.format == rawpy.ThumbFormat.JPEG:
+                  with open('thumb.jpg') as fp:
+                    f.write(thumb.data)
+                elif thumb.format == rawpy.ThumbFormat.BITMAP:
+                  imageio.imsave('thumb.tiff', thumb.data)
         
-        :rtype: Thumbnail
+        :rtype: :class:`rawpy.Thumbnail`
         """
         if not self.unpack_thumb_called:
             self.unpack_thumb()
-        res = self.dcraw_make_mem_thumb()
-        return Thumbnail(ThumbFormat.JPEG, res)
+        thumb = self.dcraw_make_mem_thumb()
+        return thumb
     
     def postprocess(self, params=None, **kw):
         """
@@ -763,7 +845,9 @@ cdef class RawPy:
             raise OSError((code, os.strerror(code))) 
         elif code < 0:
             errstr = self.p.strerror(code)
-            if code < -10000: # see macro LIBRAW_FATAL_ERROR in libraw_const.h
+            if code in _LIBRAW_ERROR_MAP:
+                raise _LIBRAW_ERROR_MAP[code](errstr)
+            elif code < -10000: # see macro LIBRAW_FATAL_ERROR in libraw_const.h
                 raise LibRawFatalError(errstr)
             else:
                 raise LibRawNonFatalError(errstr)
@@ -995,13 +1079,7 @@ class Params(object):
             self.aber = (chromatic_aberration[0], chromatic_aberration[1])
         else:
             self.aber = (1, 1)
-        self.bad_pixels = bad_pixels_path
-    
-class LibRawFatalError(Exception):
-    pass
-
-class LibRawNonFatalError(Exception):
-    pass                
+        self.bad_pixels = bad_pixels_path            
     
 cdef class processed_image_wrapper:
     cdef RawPy raw
