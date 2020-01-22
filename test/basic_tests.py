@@ -250,6 +250,9 @@ def testSegfaultBug():
     assert_array_equal(im.shape, [2844, 4288])
     print(im)
     
+def testLibRawErrors():
+    # TODO check whether the right exception classes get thrown
+    pass
     
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
