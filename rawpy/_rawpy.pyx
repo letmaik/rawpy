@@ -739,7 +739,6 @@ cdef class RawPy:
         cdef libraw_processed_image_t* img
         img = self.p.dcraw_make_mem_thumb(&errcode)
         self.handle_error(errcode)
-        # TODO add test for bitmap thumb
         if img.type == LIBRAW_IMAGE_BITMAP:
             wrapped = processed_image_wrapper()
             wrapped.set_data(self, img)
