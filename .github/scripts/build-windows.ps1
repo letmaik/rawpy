@@ -123,13 +123,25 @@ exec { python -u setup.py bdist_wheel }
 # Necessary to avoid bug when switching to test env.
 exec { conda deactivate }
 
-# Test
-exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy scikit-image --force }
-exec { conda activate pyenv_test }
+# Import test on a minimal environment
+# (to catch DLL issues)
+exec { conda create --yes --name pyenv_minimal python=$env:PYTHON_VERSION --force }
+exec { conda activate pyenv_minimal }
 
 # Avoid using in-source package
 New-Item -Force -ItemType directory tmp_for_test | out-null
 cd tmp_for_test
+
+python -m pip uninstall -y rawpy
+ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
+exec { python -c "import rawpy" }
+
+# Necessary to avoid bug when switching to test env.
+exec { conda deactivate }
+
+# Unit tests
+exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy scikit-image --force }
+exec { conda activate pyenv_test }
 
 # Check that we have the expected version and architecture for Python
 exec { python --version }
