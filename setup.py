@@ -202,6 +202,13 @@ def windows_libraw_compile():
     # which unfortunately can only be done in the CMakeLists.txt file. Therefore we patch it.
     patch_cmakelists()
     
+    # Hack for conda to force static linking (see https://github.com/letmaik/rawpy/issues/87)
+    zlib_static = os.path.join(sys.prefix, 'Library', 'lib', 'zlibstatic.lib')
+    if os.path.exists(zlib_static):
+        zlib_flag = '-DZLIB_LIBRARY=' + zlib_static + ' '
+    else:
+        zlib_flag = ''
+    
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
     enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
@@ -210,6 +217,7 @@ def windows_libraw_compile():
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
+                    zlib_flag +\
                     '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX:PATH=install',
             cmake + ' --build . --target raw_r',
