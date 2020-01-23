@@ -323,12 +323,12 @@ cdef class RawPy:
     All operations are implemented using numpy arrays.
     """
     cdef LibRaw* p
-    cdef bint needs_reopening
+    cdef bint unpack_called
     cdef bint unpack_thumb_called
     cdef object bytes
         
     def __cinit__(self):
-        self.needs_reopening = False
+        self.unpack_called = False
         self.unpack_thumb_called = False
         self.p = new LibRaw()
         
@@ -363,12 +363,9 @@ cdef class RawPy:
         
         :param str path: The path to the RAW image.
         """
+        self.unpack_called = False
+        self.unpack_thumb_called = False
         self.handle_error(self.p.open_file(_chars(path)))
-        if libraw_version < (0,15):
-            # libraw < 0.15 requires calling open_file & unpack for multiple calls to dcraw_process
-            # with different parameters, therefore we remember the fact that this is freshly opened
-            # and issue a warning in postprocess if needed
-            self.needs_reopening = False
     
     def open_buffer(self, fileobj):
         """
@@ -378,6 +375,8 @@ cdef class RawPy:
         
         :param file fileobj: The file-like object.
         """
+        self.unpack_called = False
+        self.unpack_thumb_called = False
         # we keep a reference to the byte buffer to avoid garbage collection
         self.bytes = fileobj.read()
         cdef char *buf = self.bytes
@@ -391,6 +390,11 @@ cdef class RawPy:
         """
         self.handle_error(self.p.unpack())
         self.bytes = None
+        self.unpack_called = True
+
+    cdef ensure_unpack(self):
+        if not self.unpack_called:
+            self.unpack()
 
     def unpack_thumb(self):
         """
@@ -400,6 +404,10 @@ cdef class RawPy:
         """
         self.handle_error(self.p.unpack_thumb())
         self.unpack_thumb_called = True
+
+    cdef ensure_unpack_thumb(self):
+        if not self.unpack_thumb_called:
+            self.unpack_thumb()
     
     property raw_type:
         """
@@ -408,6 +416,7 @@ cdef class RawPy:
         :rtype: :class:`rawpy.RawType`
         """
         def __get__(self):
+            self.ensure_unpack()
             if self.p.imgdata.rawdata.raw_image != NULL:
                 return RawType.Flat
             else:
@@ -432,6 +441,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (h,w[,c])
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.npy_intp shape_bayer[2]
             cdef np.npy_intp shape_rgb[3]
             cdef np.ndarray ndarr
@@ -467,6 +477,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (hv,wv[,c])
         """
         def __get__(self):           
+            self.ensure_unpack()
             s = self.sizes
             return self.raw_image[s.top_margin:s.top_margin+s.height,
                                   s.left_margin:s.left_margin+s.width]
@@ -476,6 +487,7 @@ cdef class RawPy:
         Return RAW value at given position relative to the full RAW image.
         Only usable for flat RAW images (see :attr:`~rawpy.RawPy.raw_type` property).
         """
+        self.ensure_unpack()
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
             raise RuntimeError('RAW image is not flat')
@@ -487,6 +499,7 @@ cdef class RawPy:
         Return RAW value at given position relative to visible area of image.
         Only usable for flat RAW images (see :attr:`~rawpy.RawPy.raw_type` property).        
         """
+        self.ensure_unpack()
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
             raise RuntimeError('RAW image is not flat')
@@ -501,6 +514,7 @@ cdef class RawPy:
         the RAW image and postprocessed image.        
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
             return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
                               height=s.height, width=s.width,
@@ -515,6 +529,7 @@ cdef class RawPy:
         as some use two different greens. 
         """
         def __get__(self):
+            self.ensure_unpack()
             return self.p.imgdata.idata.colors
     
     property color_desc:
@@ -524,6 +539,7 @@ cdef class RawPy:
         There are cameras with two different greens for example.
         """
         def __get__(self):
+            self.ensure_unpack()
             return self.p.imgdata.idata.cdesc
     
     cpdef int raw_color(self, int row, int column):
@@ -531,6 +547,7 @@ cdef class RawPy:
         Return color index for the given coordinates relative to the full RAW size.
         Only usable for flat RAW images (see raw_type property).
         """
+        self.ensure_unpack()
         if self.p.imgdata.rawdata.raw_image == NULL:
             raise RuntimeError('RAW image is not flat')
         cdef ushort top_margin = self.p.imgdata.sizes.top_margin
@@ -547,6 +564,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (h,w)
         """
         def __get__(self):
+            self.ensure_unpack()
             if self.p.imgdata.rawdata.raw_image == NULL:
                 raise RuntimeError('RAW image is not flat')
             cdef np.ndarray pattern = self.raw_pattern
@@ -562,6 +580,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (hv,wv)
         """
         def __get__(self):
+            self.ensure_unpack()
             s = self.sizes
             return self.raw_colors[s.top_margin:s.top_margin+s.height,
                                    s.left_margin:s.left_margin+s.width]
@@ -573,6 +592,7 @@ cdef class RawPy:
         :rtype: ndarray, or None if not a flat RAW image
         """
         def __get__(self):
+            self.ensure_unpack()
             if self.p.imgdata.rawdata.raw_image == NULL:
                 return None
             cdef np.ndarray pattern
@@ -610,6 +630,7 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
+            self.ensure_unpack()
             return [self.p.imgdata.rawdata.color.cam_mul[0],
                     self.p.imgdata.rawdata.color.cam_mul[1],
                     self.p.imgdata.rawdata.color.cam_mul[2],
@@ -624,6 +645,7 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
+            self.ensure_unpack()
             return [self.p.imgdata.rawdata.color.pre_mul[0],
                     self.p.imgdata.rawdata.color.pre_mul[1],
                     self.p.imgdata.rawdata.color.pre_mul[2],
@@ -636,6 +658,7 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef libraw_colordata_black_level_t bl = adjust_bl_(self.p)
             return [bl.cblack[0],
                     bl.cblack[1],
@@ -649,6 +672,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (3,4)
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.ndarray matrix = np.empty((3, 4), dtype=np.float32)
             for i in range(3):
                 for j in range(4):
@@ -664,6 +688,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (4,3)
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.ndarray matrix = np.empty((4, 3), dtype=np.float32)
             for i in range(4):
                 for j in range(3):
@@ -677,6 +702,7 @@ cdef class RawPy:
         :rtype: ndarray of length 65536
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.npy_intp shape[1]
             shape[0] = <np.npy_intp> 65536
             return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT,
@@ -695,10 +721,7 @@ cdef class RawPy:
             The keywords are used to construct a :class:`rawpy.Params` instance.
             If keywords are given, then `params` must be omitted.
         """
-        if libraw_version < (0,15):
-            if self.needs_reopening:
-                warnings.warn('Repeated postprocessing with libraw<0.15 may require reopening/unpacking')
-            self.needs_reopening = True
+        self.ensure_unpack()
         if params and kw:
             raise ValueError('If params is given, then no additional keywords are allowed')
         if params is None:
@@ -778,8 +801,7 @@ cdef class RawPy:
         
         :rtype: :class:`rawpy.Thumbnail`
         """
-        if not self.unpack_thumb_called:
-            self.unpack_thumb()
+        self.ensure_unpack_thumb()
         thumb = self.dcraw_make_mem_thumb()
         return thumb
     
