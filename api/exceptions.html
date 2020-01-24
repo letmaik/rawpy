@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Exceptions &mdash; rawpy 0.14.0a1 documentation</title>
+  <title>Exceptions &mdash; rawpy 0.14.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.14.0a1
+                0.14.0
               </div>
             
           
@@ -89,6 +89,7 @@
 <li class="toctree-l2"><a class="reference internal" href="classes.html">Classes</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Exceptions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#notsupportederror">NotSupportedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#librawerror">LibRawError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#librawfatalerror">LibRawFatalError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#librawnonfatalerror">LibRawNonFatalError</a></li>
 </ul>
@@ -168,9 +169,22 @@
 <h1>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="notsupportederror">
 <h2>NotSupportedError<a class="headerlink" href="#notsupportederror" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#rawpy.NotSupportedError" title="rawpy.NotSupportedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.NotSupportedError</span></code></a> is raised if a feature of LibRaw is used that
+was not enabled during the LibRaw library build, for example demosaic algorithms that are
+part of the GPL2/GPL3 packs.</p>
 <dl class="class">
 <dt id="rawpy.NotSupportedError">
 <em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">NotSupportedError</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">message</em>, <em class="sig-param">min_version=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.NotSupportedError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="librawerror">
+<h2>LibRawError<a class="headerlink" href="#librawerror" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#rawpy.LibRawError" title="rawpy.LibRawError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawError</span></code></a> is the base type of <a class="reference internal" href="#rawpy.LibRawFatalError" title="rawpy.LibRawFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawFatalError</span></code></a> and <a class="reference internal" href="#rawpy.LibRawNonFatalError" title="rawpy.LibRawNonFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawNonFatalError</span></code></a>
+and can be used to catch any LibRaw errors.</p>
+<dl class="class">
+<dt id="rawpy.LibRawError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawError</code><a class="headerlink" href="#rawpy.LibRawError" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -181,12 +195,89 @@
 <em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawFatalError</code><a class="headerlink" href="#rawpy.LibRawFatalError" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<p>The following error types are subtypes of <a class="reference internal" href="#rawpy.LibRawFatalError" title="rawpy.LibRawFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawFatalError</span></code></a>:</p>
+<dl class="class">
+<dt id="rawpy.LibRawUnsufficientMemoryError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawUnsufficientMemoryError</code><a class="headerlink" href="#rawpy.LibRawUnsufficientMemoryError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawDataError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawDataError</code><a class="headerlink" href="#rawpy.LibRawDataError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawIOError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawIOError</code><a class="headerlink" href="#rawpy.LibRawIOError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawCancelledByCallbackError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawCancelledByCallbackError</code><a class="headerlink" href="#rawpy.LibRawCancelledByCallbackError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawBadCropError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawBadCropError</code><a class="headerlink" href="#rawpy.LibRawBadCropError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawTooBigError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawTooBigError</code><a class="headerlink" href="#rawpy.LibRawTooBigError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawMemPoolOverflowError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawMemPoolOverflowError</code><a class="headerlink" href="#rawpy.LibRawMemPoolOverflowError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="librawnonfatalerror">
 <h2>LibRawNonFatalError<a class="headerlink" href="#librawnonfatalerror" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rawpy.LibRawNonFatalError">
 <em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawNonFatalError</code><a class="headerlink" href="#rawpy.LibRawNonFatalError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The following error types are subtypes of <a class="reference internal" href="#rawpy.LibRawNonFatalError" title="rawpy.LibRawNonFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawNonFatalError</span></code></a>:</p>
+<dl class="class">
+<dt id="rawpy.LibRawUnspecifiedError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawUnspecifiedError</code><a class="headerlink" href="#rawpy.LibRawUnspecifiedError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawFileUnsupportedError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawFileUnsupportedError</code><a class="headerlink" href="#rawpy.LibRawFileUnsupportedError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawRequestForNonexistentImageError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawRequestForNonexistentImageError</code><a class="headerlink" href="#rawpy.LibRawRequestForNonexistentImageError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawOutOfOrderCallError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawOutOfOrderCallError</code><a class="headerlink" href="#rawpy.LibRawOutOfOrderCallError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawNoThumbnailError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawNoThumbnailError</code><a class="headerlink" href="#rawpy.LibRawNoThumbnailError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawUnsupportedThumbnailError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawUnsupportedThumbnailError</code><a class="headerlink" href="#rawpy.LibRawUnsupportedThumbnailError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawInputClosedError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawInputClosedError</code><a class="headerlink" href="#rawpy.LibRawInputClosedError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rawpy.LibRawNotImplementedError">
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">LibRawNotImplementedError</code><a class="headerlink" href="#rawpy.LibRawNotImplementedError" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>API Reference &mdash; rawpy 0.14.0a1 documentation</title>
+  <title>API Reference &mdash; rawpy 0.14.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.14.0a1
+                0.14.0
               </div>
             
           
@@ -166,7 +166,7 @@ performed.</p>
 <dt id="rawpy.imread">
 <code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">imread</code><span class="sig-paren">(</span><em class="sig-param">pathOrFile</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.imread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience function that creates a <a class="reference internal" href="rawpy.RawPy.html#rawpy.RawPy" title="rawpy.RawPy"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.RawPy</span></code></a> instance, opens the given file,
-unpacks the RAW data, and returns the <a class="reference internal" href="rawpy.RawPy.html#rawpy.RawPy" title="rawpy.RawPy"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.RawPy</span></code></a> instance for further processing.</p>
+and returns the <a class="reference internal" href="rawpy.RawPy.html#rawpy.RawPy" title="rawpy.RawPy"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.RawPy</span></code></a> instance for further processing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>pathOrFile</strong> (<em>str|file</em>) – path or file object of RAW image that will be read</p>
@@ -186,12 +186,14 @@ unpacks the RAW data, and returns the <a class="reference internal" href="rawpy.
 </li>
 <li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html#notsupportederror">NotSupportedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html#librawerror">LibRawError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html#librawfatalerror">LibRawFatalError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html#librawnonfatalerror">LibRawNonFatalError</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="enums.html">Enumerations</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="enums.html#rawtype">RawType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#thumbformat">ThumbFormat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enums.html#demosaicalgorithm">DemosaicAlgorithm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enums.html#colorspace">ColorSpace</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enums.html#highlightmode">HighlightMode</a></li>
@@ -200,6 +202,7 @@ unpacks the RAW data, and returns the <a class="reference internal" href="rawpy.
 </li>
 <li class="toctree-l1"><a class="reference internal" href="namedtuples.html">Named Tuples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="namedtuples.html#imagesizes">ImageSizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namedtuples.html#thumbnail">Thumbnail</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a><ul>

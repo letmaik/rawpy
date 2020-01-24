@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>RawPy class &mdash; rawpy 0.14.0a1 documentation</title>
+  <title>RawPy class &mdash; rawpy 0.14.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.14.0a1
+                0.14.0
               </div>
             
           
@@ -181,6 +181,36 @@
   <span class="c1"># work with raw object</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="rawpy.RawPy.extract_thumb">
+<code class="sig-name descname">extract_thumb</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.extract_thumb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts and returns the thumbnail/preview image (whichever is bigger)
+of the opened RAW image as <a class="reference internal" href="namedtuples.html#rawpy.Thumbnail" title="rawpy.Thumbnail"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Thumbnail</span></code></a> object.
+For JPEG thumbnails, data is a bytes object and can be written as-is to file.
+For bitmap thumbnails, data is an ndarray of shape (h,w,c).
+If no image exists or the format is unsupported, an exception is raised.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">rawpy</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;image.nef&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">raw</span><span class="p">:</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="n">thumb</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">extract_thumb</span><span class="p">()</span>
+  <span class="k">except</span> <span class="n">rawpy</span><span class="o">.</span><span class="n">LibRawNoThumbnailError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;no thumbnail found&#39;</span><span class="p">)</span>
+  <span class="k">except</span> <span class="n">rawpy</span><span class="o">.</span><span class="n">LibRawUnsupportedThumbnailError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;unsupported thumbnail&#39;</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">thumb</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">rawpy</span><span class="o">.</span><span class="n">ThumbFormat</span><span class="o">.</span><span class="n">JPEG</span><span class="p">:</span>
+      <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;thumb.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">thumb</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">thumb</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">rawpy</span><span class="o">.</span><span class="n">ThumbFormat</span><span class="o">.</span><span class="n">BITMAP</span><span class="p">:</span>
+      <span class="n">imageio</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="s1">&#39;thumb.tiff&#39;</span><span class="p">,</span> <span class="n">thumb</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="namedtuples.html#rawpy.Thumbnail" title="rawpy.Thumbnail"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Thumbnail</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -314,7 +344,10 @@ Only usable for flat RAW images (see raw_type property).</p>
 <dl class="attribute">
 <dt id="rawpy.RawPy.raw_image">
 <code class="sig-name descname">raw_image</code><a class="headerlink" href="#rawpy.RawPy.raw_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>View of Bayer-pattern RAW image, one channel. Includes margin.</p>
+<dd><p>View of RAW image. Includes margin.</p>
+<p>For Bayer images, a 2D ndarray is returned.
+For Foveon and other RGB-type images, a 3D ndarray is returned.
+Note that there may be 4 color channels, where the 4th channel can be blank (zeros).</p>
 <p>Modifying the returned array directly influences the result of
 calling <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a>.</p>
 <div class="admonition warning">
@@ -326,7 +359,7 @@ make sure to create a copy of it with <code class="code docutils literal notrans
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray of shape (h,w)</p>
+<dd class="field-odd"><p>ndarray of shape (h,w[,c])</p>
 </dd>
 </dl>
 </dd></dl>
@@ -337,7 +370,7 @@ make sure to create a copy of it with <code class="code docutils literal notrans
 <dd><p>Like raw_image but without margin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray of shape (hv,wv)</p>
+<dd class="field-odd"><p>ndarray of shape (hv,wv[,c])</p>
 </dd>
 </dl>
 </dd></dl>
@@ -419,6 +452,25 @@ the RAW image and postprocessed image.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="rawpy.RawPy.dcraw_make_mem_thumb">
+<code class="sig-name descname">dcraw_make_mem_thumb</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.dcraw_make_mem_thumb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the thumbnail/preview image (see <a class="reference internal" href="#rawpy.RawPy.unpack_thumb" title="rawpy.RawPy.unpack_thumb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">unpack_thumb()</span></code></a>)
+as <a class="reference internal" href="namedtuples.html#rawpy.Thumbnail" title="rawpy.Thumbnail"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Thumbnail</span></code></a> object.
+For JPEG thumbnails, data is a bytes object and can be written as-is to file.
+For bitmap thumbnails, data is an ndarray of shape (h,w,c).
+If no image exists or the format is unsupported, an exception is raised.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.extract_thumb" title="rawpy.RawPy.extract_thumb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">extract_thumb()</span></code></a> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="namedtuples.html#rawpy.Thumbnail" title="rawpy.Thumbnail"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Thumbnail</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="rawpy.RawPy.dcraw_process">
 <code class="sig-name descname">dcraw_process</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">params=None</em>, <em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.dcraw_process" title="Permalink to this definition">¶</a></dt>
 <dd><p>Postprocess the currently loaded RAW image.</p>
@@ -476,6 +528,16 @@ If keywords are given, then <cite>params</cite> must be omitted.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="rawpy.RawPy.unpack_thumb">
+<code class="sig-name descname">unpack_thumb</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawPy.unpack_thumb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unpacks/decodes the thumbnail/preview image, whichever is bigger.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.extract_thumb" title="rawpy.RawPy.extract_thumb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">extract_thumb()</span></code></a> instead.</p>
 </div>
 </dd></dl>
 
