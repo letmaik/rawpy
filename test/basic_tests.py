@@ -6,6 +6,7 @@ from pprint import pprint
 import numpy as np
 import numpy.ma as ma
 from numpy.testing.utils import assert_array_equal, assert_equal
+from nose.tools import raises
 
 import rawpy
 import rawpy.enhance
@@ -13,21 +14,23 @@ import imageio
 from rawpy.enhance import _repair_bad_pixels_bayer2x2,\
     _repair_bad_pixels_generic, find_bad_pixels
 
+thisDir = os.path.dirname(__file__)
+
 # Nikon D3S
-rawTestPath = os.path.join(os.path.dirname(__file__), 'iss030e122639.NEF')
-badPixelsTestPath = os.path.join(os.path.dirname(__file__), 'bad_pixels.gz')
+rawTestPath = os.path.join(thisDir, 'iss030e122639.NEF')
+badPixelsTestPath = os.path.join(thisDir, 'bad_pixels.gz')
 
 # Nikon D4
-raw2TestPath = os.path.join(os.path.dirname(__file__), 'iss042e297200.NEF')
+raw2TestPath = os.path.join(thisDir, 'iss042e297200.NEF')
 
 # Canon EOS 5D Mark 2
-raw3TestPath = os.path.join(os.path.dirname(__file__), 'RAW_CANON_5DMARK2_PREPROD.CR2')
+raw3TestPath = os.path.join(thisDir, 'RAW_CANON_5DMARK2_PREPROD.CR2')
 
 # Sigma SD9 (Foveon)
-raw4TestPath = os.path.join(os.path.dirname(__file__), 'RAW_SIGMA_SD9_SRGB.X3F')
+raw4TestPath = os.path.join(thisDir, 'RAW_SIGMA_SD9_SRGB.X3F')
 
 # Canon 40D in sRAW format with 4 channels
-raw5TestPath = os.path.join(os.path.dirname(__file__), 'RAW_CANON_40D_SRAW_V103.CR2')
+raw5TestPath = os.path.join(thisDir, 'RAW_CANON_40D_SRAW_V103.CR2')
 
 def testVersion():
     print('using libraw', rawpy.libraw_version)
@@ -123,6 +126,19 @@ def testWindowsFileLockRelease():
     raw.close()
     os.remove(copyPath)
     assert_array_equal(rgb.shape, [2844, 4284, 3])
+
+def testThumbExtractJPEG():
+    with rawpy.imread(rawTestPath) as raw:
+        thumb = raw.extract_thumb()
+    assert thumb.format == rawpy.ThumbFormat.JPEG
+    img = imageio.imread(thumb.data)
+    assert_array_equal(img.shape, [2832, 4256, 3])
+
+def testThumbExtractBitmap():
+    with rawpy.imread(raw4TestPath) as raw:
+        thumb = raw.extract_thumb()
+    assert thumb.format == rawpy.ThumbFormat.BITMAP
+    assert_array_equal(thumb.data.shape, [378, 567, 3])
 
 def testProperties():
     raw = rawpy.imread(rawTestPath)
@@ -236,7 +252,15 @@ def testSegfaultBug():
     im = rawpy.imread(rawTestPath).raw_image
     assert_array_equal(im.shape, [2844, 4288])
     print(im)
-    
+
+@raises(rawpy.LibRawFileUnsupportedError)
+def testLibRawFileUnsupportedError():
+    rawpy.imread(os.path.join(thisDir, 'README.txt'))
+
+@raises(rawpy.LibRawOutOfOrderCallError)
+def testLibRawOutOfOrderCallError():
+    raw = rawpy.RawPy()
+    raw.unpack()
     
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation

@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 from cpython.ref cimport PyObject, Py_INCREF
+from cpython.bytes cimport PyBytes_FromStringAndSize
 from cython.operator cimport dereference as deref
 
 import numpy as np
@@ -185,10 +186,12 @@ cdef extern from "libraw.h":
         int open_file(const char *fname)
         int open_buffer(void *buffer, size_t bufsize)
         int unpack()
+        int unpack_thumb()
         int COLOR(int row, int col)
 #         int raw2image()
         int dcraw_process()
         libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
+        libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
         void dcraw_clear_mem(libraw_processed_image_t* img)
         void free_image()
         const char* strerror(int p)
@@ -226,6 +229,93 @@ class RawType(Enum):
     Stack = 1
     """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
 
+# LibRaw_thumbnail_formats
+class ThumbFormat(Enum):
+    """
+    Thumbnail/preview image type.
+    """
+
+    JPEG = 1
+    """ JPEG image as bytes object. """
+
+    BITMAP = 2
+    """ RGB image as ndarray object. """
+
+Thumbnail = namedtuple('Thumbnail', ['format', 'data'])
+
+class LibRawError(Exception):
+    pass
+
+class LibRawFatalError(LibRawError):
+    pass
+
+class LibRawNonFatalError(LibRawError):
+    pass
+
+class LibRawUnspecifiedError(LibRawNonFatalError):
+    pass
+
+class LibRawFileUnsupportedError(LibRawNonFatalError):
+    pass
+
+class LibRawRequestForNonexistentImageError(LibRawNonFatalError):
+    pass
+
+class LibRawOutOfOrderCallError(LibRawNonFatalError):
+    pass
+
+class LibRawNoThumbnailError(LibRawNonFatalError):
+    pass
+
+class LibRawUnsupportedThumbnailError(LibRawNonFatalError):
+    pass
+
+class LibRawInputClosedError(LibRawNonFatalError):
+    pass
+
+class LibRawNotImplementedError(LibRawNonFatalError):
+    pass
+
+class LibRawUnsufficientMemoryError(LibRawFatalError):
+    pass
+
+class LibRawDataError(LibRawFatalError):
+    pass
+
+class LibRawIOError(LibRawFatalError):
+    pass
+
+class LibRawCancelledByCallbackError(LibRawFatalError):
+    pass
+
+class LibRawBadCropError(LibRawFatalError):
+    pass
+
+class LibRawTooBigError(LibRawFatalError):
+    pass
+
+class LibRawMemPoolOverflowError(LibRawFatalError):
+    pass
+
+# From LibRaw_errors in libraw_const.h
+_LIBRAW_ERROR_MAP = {
+    -1: LibRawUnspecifiedError,
+    -2: LibRawFileUnsupportedError,
+    -3: LibRawRequestForNonexistentImageError,
+    -4: LibRawOutOfOrderCallError,
+    -5: LibRawNoThumbnailError,
+    -6: LibRawUnsupportedThumbnailError,
+    -7: LibRawInputClosedError,
+    -8: LibRawNotImplementedError,
+    -100007: LibRawUnsufficientMemoryError,
+    -100008: LibRawDataError,
+    -100009: LibRawIOError,
+    -100010: LibRawCancelledByCallbackError,
+    -100011: LibRawBadCropError,
+    -100012: LibRawTooBigError,
+    -100013: LibRawMemPoolOverflowError
+}
+
 cdef class RawPy:
     """
     Load RAW images, work on their data, and create a postprocessed (demosaiced) image.
@@ -233,10 +323,13 @@ cdef class RawPy:
     All operations are implemented using numpy arrays.
     """
     cdef LibRaw* p
-    cdef bint needs_reopening
+    cdef bint unpack_called
+    cdef bint unpack_thumb_called
     cdef object bytes
         
     def __cinit__(self):
+        self.unpack_called = False
+        self.unpack_thumb_called = False
         self.p = new LibRaw()
         
     def __dealloc__(self):
@@ -270,12 +363,9 @@ cdef class RawPy:
         
         :param str path: The path to the RAW image.
         """
+        self.unpack_called = False
+        self.unpack_thumb_called = False
         self.handle_error(self.p.open_file(_chars(path)))
-        if libraw_version < (0,15):
-            # libraw < 0.15 requires calling open_file & unpack for multiple calls to dcraw_process
-            # with different parameters, therefore we remember the fact that this is freshly opened
-            # and issue a warning in postprocess if needed
-            self.needs_reopening = False
     
     def open_buffer(self, fileobj):
         """
@@ -285,6 +375,8 @@ cdef class RawPy:
         
         :param file fileobj: The file-like object.
         """
+        self.unpack_called = False
+        self.unpack_thumb_called = False
         # we keep a reference to the byte buffer to avoid garbage collection
         self.bytes = fileobj.read()
         cdef char *buf = self.bytes
@@ -298,6 +390,24 @@ cdef class RawPy:
         """
         self.handle_error(self.p.unpack())
         self.bytes = None
+        self.unpack_called = True
+
+    cdef ensure_unpack(self):
+        if not self.unpack_called:
+            self.unpack()
+
+    def unpack_thumb(self):
+        """
+        Unpacks/decodes the thumbnail/preview image, whichever is bigger.
+        
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.extract_thumb` instead.
+        """
+        self.handle_error(self.p.unpack_thumb())
+        self.unpack_thumb_called = True
+
+    cdef ensure_unpack_thumb(self):
+        if not self.unpack_thumb_called:
+            self.unpack_thumb()
     
     property raw_type:
         """
@@ -306,6 +416,7 @@ cdef class RawPy:
         :rtype: :class:`rawpy.RawType`
         """
         def __get__(self):
+            self.ensure_unpack()
             if self.p.imgdata.rawdata.raw_image != NULL:
                 return RawType.Flat
             else:
@@ -330,6 +441,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (h,w[,c])
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.npy_intp shape_bayer[2]
             cdef np.npy_intp shape_rgb[3]
             cdef np.ndarray ndarr
@@ -365,6 +477,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (hv,wv[,c])
         """
         def __get__(self):           
+            self.ensure_unpack()
             s = self.sizes
             return self.raw_image[s.top_margin:s.top_margin+s.height,
                                   s.left_margin:s.left_margin+s.width]
@@ -374,6 +487,7 @@ cdef class RawPy:
         Return RAW value at given position relative to the full RAW image.
         Only usable for flat RAW images (see :attr:`~rawpy.RawPy.raw_type` property).
         """
+        self.ensure_unpack()
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
             raise RuntimeError('RAW image is not flat')
@@ -385,6 +499,7 @@ cdef class RawPy:
         Return RAW value at given position relative to visible area of image.
         Only usable for flat RAW images (see :attr:`~rawpy.RawPy.raw_type` property).        
         """
+        self.ensure_unpack()
         cdef ushort* raw = self.p.imgdata.rawdata.raw_image
         if raw == NULL:
             raise RuntimeError('RAW image is not flat')
@@ -399,6 +514,7 @@ cdef class RawPy:
         the RAW image and postprocessed image.        
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
             return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
                               height=s.height, width=s.width,
@@ -413,6 +529,7 @@ cdef class RawPy:
         as some use two different greens. 
         """
         def __get__(self):
+            self.ensure_unpack()
             return self.p.imgdata.idata.colors
     
     property color_desc:
@@ -422,6 +539,7 @@ cdef class RawPy:
         There are cameras with two different greens for example.
         """
         def __get__(self):
+            self.ensure_unpack()
             return self.p.imgdata.idata.cdesc
     
     cpdef int raw_color(self, int row, int column):
@@ -429,6 +547,7 @@ cdef class RawPy:
         Return color index for the given coordinates relative to the full RAW size.
         Only usable for flat RAW images (see raw_type property).
         """
+        self.ensure_unpack()
         if self.p.imgdata.rawdata.raw_image == NULL:
             raise RuntimeError('RAW image is not flat')
         cdef ushort top_margin = self.p.imgdata.sizes.top_margin
@@ -445,6 +564,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (h,w)
         """
         def __get__(self):
+            self.ensure_unpack()
             if self.p.imgdata.rawdata.raw_image == NULL:
                 raise RuntimeError('RAW image is not flat')
             cdef np.ndarray pattern = self.raw_pattern
@@ -460,6 +580,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (hv,wv)
         """
         def __get__(self):
+            self.ensure_unpack()
             s = self.sizes
             return self.raw_colors[s.top_margin:s.top_margin+s.height,
                                    s.left_margin:s.left_margin+s.width]
@@ -471,6 +592,7 @@ cdef class RawPy:
         :rtype: ndarray, or None if not a flat RAW image
         """
         def __get__(self):
+            self.ensure_unpack()
             if self.p.imgdata.rawdata.raw_image == NULL:
                 return None
             cdef np.ndarray pattern
@@ -508,6 +630,7 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
+            self.ensure_unpack()
             return [self.p.imgdata.rawdata.color.cam_mul[0],
                     self.p.imgdata.rawdata.color.cam_mul[1],
                     self.p.imgdata.rawdata.color.cam_mul[2],
@@ -522,6 +645,7 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
+            self.ensure_unpack()
             return [self.p.imgdata.rawdata.color.pre_mul[0],
                     self.p.imgdata.rawdata.color.pre_mul[1],
                     self.p.imgdata.rawdata.color.pre_mul[2],
@@ -534,6 +658,7 @@ cdef class RawPy:
         :rtype: list of length 4
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef libraw_colordata_black_level_t bl = adjust_bl_(self.p)
             return [bl.cblack[0],
                     bl.cblack[1],
@@ -547,6 +672,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (3,4)
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.ndarray matrix = np.empty((3, 4), dtype=np.float32)
             for i in range(3):
                 for j in range(4):
@@ -562,6 +688,7 @@ cdef class RawPy:
         :rtype: ndarray of shape (4,3)
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.ndarray matrix = np.empty((4, 3), dtype=np.float32)
             for i in range(4):
                 for j in range(3):
@@ -575,6 +702,7 @@ cdef class RawPy:
         :rtype: ndarray of length 65536
         """
         def __get__(self):
+            self.ensure_unpack()
             cdef np.npy_intp shape[1]
             shape[0] = <np.npy_intp> 65536
             return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT,
@@ -593,10 +721,7 @@ cdef class RawPy:
             The keywords are used to construct a :class:`rawpy.Params` instance.
             If keywords are given, then `params` must be omitted.
         """
-        if libraw_version < (0,15):
-            if self.needs_reopening:
-                warnings.warn('Repeated postprocessing with libraw<0.15 may require reopening/unpacking')
-            self.needs_reopening = True
+        self.ensure_unpack()
         if params and kw:
             raise ValueError('If params is given, then no additional keywords are allowed')
         if params is None:
@@ -615,12 +740,70 @@ cdef class RawPy:
         cdef int errcode = 0
         cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
         self.handle_error(errcode)
-        if img.type != LIBRAW_IMAGE_BITMAP:
-            raise NotImplementedError
+        assert img.type == LIBRAW_IMAGE_BITMAP
         wrapped = processed_image_wrapper()
         wrapped.set_data(self, img)
         ndarr = wrapped.__array__()
         return ndarr
+
+    def dcraw_make_mem_thumb(self):
+        """
+        Return the thumbnail/preview image (see :meth:`~rawpy.RawPy.unpack_thumb`)
+        as :class:`rawpy.Thumbnail` object.
+        For JPEG thumbnails, data is a bytes object and can be written as-is to file.
+        For bitmap thumbnails, data is an ndarray of shape (h,w,c).
+        If no image exists or the format is unsupported, an exception is raised.
+        
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.extract_thumb` instead.
+        
+        :rtype: :class:`rawpy.Thumbnail`
+        """
+        cdef int errcode = 0
+        cdef libraw_processed_image_t* img
+        img = self.p.dcraw_make_mem_thumb(&errcode)
+        self.handle_error(errcode)
+        if img.type == LIBRAW_IMAGE_BITMAP:
+            wrapped = processed_image_wrapper()
+            wrapped.set_data(self, img)
+            data = wrapped.__array__()
+            return Thumbnail(ThumbFormat.BITMAP, data)
+        elif img.type == LIBRAW_IMAGE_JPEG:
+            # Note: This creates a copy.
+            data = PyBytes_FromStringAndSize(<char*>img.data, img.data_size)
+            self.p.dcraw_clear_mem(img)
+            return Thumbnail(ThumbFormat.JPEG, data)
+        else:
+            raise NotImplementedError('thumb type: {}'.format(img.type))
+
+    def extract_thumb(self):
+        """
+        Extracts and returns the thumbnail/preview image (whichever is bigger)
+        of the opened RAW image as :class:`rawpy.Thumbnail` object.
+        For JPEG thumbnails, data is a bytes object and can be written as-is to file.
+        For bitmap thumbnails, data is an ndarray of shape (h,w,c).
+        If no image exists or the format is unsupported, an exception is raised.
+
+        .. code-block:: python
+        
+            with rawpy.imread('image.nef') as raw:
+              try:
+                thumb = raw.extract_thumb()
+              except rawpy.LibRawNoThumbnailError:
+                print('no thumbnail found')
+              except rawpy.LibRawUnsupportedThumbnailError:
+                print('unsupported thumbnail')
+              else:
+                if thumb.format == rawpy.ThumbFormat.JPEG:
+                  with open('thumb.jpg', 'wb') as f:
+                    f.write(thumb.data)
+                elif thumb.format == rawpy.ThumbFormat.BITMAP:
+                  imageio.imsave('thumb.tiff', thumb.data)
+        
+        :rtype: :class:`rawpy.Thumbnail`
+        """
+        self.ensure_unpack_thumb()
+        thumb = self.dcraw_make_mem_thumb()
+        return thumb
     
     def postprocess(self, params=None, **kw):
         """
@@ -683,7 +866,9 @@ cdef class RawPy:
             raise OSError((code, os.strerror(code))) 
         elif code < 0:
             errstr = self.p.strerror(code)
-            if code < -10000: # see macro LIBRAW_FATAL_ERROR in libraw_const.h
+            if code in _LIBRAW_ERROR_MAP:
+                raise _LIBRAW_ERROR_MAP[code](errstr)
+            elif code < -10000: # see macro LIBRAW_FATAL_ERROR in libraw_const.h
                 raise LibRawFatalError(errstr)
             else:
                 raise LibRawNonFatalError(errstr)
@@ -915,13 +1100,7 @@ class Params(object):
             self.aber = (chromatic_aberration[0], chromatic_aberration[1])
         else:
             self.aber = (1, 1)
-        self.bad_pixels = bad_pixels_path
-    
-class LibRawFatalError(Exception):
-    pass
-
-class LibRawNonFatalError(Exception):
-    pass                
+        self.bad_pixels = bad_pixels_path            
     
 cdef class processed_image_wrapper:
     cdef RawPy raw
