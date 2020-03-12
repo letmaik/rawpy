@@ -68,6 +68,7 @@ cdef extern from "libraw.h":
         ushort      curve[0x10000] # 65536
         unsigned    cblack[4102]
         unsigned    black
+        unsigned    maximum
         float       cmatrix[3][4]
         float       cam_xyz[4][3]
         void        *profile # a string?
@@ -664,6 +665,14 @@ cdef class RawPy:
                     bl.cblack[1],
                     bl.cblack[2],
                     bl.cblack[3]]
+
+    property white_level:
+        """
+        Level at which the raw pixel value is considered to be saturated.
+        """
+        def __get__(self):
+            self.ensure_unpack()
+            return self.p.imgdata.rawdata.color.maximum
 
     property color_matrix:
         """
