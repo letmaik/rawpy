@@ -75,7 +75,7 @@ The following table shows which PyPI binary wheels support which features.
 | Feature            | Windows | macOS | Linux |
 | ------------------ | ------- | ----- | ----- |
 | LCMS color engine  | no      | yes   | yes   |
-| RedCine codec      | no      | yes   | yes   |
+| RedCine codec      | yes     | yes   | yes   |
 | DNG deflate codec  | yes     | yes   | yes   |
 | DNG lossy codec    | yes     | yes   | yes   |
 | Demosaic Pack GPL2 | no      | no    | no    |
@@ -84,11 +84,10 @@ The following table shows which PyPI binary wheels support which features.
 
 Tip: You can dynamically query supported features by inspecting the `rawpy.flags` dictionary.
 
-Note on Windows features: The LCMS color engine and RedCine codec features are currently not
+Note on Windows features: The LCMS color engine feature is currently not
 supported as the [automated build process](https://github.com/letmaik/rawpy/actions)
 to generate wheels relies on Anaconda to supply any needed library dependencies.
-For RedCine codec support, the Windows variant of the [Jasper library](https://anaconda.org/anaconda/jasper) is missing,
-and for LCMS color engine support, the [LCMS library](https://anaconda.org/anaconda/lcms) is missing.
+For LCMS color engine support, the Windows variant of the [LCMS library](https://anaconda.org/anaconda/lcms) is missing.
 
 Note on GPL demosaic packs: The GPL2 and GPL3 demosaic packs are not included as rawpy is licensed
 under the MIT license which is incompatible with GPL.
