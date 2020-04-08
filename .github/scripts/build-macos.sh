@@ -106,9 +106,9 @@ if [ $PYTHON_VERSION == "3.5" ]; then
     mv -v "$filename" "${filename/macosx_10_6_intel/macosx_10_9_x86_64}"
 fi
 
-delocate-listdeps --all dist/*.whl # lists library dependencies
-delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
-delocate-listdeps --all dist/*.whl # verify
+delocate-listdeps --all --depending dist/*.whl # lists library dependencies
+delocate-wheel --verbose --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
+delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.
 # Currently, delocate does not support checking those.
