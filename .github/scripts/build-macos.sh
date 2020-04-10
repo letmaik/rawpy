@@ -55,9 +55,11 @@ pip freeze
 # See https://discourse.brew.sh/t/it-is-possible-to-build-packages-that-are-compatible-with-older-macos-versions/4421
 
 LIB_INSTALL_PREFIX=$(pwd)/external/libs
+export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
+# - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
 pushd jpeg-9c
@@ -97,7 +99,6 @@ export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
 
 # Build wheel
-export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
 python setup.py bdist_wheel
 
 # Fix wheel platform tag, see above for details.
@@ -106,9 +107,9 @@ if [ $PYTHON_VERSION == "3.5" ]; then
     mv -v "$filename" "${filename/macosx_10_6_intel/macosx_10_9_x86_64}"
 fi
 
-delocate-listdeps --all dist/*.whl # lists library dependencies
-delocate-wheel --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
-delocate-listdeps --all dist/*.whl # verify
+delocate-listdeps --all --depending dist/*.whl # lists library dependencies
+delocate-wheel --verbose --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
+delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.
 # Currently, delocate does not support checking those.
