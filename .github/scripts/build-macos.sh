@@ -61,8 +61,8 @@ export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
-pushd jpeg-9c
+curl --retry 3 http://ijg.org/files/jpegsrc.v9d.tar.gz | tar xz
+pushd jpeg-9d
 ./configure --prefix=$LIB_INSTALL_PREFIX
 make install -j
 popd

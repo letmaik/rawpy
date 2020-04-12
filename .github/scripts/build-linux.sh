@@ -38,8 +38,8 @@ retry yum install -y lcms2-devel
 # - pillow (a scikit-image dependency) dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 # CentOS 6 has libjpeg 6 only, so build from source.
-curl --retry 3 http://ijg.org/files/jpegsrc.v9c.tar.gz | tar xz
-pushd jpeg-9c
+curl --retry 3 http://ijg.org/files/jpegsrc.v9d.tar.gz | tar xz
+pushd jpeg-9d
 ./configure --prefix=/usr
 make install -j$(nproc)
 popd
