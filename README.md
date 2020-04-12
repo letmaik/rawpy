@@ -63,7 +63,7 @@ for path in paths:
 ## Installation
 
 Install rawpy by running:
-```py
+```sh
 pip install rawpy
 ```
 
@@ -77,7 +77,7 @@ You can output the LibRaw version with `print(rawpy.libraw_version)`.
 
 rawpy pre-releases have version numbers like `0.15.0a1` and are built against
 a recent LibRaw snapshot. To install a pre-release, run:
-```py
+```sh
 pip install --pre rawpy
 ```
 
