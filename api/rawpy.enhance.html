@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>enhance module &mdash; rawpy 0.14.0 documentation</title>
+  <title>enhance module &mdash; rawpy 0.15.0a1 documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.14.0
+                0.15.0a1
               </div>
             
           
@@ -165,9 +165,9 @@
             
   <div class="section" id="module-rawpy.enhance">
 <span id="enhance-module"></span><h1>enhance module<a class="headerlink" href="#module-rawpy.enhance" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="rawpy.enhance.find_bad_pixels">
-<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">find_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param">paths</em>, <em class="sig-param">find_hot=True</em>, <em class="sig-param">find_dead=True</em>, <em class="sig-param">confirm_ratio=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.find_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">find_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">find_hot</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">find_dead</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">confirm_ratio</span><span class="o">=</span><span class="default_value">0.9</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.find_bad_pixels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find and return coordinates of hot/dead pixels in the given RAW images.</p>
 <p>The probability that a detected bad pixel is really a bad pixel gets
 higher the more input images are given. The images should be taken around
@@ -193,16 +193,16 @@ must contain a bad pixel to confirm it as such</p></li>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="rawpy.enhance.repair_bad_pixels">
-<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">repair_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param">raw</em>, <em class="sig-param">coords</em>, <em class="sig-param">method='median'</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.repair_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">repair_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">raw</span></em>, <em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'median'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.repair_bad_pixels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Repair bad pixels in the given RAW image.</p>
 <p>Note that the function works in-place on the RAW image data.
 It has to be called before postprocessing the image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>raw</strong> (<a class="reference internal" href="rawpy.RawPy.html#rawpy.RawPy" title="rawpy.RawPy"><em>rawpy.RawPy</em></a>) – the RAW image to repair</p></li>
+<li><p><strong>raw</strong> (<a class="reference internal" href="rawpy.RawPy.html#id0" title="rawpy.RawPy"><em>rawpy.RawPy</em></a>) – the RAW image to repair</p></li>
 <li><p><strong>coords</strong> (<em>array-like</em>) – coordinates of bad pixels to repair, 
 array of shape (n,2) with y,x coordinates relative to visible RAW size</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – currently only ‘median’ is supported</p></li>
@@ -211,9 +211,9 @@ array of shape (n,2) with y,x coordinates relative to visible RAW size</p></li>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="rawpy.enhance.save_dcraw_bad_pixels">
-<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">save_dcraw_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">bad_pixels</em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.save_dcraw_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rawpy.enhance.</code><code class="sig-name descname">save_dcraw_bad_pixels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">bad_pixels</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.save_dcraw_bad_pixels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the given bad pixel coordinates in 
 <a class="reference external" href="http://www.cybercom.net/~dcoffin/dcraw/.badpixels">dcraw file format</a>.</p>
 <p>Note that timestamps cannot be set and will be written as zero.</p>
