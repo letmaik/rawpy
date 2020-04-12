@@ -1,5 +1,4 @@
-rawpy
-=====
+# rawpy
 
 rawpy is an easy-to-use Python wrapper for the [LibRaw library][libraw].
 It also contains some extra functionality for finding and repairing hot/dead pixels.
@@ -8,8 +7,7 @@ It also contains some extra functionality for finding and repairing hot/dead pix
 
 [Jupyter notebook tutorials](https://github.com/letmaik/rawpy-notebooks/blob/master/README.md)
 
-Sample code
------------
+## Sample code
 
 Load a RAW file and save the postprocessed image using default parameters:
 
@@ -62,12 +60,28 @@ for path in paths:
     imageio.imsave(path + '.tiff', rgb)
 ```
 
-Installation
-------------
+## Installation
 
-Binary wheels for Linux, macOS, and Windows are provided for Python 3.5 - 3.8.
-These can be installed with a simple `pip install rawpy`.
+Install rawpy by running:
+```py
+pip install rawpy
+```
+
+Binary wheels are provided for Linux, macOS, and Windows.
 Currently, Linux and macOS wheels are only available as 64 bit versions.
+
+### Stable vs. pre-release
+
+All stable rawpy releases are always built against a stable LibRaw library release.
+You can output the LibRaw version with `print(rawpy.libraw_version)`.
+
+rawpy pre-releases have version numbers like `0.15.0a1` and are built against
+a recent LibRaw snapshot. To install a pre-release, run:
+```py
+pip install --pre rawpy
+```
+
+### Optional features
 
 The underlying [LibRaw library][libraw] supports several optional features.
 The following table shows which PyPI binary wheels support which features.
@@ -93,8 +107,7 @@ and for LCMS color engine support, the [LCMS library](https://anaconda.org/anaco
 Note on GPL demosaic packs: The GPL2 and GPL3 demosaic packs are not included as rawpy is licensed
 under the MIT license which is incompatible with GPL.
 
-Installation from source on Linux/macOS
----------------------------------------
+### Installation from source on Linux/macOS
 
 For macOS, LibRaw is built as part of the rawpy build (see external/).
 For Linux, you need to install the LibRaw library on your system.
@@ -137,8 +150,7 @@ sudo ldconfig
 The LibRaw library is installed in /usr/local/lib (if installed manually) and apparently this folder is not searched
 for libraries by default in some Linux distributions.
 
-Installation from source on Windows
------------------------------------
+### Installation from source on Windows
 
 These instructions are experimental and support is not provided for them.
 Typically, there should be no need to build manually since wheels are hosted on PyPI.
@@ -157,8 +169,7 @@ cd rawpy
 The above will download all build dependencies (including a Python installation)
 and is fully configured through the three environment variables.
 
-NumPy Dependency
-----------------
+### NumPy Dependency
 
 rawpy depends on NumPy. The minimum supported NumPy version depends on your Python version:
 
