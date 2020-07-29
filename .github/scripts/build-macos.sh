@@ -69,8 +69,8 @@ popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 https://github.com/mdadams/jasper/archive/version-2.0.16.tar.gz | tar xz
-pushd jasper-version-2.0.16
+curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.19.tar.gz | tar xz
+pushd jasper-version-2.0.19
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
