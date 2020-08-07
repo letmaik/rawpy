@@ -24,7 +24,9 @@ else
 fi
 
 # Install build tools
-retry yum install -y cmake
+curl --retry 3 -o cmake.sh https://cmake.org/files/v3.12/cmake-3.12.4-Linux-x86_64.sh
+chmod +x cmake.sh
+./cmake.sh --prefix=/usr --exclude-subdir --skip-license
 
 # Install zlib:
 # - libraw DNG deflate codec support

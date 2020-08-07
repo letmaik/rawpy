@@ -141,9 +141,9 @@ def windows_libraw_compile():
     clone_submodules()
     
     # download cmake to compile libraw
-    # the cmake zip contains a cmake-3.7.2-win32-x86 folder when extracted
-    cmake_url = 'https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.zip'
-    cmake = os.path.abspath('external/cmake-3.7.2-win32-x86/bin/cmake.exe')
+    # the cmake zip contains a cmake-3.12.4-win32-x86 folder when extracted
+    cmake_url = 'https://cmake.org/files/v3.12/cmake-3.12.4-win32-x86.zip'
+    cmake = os.path.abspath('external/cmake-3.12.4-win32-x86/bin/cmake.exe')
     
     files = [(cmake_url, 'external', cmake)]
     
@@ -264,6 +264,7 @@ def mac_libraw_compile():
     
     install_name_dir = os.path.join(install_dir, 'lib')
     cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release ' +\
+                    '-DENABLE_OPENMP=OFF ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ' +\
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
