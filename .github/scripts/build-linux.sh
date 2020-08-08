@@ -64,7 +64,12 @@ libraw_dir=$(pwd)/external/LibRaw
 pushd external/LibRaw-cmake
 mkdir build
 cd build
-cmake -DLIBRAW_PATH=$libraw_dir -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF -DCMAKE_BUILD_TYPE=Release ..
+cmake .. \
+    -DLIBRAW_PATH=$libraw_dir \
+    -DCMAKE_CXX_FLAGS="-DUSE_X3FTOOLS -DUSE_6BY9RPI" \
+    -DENABLE_EXAMPLES=OFF \
+    -DENABLE_RAWSPEED=OFF \
+    -DCMAKE_BUILD_TYPE=Release
 make
 make install -j$(nproc)
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/99local.conf

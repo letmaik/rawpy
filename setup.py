@@ -187,6 +187,7 @@ def windows_libraw_compile():
     enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DLIBRAW_PATH=' + libraw_dir.replace('\\', '/') + ' ' +\
+                    '-DCMAKE_CXX_FLAGS="-DUSE_X3FTOOLS -DUSE_6BY9RPI" ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=' + enable_openmp_flag + ' -DENABLE_RAWSPEED=OFF ' +\
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../../LibRaw-demosaic-pack-GPL3 '
@@ -235,6 +236,7 @@ def mac_libraw_compile():
     install_name_dir = os.path.join(install_dir, 'lib')
     cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release ' +\
                     '-DLIBRAW_PATH=' + libraw_dir + ' ' +\
+                    '-DCMAKE_CXX_FLAGS="-DUSE_X3FTOOLS -DUSE_6BY9RPI" ' +\
                     '-DENABLE_OPENMP=OFF ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ' +\
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../../LibRaw-demosaic-pack-GPL2 ' +\

@@ -124,7 +124,7 @@ Or install the latest release version from the source repository:
 git clone https://github.com/LibRaw/LibRaw.git libraw
 git clone https://github.com/LibRaw/LibRaw-cmake.git libraw-cmake
 cd libraw
-git checkout 0.19.5
+git checkout 0.20.0
 cp -R ../libraw-cmake/* .
 cmake .
 sudo make install
