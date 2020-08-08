@@ -6,7 +6,9 @@ from __future__ import print_function
 
 from cpython.ref cimport PyObject, Py_INCREF
 from cpython.bytes cimport PyBytes_FromStringAndSize
+from cpython.mem cimport PyMem_Free
 from cython.operator cimport dereference as deref
+from libc.stddef cimport wchar_t
 
 import numpy as np
 from collections import namedtuple
@@ -17,6 +19,9 @@ import os
 import sys
 import warnings
 from enum import Enum
+
+cdef extern from "Python.h":
+    wchar_t* PyUnicode_AsWideCharString(object, Py_ssize_t *)
 
 cdef extern from "def_helper.h":
     cdef int LIBRAW_XTRANS
@@ -181,22 +186,42 @@ cdef extern from "libraw.h":
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
 
-    cdef cppclass LibRaw:
-        libraw_data_t imgdata
-        LibRaw()
-        int open_file(const char *fname)
-        int open_buffer(void *buffer, size_t bufsize)
-        int unpack()
-        int unpack_thumb()
-        int COLOR(int row, int col)
-#         int raw2image()
-        int dcraw_process()
-        libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
-        libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
-        void dcraw_clear_mem(libraw_processed_image_t* img)
-        void free_image()
-        const char* strerror(int p)
-        void recycle()
+# The open_file method is overloaded on Windows and unfortunately
+# there is no better way to deal with this in Cython.
+IF UNAME_SYSNAME == "Windows":
+    cdef extern from "libraw.h":
+        cdef cppclass LibRaw:
+            libraw_data_t imgdata
+            LibRaw()
+            int open_buffer(void *buffer, size_t bufsize)
+            int open_file(const wchar_t *fname)
+            int unpack()
+            int unpack_thumb()
+            int COLOR(int row, int col)
+            int dcraw_process()
+            libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
+            libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
+            void dcraw_clear_mem(libraw_processed_image_t* img)
+            void free_image()
+            const char* strerror(int p)
+            void recycle()
+ELSE:
+    cdef extern from "libraw.h":
+        cdef cppclass LibRaw:
+            libraw_data_t imgdata
+            LibRaw()
+            int open_buffer(void *buffer, size_t bufsize)
+            int open_file(const char *fname)
+            int unpack()
+            int unpack_thumb()
+            int COLOR(int row, int col)
+            int dcraw_process()
+            libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
+            libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
+            void dcraw_clear_mem(libraw_processed_image_t* img)
+            void free_image()
+            const char* strerror(int p)
+            void recycle()
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 
@@ -364,9 +389,19 @@ cdef class RawPy:
         
         :param str path: The path to the RAW image.
         """
+        cdef wchar_t *wchars
+        cdef Py_ssize_t wchars_len
         self.unpack_called = False
         self.unpack_thumb_called = False
-        self.handle_error(self.p.open_file(_chars(path)))
+        IF UNAME_SYSNAME == "Windows":
+            wchars = PyUnicode_AsWideCharString(path, &wchars_len)
+            if wchars == NULL:
+                raise RuntimeError('cannot convert unicode path to wide chars')
+            res = self.p.open_file(wchars)
+            PyMem_Free(wchars)
+        ELSE:
+            res = self.p.open_file(path.encode('UTF-8'))
+        self.handle_error(res)
     
     def open_buffer(self, fileobj):
         """
