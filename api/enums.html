@@ -1,15 +1,18 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Enumerations &mdash; rawpy 0.15.0a1 documentation</title>
+  <title>Enumerations &mdash; rawpy 0.15.0 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
 
   
   
@@ -17,7 +20,9 @@
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -29,10 +34,6 @@
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Named Tuples" href="namedtuples.html" />
@@ -50,7 +51,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> rawpy
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> rawpy
           
 
           
@@ -60,7 +61,7 @@
             
             
               <div class="version">
-                0.15.0a1
+                0.15.0
               </div>
             
           
@@ -77,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -106,6 +108,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -144,7 +147,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">API Reference</a> &raquo;</li>
         
@@ -173,7 +176,7 @@
 <h2>RawType<a class="headerlink" href="#rawtype" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="rawpy.RawType">
-<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">RawType</code><a class="headerlink" href="#rawpy.RawType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">RawType</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.RawType" title="Permalink to this definition">¶</a></dt>
 <dd><p>RAW image type.</p>
 <dl class="py attribute">
 <dt id="rawpy.RawType.Flat">
@@ -192,7 +195,7 @@
 <h2>ThumbFormat<a class="headerlink" href="#thumbformat" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="rawpy.ThumbFormat">
-<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">ThumbFormat</code><a class="headerlink" href="#rawpy.ThumbFormat" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">ThumbFormat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.ThumbFormat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Thumbnail/preview image type.</p>
 <dl class="py attribute">
 <dt id="rawpy.ThumbFormat.BITMAP">
@@ -211,7 +214,7 @@
 <h2>DemosaicAlgorithm<a class="headerlink" href="#demosaicalgorithm" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="rawpy.DemosaicAlgorithm">
-<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">DemosaicAlgorithm</code><a class="headerlink" href="#rawpy.DemosaicAlgorithm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">DemosaicAlgorithm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.DemosaicAlgorithm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifiers for demosaic algorithms.</p>
 <dl class="py attribute">
 <dt id="rawpy.DemosaicAlgorithm.AAHD">
@@ -301,7 +304,7 @@ is only written with cmake builds &gt;= 0.15.4.</p>
 <h2>ColorSpace<a class="headerlink" href="#colorspace" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="rawpy.ColorSpace">
-<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">ColorSpace</code><a class="headerlink" href="#rawpy.ColorSpace" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">ColorSpace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.ColorSpace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Color spaces.</p>
 <dl class="py attribute">
 <dt id="rawpy.ColorSpace.Adobe">
@@ -340,7 +343,7 @@ is only written with cmake builds &gt;= 0.15.4.</p>
 <h2>HighlightMode<a class="headerlink" href="#highlightmode" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="rawpy.HighlightMode">
-<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">HighlightMode</code><a class="headerlink" href="#rawpy.HighlightMode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">HighlightMode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.HighlightMode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight modes.</p>
 <dl class="py attribute">
 <dt id="rawpy.HighlightMode.Blend">
@@ -357,10 +360,15 @@ is only written with cmake builds &gt;= 0.15.4.</p>
 <code class="sig-name descname">Ignore</code><em class="property"> = 1</em><a class="headerlink" href="#rawpy.HighlightMode.Ignore" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="rawpy.HighlightMode.Reconstruct">
-<code class="sig-name descname">Reconstruct</code><em class="property"> = &lt;bound method HighlightMode.Reconstruct of &lt;enum 'HighlightMode'&gt;&gt;</em><a class="headerlink" href="#rawpy.HighlightMode.Reconstruct" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">classmethod </em><code class="sig-name descname">Reconstruct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.HighlightMode.Reconstruct" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – 3 to 9, low numbers favor whites, high numbers favor colors</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="rawpy.HighlightMode.ReconstructDefault">
@@ -374,7 +382,7 @@ is only written with cmake builds &gt;= 0.15.4.</p>
 <h2>FBDDNoiseReductionMode<a class="headerlink" href="#fbddnoisereductionmode" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="rawpy.FBDDNoiseReductionMode">
-<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">FBDDNoiseReductionMode</code><a class="headerlink" href="#rawpy.FBDDNoiseReductionMode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">FBDDNoiseReductionMode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.FBDDNoiseReductionMode" title="Permalink to this definition">¶</a></dt>
 <dd><p>FBDD noise reduction modes.</p>
 <dl class="py attribute">
 <dt id="rawpy.FBDDNoiseReductionMode.Full">
@@ -416,11 +424,19 @@ is only written with cmake builds &gt;= 0.15.4.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2014, Maik Riechert
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -431,7 +447,6 @@ is only written with cmake builds &gt;= 0.15.4.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
