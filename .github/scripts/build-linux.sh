@@ -60,15 +60,15 @@ make install -j$(nproc)
 popd
 
 # Install libraw
-pushd external
-cp -R LibRaw-cmake/* LibRaw
-pushd LibRaw
-cmake -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF -DCMAKE_BUILD_TYPE=Release .
+libraw_dir=$(pwd)/external/LibRaw
+pushd external/LibRaw-cmake
+mkdir build
+cd build
+cmake -DLIBRAW_PATH=$libraw_dir -DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF -DCMAKE_BUILD_TYPE=Release ..
 make
 make install -j$(nproc)
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/99local.conf
 ldconfig
-popd
 popd
 
 # Install matplotlib (a scikit-image dependency) dependencies

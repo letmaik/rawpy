@@ -82,7 +82,8 @@ def use_pkg_config():
 
 if isWindows or isMac:
     external_dir = os.path.abspath('external')
-    cmake_build = os.path.join(external_dir, 'LibRaw', 'cmake_build')
+    libraw_dir = os.path.join(external_dir, 'LibRaw')
+    cmake_build = os.path.join(external_dir, 'LibRaw-cmake', 'build')
     install_dir = os.path.join(cmake_build, 'install')
     
     include_dirs += [os.path.join(install_dir, 'include', 'libraw')]
@@ -115,28 +116,7 @@ def clone_submodules():
         print('LibRaw git submodule is not cloned yet, will invoke "git submodule update --init" now')
         if os.system('git submodule update --init') != 0:
             raise Exception('git failed')
-    
-    # copy cmake files into LibRaw root directory
-    if not os.path.exists('external/LibRaw/CMakeLists.txt'):
-        print('copying CMake scripts from LibRaw-cmake repository')
-        shutil.copy('external/LibRaw-cmake/CMakeLists.txt', 'external/LibRaw/CMakeLists.txt')
-        shutil.copytree('external/LibRaw-cmake/cmake', 'external/LibRaw/cmake')
         
-def patch_cmakelists():
-    """Makes 'raw' target OPTIONAL during installation."""
-    cmakelists_path = os.path.join(external_dir, 'LibRaw', 'CMakeLists.txt')
-    def add_optional(m):
-        if 'OPTIONAL' in m.group(1):
-            return m.group(0)
-        else:
-            return 'INSTALL(TARGETS raw OPTIONAL {})'.format(m.group(1))
-    with open(cmakelists_path, 'r') as fp:
-        cmakelists = fp.read()
-        cmakelists_patched = re.sub(r'INSTALL\(TARGETS raw(.*?)\)', add_optional, cmakelists, count=1, flags=re.DOTALL)
-    if cmakelists != cmakelists_patched:
-        with open(cmakelists_path, 'w') as fp:
-            fp.write(cmakelists_patched)
-
 def windows_libraw_compile():
     clone_submodules()
     
@@ -194,14 +174,7 @@ def windows_libraw_compile():
     shutil.rmtree(cmake_build, ignore_errors=True)
     os.makedirs(cmake_build, exist_ok=True)
     os.chdir(cmake_build)
-    
-    # We only want to build and install the raw_r target (to make builds faster).
-    # To do that we set CMAKE_SKIP_INSTALL_ALL_DEPENDENCY=1 so that 'install' doesn't depend
-    # on raw and raw_r targets.
-    # For the install target to finish successfully, we need to set the raw target to optional,
-    # which unfortunately can only be done in the CMakeLists.txt file. Therefore we patch it.
-    patch_cmakelists()
-    
+        
     # Hack for conda to force static linking (see https://github.com/letmaik/rawpy/issues/87)
     zlib_static = os.path.join(sys.prefix, 'Library', 'lib', 'zlibstatic.lib')
     if os.path.exists(zlib_static):
@@ -213,14 +186,13 @@ def windows_libraw_compile():
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
     enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
+                    '-DLIBRAW_PATH=' + libraw_dir.replace('\\', '/') + ' ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=' + enable_openmp_flag + ' -DENABLE_RAWSPEED=OFF ' +\
-                    ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
-                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
+                    ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../../LibRaw-demosaic-pack-GPL2 ' +\
+                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
                     zlib_flag +\
-                    '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
-                    '-DCMAKE_INSTALL_PREFIX:PATH=install',
-            cmake + ' --build . --target raw_r',
+                    '-DCMAKE_INSTALL_PREFIX=install',
             cmake + ' --build . --target install',
             ]
     for cmd in cmds:
@@ -259,19 +231,16 @@ def mac_libraw_compile():
     if not os.path.exists(cmake_build):
         os.mkdir(cmake_build)
     os.chdir(cmake_build)
-    
-    patch_cmakelists()
-    
+        
     install_name_dir = os.path.join(install_dir, 'lib')
     cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release ' +\
+                    '-DLIBRAW_PATH=' + libraw_dir + ' ' +\
                     '-DENABLE_OPENMP=OFF ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_RAWSPEED=OFF ' +\
-                    ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../LibRaw-demosaic-pack-GPL2 ' +\
-                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../LibRaw-demosaic-pack-GPL3 '
+                    ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../../LibRaw-demosaic-pack-GPL2 ' +\
+                     '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
-                    '-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON ' +\
                     '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_INSTALL_NAME_DIR=' + install_name_dir,
-            'cmake --build . --target raw_r',
             'cmake --build . --target install',
             ]
     for cmd in cmds:
