@@ -720,7 +720,7 @@ cdef class RawPy:
         """
         def __get__(self):
             self.ensure_unpack()
-        return [self.p.imgdata.rawdata.color.linear_max[0],
+            return [self.p.imgdata.rawdata.color.linear_max[0],
                 self.p.imgdata.rawdata.color.linear_max[1],
                 self.p.imgdata.rawdata.color.linear_max[2],
                 self.p.imgdata.rawdata.color.linear_max[3]]
