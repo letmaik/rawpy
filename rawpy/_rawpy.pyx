@@ -705,14 +705,15 @@ cdef class RawPy:
     property white_level:
         """
         Level at which the raw pixel value is considered to be saturated.
+        This value is calculated from the data for most cameras, and hardcoded for others.
         """
         def __get__(self):
             self.ensure_unpack()
             return self.p.imgdata.rawdata.color.maximum
 
-    property linear_max:
+    property camera_white_lever_per_channel:
         """
-        Per-channel linear data maximum read from file metadata. 
+        Per-channel linear data maximum read from file metadata.
         If RAW file does not contains this data, linear_max is set to zero.
         Black value is not subtracted.
 
