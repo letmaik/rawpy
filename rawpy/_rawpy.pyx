@@ -711,7 +711,7 @@ cdef class RawPy:
             self.ensure_unpack()
             return self.p.imgdata.rawdata.color.maximum
 
-    property camera_white_lever_per_channel:
+    property camera_white_level_per_channel:
         """
         Per-channel linear data maximum read from file metadata.
         If RAW file does not contains this data, linear_max is set to zero.
