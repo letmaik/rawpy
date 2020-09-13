@@ -74,6 +74,7 @@ cdef extern from "libraw.h":
         unsigned    cblack[4102]
         unsigned    black
         unsigned    maximum
+        unsigned    linear_max[4]
         float       cmatrix[3][4]
         float       cam_xyz[4][3]
         void        *profile # a string?
@@ -708,6 +709,21 @@ cdef class RawPy:
         def __get__(self):
             self.ensure_unpack()
             return self.p.imgdata.rawdata.color.maximum
+
+    property linear_max:
+        """
+        Per-channel linear data maximum read from file metadata. 
+        If RAW file does not contains this data, linear_max is set to zero.
+        Black value is not subtracted.
+
+        :rtype: list of length 4
+        """
+        def __get__(self):
+            self.ensure_unpack()
+        return [self.p.imgdata.rawdata.color.linear_max[0],
+                self.p.imgdata.rawdata.color.linear_max[1],
+                self.p.imgdata.rawdata.color.linear_max[2],
+                self.p.imgdata.rawdata.color.linear_max[3]]
 
     property color_matrix:
         """
