@@ -637,7 +637,7 @@ cdef class RawPy:
                 if self.p.imgdata.idata.filters == 0:
                     # black and white
                     n = 1
-                if self.p.imgdata.idata.filters == 1:
+                elif self.p.imgdata.idata.filters == 1:
                     # Leaf Catchlight
                     n = 16
                 elif self.p.imgdata.idata.filters == LIBRAW_XTRANS:
