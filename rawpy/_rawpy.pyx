@@ -37,6 +37,8 @@ cdef extern from "def_helper.h":
     cdef int _LIBRAW_USE_RAWSPEED
     cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL2
     cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL3
+    cdef int _LIBRAW_USE_X3FTOOLS
+    cdef int _LIBRAW_USE_6BY9RPI
 
 cdef extern from "data_helper.h":
     ctypedef struct libraw_colordata_black_level_t:
@@ -234,6 +236,8 @@ if _LIBRAW_HAS_FLAGS:
              'RAWSPEED': bool(_LIBRAW_USE_RAWSPEED),
              'DEMOSAIC_PACK_GPL2': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL2),
              'DEMOSAIC_PACK_GPL3': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL3),
+             'X3FTOOLS': bool(_LIBRAW_USE_X3FTOOLS),
+             '6BY9RPI': bool(_LIBRAW_USE_6BY9RPI),
              }
 else:
     flags = None
