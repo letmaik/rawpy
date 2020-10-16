@@ -81,7 +81,7 @@ popd
 
 # Install Little CMS 2:
 # - libraw lcms support
-curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.9/lcms2-2.11.tar.gz | tar xz
+curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz | tar xz
 pushd lcms2-2.11
 # Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
 ./configure --prefix=$LIB_INSTALL_PREFIX \
