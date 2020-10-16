@@ -50,8 +50,8 @@ popd
 # - libraw RedCine codec support
 # CentOS 6 has libjasper, but since it depends on libjpeg we'll build from
 # source, otherwise we would use two different libjpeg versions.
-curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.19.tar.gz | tar xz
-pushd jasper-version-2.0.19
+curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.22.tar.gz | tar xz
+pushd jasper-version-2.0.22
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
