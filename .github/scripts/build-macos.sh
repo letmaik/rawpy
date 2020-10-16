@@ -5,7 +5,7 @@ source .github/scripts/retry.sh
 
 # General note:
 # Apple guarantees forward, but not backward ABI compatibility unless
-# the deployment target is set for the oldest supported OS. 
+# the deployment target is set for the oldest supported OS.
 # (https://trac.macports.org/ticket/54332#comment:2)
 
 # Used by CMake, clang, and Python's distutils
@@ -69,8 +69,8 @@ popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.19.tar.gz | tar xz
-pushd jasper-version-2.0.19
+curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.22.tar.gz | tar xz
+pushd jasper-version-2.0.22
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
@@ -81,11 +81,11 @@ popd
 
 # Install Little CMS 2:
 # - libraw lcms support
-curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.9/lcms2-2.9.tar.gz | tar xz
-pushd lcms2-2.9
+curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz | tar xz
+pushd lcms2-2.11
 # Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
 ./configure --prefix=$LIB_INSTALL_PREFIX \
-            --without-jpeg --without-tiff           
+            --without-jpeg --without-tiff
 make install -j
 popd
 
