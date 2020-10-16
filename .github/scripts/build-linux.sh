@@ -66,7 +66,8 @@ mkdir build
 cd build
 cmake .. \
     -DLIBRAW_PATH=$libraw_dir \
-    -DCMAKE_CXX_FLAGS="-DUSE_X3FTOOLS -DUSE_6BY9RPI" \
+    -DENABLE_X3FTOOLS=ON \
+    -DENABLE_6BY9RPI=ON \
     -DENABLE_EXAMPLES=OFF \
     -DENABLE_RAWSPEED=OFF \
     -DCMAKE_BUILD_TYPE=Release

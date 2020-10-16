@@ -67,3 +67,15 @@
 #else
 #define _LIBRAW_USE_DEMOSAIC_PACK_GPL3 0
 #endif
+
+#ifdef LIBRAW_USE_X3FTOOLS
+#define _LIBRAW_USE_X3FTOOLS 1
+#else
+#define _LIBRAW_USE_X3FTOOLS 0
+#endif
+
+#ifdef LIBRAW_USE_6BY9RPI
+#define _LIBRAW_USE_6BY9RPI 1
+#else
+#define _LIBRAW_USE_6BY9RPI 0
+#endif
