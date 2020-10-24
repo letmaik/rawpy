@@ -705,7 +705,6 @@ cdef class RawPy:
     property white_level:
         """
         Level at which the raw pixel value is considered to be saturated.
-        This value is calculated from the data for most cameras, and hardcoded for others.
         """
         def __get__(self):
             self.ensure_unpack()
