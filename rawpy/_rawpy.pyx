@@ -713,9 +713,7 @@ cdef class RawPy:
 
     property camera_white_level_per_channel:
         """
-        Per-channel linear data maximum read from file metadata.
-        If RAW file does not contains this data, values are set to zero.
-        Black value is not subtracted.
+        Per-channel saturation levels read from raw file metadata, if it exists. Otherwise None.
 
         :rtype: list of length 4
         """
