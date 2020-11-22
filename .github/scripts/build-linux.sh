@@ -10,9 +10,7 @@ source .github/scripts/retry.sh
 # List python versions
 ls /opt/python
 
-if [ $PYTHON_VERSION == "3.5" ]; then
-    PYBIN="/opt/python/cp35-cp35m/bin"
-elif [ $PYTHON_VERSION == "3.6" ]; then
+if [ $PYTHON_VERSION == "3.6" ]; then
     PYBIN="/opt/python/cp36-cp36m/bin"
 elif [ $PYTHON_VERSION == "3.7" ]; then
     PYBIN="/opt/python/cp37-cp37m/bin"

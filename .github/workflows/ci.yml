@@ -7,16 +7,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # FIXME should be include:, but individual entries are not supported yet, so work-around
         config:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2010_x86_64
-          python-version: '3.5'
-          numpy-version: '1.9.*'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux2010_x86_64
           python-version: '3.6'
           numpy-version: '1.11.*'
         - os-image: ubuntu-latest
@@ -35,15 +29,10 @@ jobs:
           python-version: '3.9'
           numpy-version: '1.19.*'
 
-        - os-image: macos-latest
-          os-name: mac
-          # Ideally 10.6 (same as offical Python installer) but there
-          # are issues targeting that with newer XCode versions.
-          # As likely nobody is using 10.6 anymore, targeting 10.9 is acceptable.
-          # See https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981.
-          macos-min-version: '10.9'
-          python-version: '3.5'
-          numpy-version: '1.9.*'
+        # Ideally 10.6 (same as offical Python installer) but there
+        # are issues targeting that with newer XCode versions.
+        # As likely nobody is using 10.6 anymore, targeting 10.9 is acceptable.
+        # See https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981.
         - os-image: macos-latest
           os-name: mac
           macos-min-version: '10.9'
@@ -65,13 +54,8 @@ jobs:
           python-version: '3.9'
           numpy-version: '1.19.*'
 
-        # Use 2016 image for 3.5 as 2019 does not have VC++ 14.0 compiler.
+        # Use 2016 image as 2019 does not have VC++ 14.0 compiler.
         # https://github.community/t5/GitHub-Actions/Microsoft-Visual-C-14-0-compiler-not-available-on-Windows-2019/m-p/32871 
-        - os-image: windows-2016
-          os-name: windows
-          python-version: '3.5'
-          python-arch: '64'
-          numpy-version: '1.9'
         - os-image: windows-2016
           os-name: windows
           python-version: '3.6'
