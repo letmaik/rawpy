@@ -718,10 +718,14 @@ cdef class RawPy:
         """
         def __get__(self):
             self.ensure_unpack()
-            return [self.p.imgdata.rawdata.color.linear_max[0],
+            levels = [self.p.imgdata.rawdata.color.linear_max[0],
                 self.p.imgdata.rawdata.color.linear_max[1],
                 self.p.imgdata.rawdata.color.linear_max[2],
                 self.p.imgdata.rawdata.color.linear_max[3]]
+            if all([l > 0 for l in levels]):
+                return levels
+            else:
+                return None
 
     property color_matrix:
         """
