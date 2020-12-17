@@ -175,10 +175,10 @@ rawpy depends on NumPy. The minimum supported NumPy version depends on your Pyth
 
 | Python | NumPy    |
 | ------ | -------- |
-| 3.5    | >= 1.9   |
 | 3.6    | >= 1.11  |
 | 3.7    | >= 1.14  |
 | 3.8    | >= 1.17  |
+| 3.9    | >= 1.19  |
 
 
 [libraw]: https://www.libraw.org
