@@ -76,6 +76,7 @@ cdef extern from "libraw.h":
         unsigned    cblack[4102]
         unsigned    black
         unsigned    maximum
+        unsigned    linear_max[4]
         float       cmatrix[3][4]
         float       cam_xyz[4][3]
         void        *profile # a string?
@@ -712,6 +713,23 @@ cdef class RawPy:
         def __get__(self):
             self.ensure_unpack()
             return self.p.imgdata.rawdata.color.maximum
+
+    property camera_white_level_per_channel:
+        """
+        Per-channel saturation levels read from raw file metadata, if it exists. Otherwise None.
+
+        :rtype: list of length 4
+        """
+        def __get__(self):
+            self.ensure_unpack()
+            levels = [self.p.imgdata.rawdata.color.linear_max[0],
+                self.p.imgdata.rawdata.color.linear_max[1],
+                self.p.imgdata.rawdata.color.linear_max[2],
+                self.p.imgdata.rawdata.color.linear_max[3]]
+            if all([l > 0 for l in levels]):
+                return levels
+            else:
+                return None
 
     property color_matrix:
         """
