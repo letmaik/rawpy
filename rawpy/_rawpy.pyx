@@ -718,15 +718,15 @@ cdef class RawPy:
         """
         Per-channel saturation levels read from raw file metadata, if it exists. Otherwise None.
 
-        :rtype: list of length 4
+        :rtype: list of length 4, or None if metadata missing
         """
         def __get__(self):
             self.ensure_unpack()
             levels = [self.p.imgdata.rawdata.color.linear_max[0],
-                self.p.imgdata.rawdata.color.linear_max[1],
-                self.p.imgdata.rawdata.color.linear_max[2],
-                self.p.imgdata.rawdata.color.linear_max[3]]
-            if all([l > 0 for l in levels]):
+                      self.p.imgdata.rawdata.color.linear_max[1],
+                      self.p.imgdata.rawdata.color.linear_max[2],
+                      self.p.imgdata.rawdata.color.linear_max[3]]
+            if all(l > 0 for l in levels):
                 return levels
             else:
                 return None
