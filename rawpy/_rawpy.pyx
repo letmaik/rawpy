@@ -1088,7 +1088,7 @@ class Params(object):
         :param int user_flip: 0=none, 3=180, 5=90CCW, 6=90CW,
                               default is to use image orientation from the RAW image if available
         :param int user_black: custom black level
-        :param int user_sat: saturation adjustment
+        :param int user_sat: saturation adjustment (custom white level)
         :param bool no_auto_scale: Whether to disable pixel value scaling
         :param bool no_auto_bright: whether to disable automatic increase of brightness
         :param float auto_bright_thr: ratio of clipped pixels when automatic brighness increase is used
