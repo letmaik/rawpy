@@ -22,7 +22,8 @@ from Cython.Build import cythonize
 #       See https://github.com/letmaik/rawpy/issues/72.
 buildGPLCode = os.getenv('RAWPY_BUILD_GPL_CODE') == '1'
 
-isWindows = os.name == 'nt'
+# don't treat mingw as Windows (https://stackoverflow.com/a/51200002)
+isWindows = os.name == 'nt' and 'GCC' not in sys.version
 isMac = sys.platform == 'darwin'
 is64Bit = sys.maxsize > 2**32
 
