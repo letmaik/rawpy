@@ -1021,6 +1021,9 @@ class ColorSpace(Enum):
     Wide=3
     ProPhoto=4
     XYZ=5
+    ACES=6
+    P3D65=7
+    Rec2020=8
     
 class HighlightMode(Enum):
     """
