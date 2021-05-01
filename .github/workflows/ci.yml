@@ -2,6 +2,8 @@ name: CI
 
 on: [push, pull_request]
 
+permissions: read-all
+
 jobs:
   build:
     strategy:
@@ -147,7 +149,7 @@ jobs:
         name: docs
         path: dist-docs
 
-  deploy:
+  publish-wheels:
     runs-on: ubuntu-latest
 
     needs: [build, docs]
@@ -161,12 +163,6 @@ jobs:
         name: wheels
         path: dist
 
-    - name: Download docs HTML from artifact storage
-      uses: actions/download-artifact@v1
-      with:
-        name: docs
-        path: dist-docs
-
     - name: Setup Python
       uses: actions/setup-python@v1
     
@@ -174,6 +170,21 @@ jobs:
       run: |
         pip install twine
         twine upload -u __token__ -p ${{ secrets.PYPI_TOKEN }} --skip-existing dist/*
+
+  publish-docs:
+    runs-on: ubuntu-latest
+
+    needs: [publish-wheels]
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download docs HTML from artifact storage
+      uses: actions/download-artifact@v1
+      with:
+        name: docs
+        path: dist-docs
 
     - name: Upload docs to GitHub Pages
       uses: peaceiris/actions-gh-pages@47a6d63ea8b47b19328e258563aa1fbe224c0a23
