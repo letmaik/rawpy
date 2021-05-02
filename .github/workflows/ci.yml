@@ -12,22 +12,22 @@ jobs:
         config:
         - os-image: ubuntu-latest
           os-name: linux
-          docker-image: quay.io/pypa/manylinux2010_x86_64
+          docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.6'
           numpy-version: '1.11.*'
         - os-image: ubuntu-latest
           os-name: linux
-          docker-image: quay.io/pypa/manylinux2010_x86_64
+          docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.7'
           numpy-version: '1.14.*'
         - os-image: ubuntu-latest
           os-name: linux
-          docker-image: quay.io/pypa/manylinux2010_x86_64
+          docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.8'
           numpy-version: '1.17.*'
         - os-image: ubuntu-latest
           os-name: linux
-          docker-image: quay.io/pypa/manylinux2010_x86_64
+          docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.9'
           numpy-version: '1.19.*'
 
