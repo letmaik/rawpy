@@ -22,12 +22,9 @@ function Init-VS {
     # setuptools automatically selects the right compiler for building
     # the extension module. The following is mostly for building any
     # dependencies like libraw.
-    # FIXME choose matching VC++ compiler, maybe using -vcvars_ver
-    #   -> dependencies should not be built with newer compiler than Python itself
     # https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line
     # https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
 
-    $VS2015_ROOT = "C:\Program Files (x86)\Microsoft Visual Studio 14.0"
     $VS2017_ROOT = "C:\Program Files (x86)\Microsoft Visual Studio\2017"
     $VS2019_ROOT = "C:\Program Files (x86)\Microsoft Visual Studio\2019"
 
@@ -41,12 +38,7 @@ function Init-VS {
         if ($PYTHON_VERSION_MINOR -le '4') {
             throw ("Python <= 3.4 unsupported: $env:PYTHON_VERSION")
         }
-        if (exists $VS2015_ROOT) {
-            $VS_VERSION = "2015"
-            $VS_ROOT = $VS2015_ROOT
-		    $VS_INIT_CMD = "$VS_ROOT\VC\vcvarsall.bat"
-		    $VS_INIT_ARGS = "$VS_ARCH"
-        } elseif (exists $VS2017_ROOT) {
+        if (exists $VS2017_ROOT) {
             $VS_VERSION = "2017"
             if (exists "$VS2017_ROOT\Enterprise") {
                 $VS_ROOT = "$VS2017_ROOT\Enterprise"

@@ -56,24 +56,22 @@ jobs:
           python-version: '3.9'
           numpy-version: '1.19.*'
 
-        # Use 2016 image as 2019 does not have VC++ 14.0 compiler.
-        # https://github.community/t5/GitHub-Actions/Microsoft-Visual-C-14-0-compiler-not-available-on-Windows-2019/m-p/32871 
-        - os-image: windows-2016
+        - os-image: windows-latest
           os-name: windows
           python-version: '3.6'
           python-arch: '64'
           numpy-version: '1.11'
-        - os-image: windows-2016
+        - os-image: windows-latest
           os-name: windows
           python-version: '3.7'
           python-arch: '64'
           numpy-version: '1.14'
-        - os-image: windows-2016
+        - os-image: windows-latest
           os-name: windows
           python-version: '3.8'
           python-arch: '64'
           numpy-version: '1.17'
-        - os-image: windows-2016
+        - os-image: windows-latest
           os-name: windows
           python-version: '3.9'
           python-arch: '64'
