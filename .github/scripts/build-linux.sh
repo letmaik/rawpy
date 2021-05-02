@@ -7,7 +7,7 @@ cd /io
 
 source .github/scripts/retry.sh
 
-alias check_sha256=.github/scripts/check_sha256.sh
+CHECK_SHA256=.github/scripts/check_sha256.sh
 
 # List python versions
 ls /opt/python
@@ -27,7 +27,7 @@ fi
 
 # Install build tools
 curl --retry 3 -o cmake.sh https://cmake.org/files/v3.12/cmake-3.12.4-Linux-x86_64.sh
-check_sha256 cmake.sh 1b9675521cbbf9ceafc22d36c85f78f22591bfa3a8540730b32ca62b48279ba2
+$CHECK_SHA256 cmake.sh 1b9675521cbbf9ceafc22d36c85f78f22591bfa3a8540730b32ca62b48279ba2
 chmod +x cmake.sh
 ./cmake.sh --prefix=/usr --exclude-subdir --skip-license
 
@@ -37,14 +37,22 @@ retry yum install -y zlib-devel
 
 # Install liblcms2:
 # - libraw LCMS support
-retry yum install -y lcms2-devel
+#retry yum install -y lcms2-devel
+curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
+$CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
+tar xzf lcms2.tar.gz
+pushd lcms2-2.11
+# Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
+./configure --prefix=/usr --without-jpeg --without-tiff
+make install -j$(nproc)
+popd
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 # TODO: switch to libjpeg-turbo
 curl --retry 3 -o jpegsrc.tar.gz http://ijg.org/files/jpegsrc.v9d.tar.gz
-check_sha256 jpegsrc.tar.gz 6c434a3be59f8f62425b2e3c077e785c9ce30ee5874ea1c270e843f273ba71ee
+$CHECK_SHA256 jpegsrc.tar.gz 6c434a3be59f8f62425b2e3c077e785c9ce30ee5874ea1c270e843f273ba71ee
 tar xzf jpegsrc.tar.gz
 pushd jpeg-9d
 ./configure --prefix=/usr
