@@ -61,8 +61,10 @@ popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.22.tar.gz | tar xz
-pushd jasper-version-2.0.22
+curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-2.0.32.tar.gz
+$CHECK_SHA256 jasper.tar.gz a3583a06698a6d6106f2fc413aa42d65d86bedf9a988d60e5cfa38bf72bc64b9
+tar xzf jasper.tar.gz
+pushd jasper-version-2.0.32
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
@@ -119,4 +121,4 @@ popd
 
 # Move wheel to dist/ folder for easier deployment
 mkdir -p dist
-mv wheelhouse/rawpy*manylinux2010*.whl dist/
+mv wheelhouse/rawpy*manylinux*.whl dist/
