@@ -4,7 +4,15 @@ set -e
 path=$1
 expected=$2
 
-actual=$(sha256sum "$1" | cut -d ' ' -f 1)
+if [ "$(uname)" == "Darwin" ]; then
+    actual=$(shasum -a 256 "$path")
+elif [ "$(uname)" == "Linux" ]; then
+    actual=$(sha256sum "$path" | cut -d ' ' -f 1)
+else
+    echo "Unknown system: $(uname)"
+    exit 1
+fi
+
 if [ "$expected" != "$actual" ]; then 
   echo "CHECKSUM MISMATCH: $path"
   echo "Expected: $expected"

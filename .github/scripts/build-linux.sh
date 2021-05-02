@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e -x
 
-bash --version
-
 cd /io
 
 source .github/scripts/retry.sh
@@ -37,7 +35,6 @@ retry yum install -y zlib-devel
 
 # Install liblcms2:
 # - libraw LCMS support
-#retry yum install -y lcms2-devel
 curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
 $CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
 tar xzf lcms2.tar.gz
@@ -49,6 +46,7 @@ popd
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
+# - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
 # TODO: switch to libjpeg-turbo
 curl --retry 3 -o jpegsrc.tar.gz http://ijg.org/files/jpegsrc.v9d.tar.gz

@@ -3,6 +3,8 @@ set -e -x
 
 source .github/scripts/retry.sh
 
+CHECK_SHA256=.github/scripts/check_sha256.sh
+
 # General note:
 # Apple guarantees forward, but not backward ABI compatibility unless
 # the deployment target is set for the oldest supported OS.
@@ -61,7 +63,10 @@ export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-curl --retry 3 http://ijg.org/files/jpegsrc.v9d.tar.gz | tar xz
+# TODO: switch to libjpeg-turbo
+curl --retry 3 -o jpegsrc.tar.gz http://ijg.org/files/jpegsrc.v9d.tar.gz
+$CHECK_SHA256 jpegsrc.tar.gz 6c434a3be59f8f62425b2e3c077e785c9ce30ee5874ea1c270e843f273ba71ee
+tar xzf jpegsrc.tar.gz
 pushd jpeg-9d
 ./configure --prefix=$LIB_INSTALL_PREFIX
 make install -j
@@ -69,7 +74,9 @@ popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.32.tar.gz | tar xz
+curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-2.0.32.tar.gz
+$CHECK_SHA256 jasper.tar.gz a3583a06698a6d6106f2fc413aa42d65d86bedf9a988d60e5cfa38bf72bc64b9
+tar xzf jasper.tar.gz
 pushd jasper-version-2.0.32
 mkdir cmake_build
 cd cmake_build
@@ -81,7 +88,9 @@ popd
 
 # Install Little CMS 2:
 # - libraw lcms support
-curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz | tar xz
+curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
+$CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
+tar xzf lcms2.tar.gz
 pushd lcms2-2.11
 # Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
 ./configure --prefix=$LIB_INSTALL_PREFIX \
