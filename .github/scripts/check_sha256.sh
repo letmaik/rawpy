@@ -5,7 +5,7 @@ path=$1
 expected=$2
 
 if [ "$(uname)" == "Darwin" ]; then
-    actual=$(shasum -a 256 "$path")
+    actual=$(shasum -a 256 "$path" | cut -d ' ' -f 1)
 elif [ "$(uname)" == "Linux" ]; then
     actual=$(sha256sum "$path" | cut -d ' ' -f 1)
 else
