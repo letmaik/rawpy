@@ -182,6 +182,11 @@ def windows_libraw_compile():
         zlib_flag = '-DZLIB_LIBRARY=' + zlib_static + ' '
     else:
         zlib_flag = ''
+    jpeg_static = os.path.join(sys.prefix, 'Library', 'lib', 'jpeg-static.lib')
+    if os.path.exists(jpeg_static):
+        jpeg_flag = '-DJPEG_LIBRARY=' + jpeg_static + ' '
+    else:
+        jpeg_flag = ''
     
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
@@ -194,6 +199,7 @@ def windows_libraw_compile():
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
                     zlib_flag +\
+                    jpeg_flag +\
                     '-DCMAKE_INSTALL_PREFIX=install',
             cmake + ' --build . --target install',
             ]
