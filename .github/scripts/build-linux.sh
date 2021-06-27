@@ -23,12 +23,6 @@ else
     exit 1
 fi
 
-# Install build tools
-curl --retry 3 -o cmake.sh https://cmake.org/files/v3.12/cmake-3.12.4-Linux-x86_64.sh
-$CHECK_SHA256 cmake.sh 1b9675521cbbf9ceafc22d36c85f78f22591bfa3a8540730b32ca62b48279ba2
-chmod +x cmake.sh
-./cmake.sh --prefix=/usr --exclude-subdir --skip-license
-
 # Install zlib:
 # - libraw DNG deflate codec support
 retry yum install -y zlib-devel
