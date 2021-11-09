@@ -264,14 +264,14 @@ package_data = {}
 # evil hack, check cmd line for relevant commands
 # custom cmdclasses didn't work out in this case
 cmdline = ''.join(sys.argv[1:])
-needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext', 'nosetests'])
+needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext'])
 if isWindows and needsCompile:
     windows_libraw_compile()        
     package_data['rawpy'] = ['*.dll']
 
 elif isMac and needsCompile:
     mac_libraw_compile()        
-    
+
 if any(s in cmdline for s in ['clean', 'sdist']):
     # When running sdist after a previous run of bdist or build_ext
     # then even with the 'clean' command the .egg-info folder stays.
