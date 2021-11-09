@@ -108,7 +108,7 @@ retry ${PYBIN}/pip install -r dev-requirements.txt
 retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
 
 pushd $HOME
-${PYBIN}/nosetests --verbosity=3 --nocapture /io/test
+${PYBIN}/pytest --verbosity=3 -s /io/test
 popd
 
 # Move wheel to dist/ folder for easier deployment

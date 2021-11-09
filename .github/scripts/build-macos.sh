@@ -149,5 +149,5 @@ retry pip install -r dev-requirements.txt
 rm -rf $LIB_INSTALL_PREFIX
 mkdir tmp_for_test
 pushd tmp_for_test
-nosetests --verbosity=3 --nocapture ../test
+pytest --verbosity=3 -s ../test
 popd
