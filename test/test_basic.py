@@ -2,11 +2,11 @@ from __future__ import division, print_function, absolute_import
 
 import os
 import shutil
-from pprint import pprint
+import pytest
 import numpy as np
 import numpy.ma as ma
+from pprint import pprint
 from numpy.testing import assert_array_equal, assert_equal
-import pytest
 
 import rawpy
 import rawpy.enhance
