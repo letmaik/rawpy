@@ -5,7 +5,7 @@ import shutil
 from pprint import pprint
 import numpy as np
 import numpy.ma as ma
-from numpy.testing.utils import assert_array_equal, assert_equal
+from numpy.testing import assert_array_equal, assert_equal
 import pytest
 
 import rawpy
