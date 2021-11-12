@@ -31,6 +31,22 @@ jobs:
           python-version: '3.9'
           numpy-version: '1.19.*'
 
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_aarch64
+          python-version: '3.7'
+          numpy-version: '1.19.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_aarch64
+          python-version: '3.8'
+          numpy-version: '1.19.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_aarch64
+          python-version: '3.9'
+          numpy-version: '1.19.*'
+
         # Ideally 10.6 (same as offical Python installer) but there
         # are issues targeting that with newer XCode versions.
         # As likely nobody is using 10.6 anymore, targeting 10.9 is acceptable.
@@ -83,6 +99,11 @@ jobs:
     - uses: actions/checkout@v1
       with:
         submodules: true
+
+    - name: Set up QEMU
+      if: matrix.config.docker-image == 'quay.io/pypa/manylinux2014_aarch64'
+      id: qemu
+      uses: docker/setup-qemu-action@v1
 
     - name: Build wheels (Linux)
       if: matrix.config.os-name == 'linux'
