@@ -2,11 +2,11 @@ from __future__ import division, print_function, absolute_import
 
 import os
 import shutil
-from pprint import pprint
+import pytest
 import numpy as np
 import numpy.ma as ma
-from numpy.testing.utils import assert_array_equal, assert_equal
-from nose.tools import raises
+from pprint import pprint
+from numpy.testing import assert_array_equal, assert_equal
 
 import rawpy
 import rawpy.enhance
@@ -259,14 +259,14 @@ def testSegfaultBug():
     assert_array_equal(im.shape, [2844, 4288])
     print(im)
 
-@raises(rawpy.LibRawFileUnsupportedError)
 def testLibRawFileUnsupportedError():
-    rawpy.imread(os.path.join(thisDir, 'README.txt'))
+    with pytest.raises(rawpy.LibRawFileUnsupportedError):
+        rawpy.imread(os.path.join(thisDir, 'README.txt'))
 
-@raises(rawpy.LibRawOutOfOrderCallError)
 def testLibRawOutOfOrderCallError():
-    raw = rawpy.RawPy()
-    raw.unpack()
+    with pytest.raises(rawpy.LibRawOutOfOrderCallError):
+        raw = rawpy.RawPy()
+        raw.unpack()
     
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation

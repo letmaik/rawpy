@@ -146,5 +146,5 @@ exec { python -m pip freeze }
 python -m pip uninstall -y rawpy
 ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -m pip install -r ..\dev-requirements.txt }
-exec { nosetests --verbosity=3 --nocapture ../test }
+exec { pytest --verbosity=3 -s ../test }
 cd ..
