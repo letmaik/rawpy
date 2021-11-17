@@ -96,6 +96,9 @@ $env:CONDA_ROOT = $pwd.Path + "\external\miniconda_$env:PYTHON_ARCH"
 
 exec { conda update --yes -n base -c defaults conda }
 
+exec { conda info }
+exec { conda list --show-channel-urls }
+
 exec { conda create --yes --name pyenv_build -c defaults --strict-channel-priority python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION cython zlib conda-forge::libjpeg-turbo --force }
 exec { conda activate pyenv_build }
 
