@@ -107,8 +107,9 @@ exec { conda update --yes -n base -c defaults conda }
 exec { conda info }
 exec { conda list --show-channel-urls }
 
-exec { conda create --yes --name pyenv_build -c defaults --strict-channel-priority python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION cython --force }
+exec { conda create --yes --name pyenv_build -c defaults --strict-channel-priority python=$env:PYTHON_VERSION --force }
 exec { conda activate pyenv_build }
+exec { python -m pip install numpy=$env:NUMPY_VERSION cython }
 
 # Check that we have the expected version and architecture for Python
 exec { python --version }
@@ -143,8 +144,9 @@ exec { python -c "import rawpy" }
 exec { conda deactivate }
 
 # Unit tests
-exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy scikit-image --force }
+exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION --force }
 exec { conda activate pyenv_test }
+exec { python -m pip install numpy scikit-image }
 
 # Check that we have the expected version and architecture for Python
 exec { python --version }
