@@ -176,30 +176,17 @@ def windows_libraw_compile():
     os.makedirs(cmake_build, exist_ok=True)
     os.chdir(cmake_build)
         
-    # Hack for conda to force static linking (see https://github.com/letmaik/rawpy/issues/87)
-    zlib_static = os.path.join(sys.prefix, 'Library', 'lib', 'zlibstatic.lib')
-    if os.path.exists(zlib_static):
-        zlib_flag = '-DZLIB_LIBRARY=' + zlib_static + ' '
-    else:
-        zlib_flag = ''
-    jpeg_static = os.path.join(sys.prefix, 'Library', 'lib', 'jpeg-static.lib')
-    if os.path.exists(jpeg_static):
-        jpeg_flag = '-DJPEG_LIBRARY=' + jpeg_static + ' '
-    else:
-        jpeg_flag = ''
-    
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
     enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
+                    '-DCMAKE_PREFIX_PATH=' + os.environ['CMAKE_PREFIX_PATH'] + ' ' +\
                     '-DLIBRAW_PATH=' + libraw_dir.replace('\\', '/') + ' ' +\
                     '-DENABLE_X3FTOOLS=ON -DENABLE_6BY9RPI=ON ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=' + enable_openmp_flag + ' -DENABLE_RAWSPEED=OFF ' +\
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
-                    zlib_flag +\
-                    jpeg_flag +\
                     '-DCMAKE_INSTALL_PREFIX=install',
             cmake + ' --build . --target install',
             ]

@@ -71,3 +71,4 @@ docs/_build/
 /external/pthreads
 /external/miniconda*
 Miniconda*.exe
+/vcpkg

@@ -89,9 +89,17 @@ Init-VS
 
 Get-ChildItem env:
 
+# Install vcpkg and build dependencies
+if (!(Test-Path ./vcpkg)) {
+    exec { git clone https://github.com/microsoft/vcpkg -b 2021.05.12 --depth 1}
+    exec { ./vcpkg/bootstrap-vcpkg.sh }
+}
+exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=x64-windows-static --recurse }
+$env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\x64-windows-static"
+
+# Install conda
 $env:CONDA_ROOT = $pwd.Path + "\external\miniconda_$env:PYTHON_ARCH"
 & .\.github\scripts\install-miniconda.ps1
-
 & $env:CONDA_ROOT\shell\condabin\conda-hook.ps1
 
 exec { conda update --yes -n base -c defaults conda }
@@ -99,7 +107,7 @@ exec { conda update --yes -n base -c defaults conda }
 exec { conda info }
 exec { conda list --show-channel-urls }
 
-exec { conda create --yes --name pyenv_build -c defaults --strict-channel-priority python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION cython zlib conda-forge::libjpeg-turbo --force }
+exec { conda create --yes --name pyenv_build -c defaults --strict-channel-priority python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION cython --force }
 exec { conda activate pyenv_build }
 
 # Check that we have the expected version and architecture for Python
