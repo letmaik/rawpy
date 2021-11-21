@@ -13,11 +13,6 @@ jobs:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
-          python-version: '3.6'
-          numpy-version: '1.11.*'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.7'
           numpy-version: '1.14.*'
         - os-image: ubuntu-latest
@@ -52,15 +47,6 @@ jobs:
           python-version: '3.9'
           numpy-version: '1.19.*'
 
-        # Ideally 10.6 (same as offical Python installer) but there
-        # are issues targeting that with newer XCode versions.
-        # As likely nobody is using 10.6 anymore, targeting 10.9 is acceptable.
-        # See https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981.
-        - os-image: macos-latest
-          os-name: mac
-          macos-min-version: '10.9'
-          python-version: '3.6'
-          numpy-version: '1.11.*'
         - os-image: macos-latest
           os-name: mac
           macos-min-version: '10.9'
@@ -84,29 +70,24 @@ jobs:
 
         - os-image: windows-latest
           os-name: windows
-          python-version: '3.6'
-          python-arch: '64'
-          numpy-version: '1.11'
-        - os-image: windows-latest
-          os-name: windows
           python-version: '3.7'
           python-arch: '64'
-          numpy-version: '1.14'
+          numpy-version: '1.14.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.8'
           python-arch: '64'
-          numpy-version: '1.17'
+          numpy-version: '1.17.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.9'
           python-arch: '64'
-          numpy-version: '1.19'
+          numpy-version: '1.19.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.10'
           python-arch: '64'
-          numpy-version: '1.21'
+          numpy-version: '1.21.*'
 
     runs-on: ${{ matrix.config.os-image }}
 

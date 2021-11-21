@@ -67,8 +67,7 @@ Install rawpy by running:
 pip install rawpy
 ```
 
-Binary wheels are provided for Linux, macOS, and Windows.
-Currently, Linux and macOS wheels are only available as 64 bit versions.
+64-bit binary wheels are provided for Linux, macOS, and Windows.
 
 ### Stable vs. pre-release
 
@@ -169,7 +168,6 @@ rawpy depends on NumPy. The minimum supported NumPy version depends on your Pyth
 
 | Python | NumPy    |
 | ------ | -------- |
-| 3.6    | >= 1.11  |
 | 3.7    | >= 1.14  |
 | 3.8    | >= 1.17  |
 | 3.9    | >= 1.19  |
