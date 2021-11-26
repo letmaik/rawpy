@@ -116,6 +116,12 @@ jobs:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
+    - name: Setup Python
+      if: matrix.config.os-name == 'windows'
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.config.python-version }}
+
     - name: Build wheels (Windows)
       if: matrix.config.os-name == 'windows'
       run: .github/scripts/build-windows.ps1
