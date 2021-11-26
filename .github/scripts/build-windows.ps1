@@ -125,7 +125,7 @@ Get-ChildItem env:
 # Install vcpkg and build dependencies
 if (!(Test-Path ./vcpkg)) {
     exec { git clone https://github.com/microsoft/vcpkg -b 2021.05.12 --depth 1}
-    exec { ./vcpkg/bootstrap-vcpkg.sh }
+    exec { ./vcpkg/bootstrap-vcpkg }
 }
 exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=x64-windows-static --recurse }
 $env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\x64-windows-static"

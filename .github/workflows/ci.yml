@@ -116,7 +116,7 @@ jobs:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
-    - name: Setup Python
+    - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
       uses: actions/setup-python@v2
       with:
