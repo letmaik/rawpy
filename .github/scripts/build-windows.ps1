@@ -1,9 +1,5 @@
 $ErrorActionPreference = 'Stop'
 
-function not-exist { -not (Test-Path $args) }
-Set-Alias !exists not-exist -Option "Constant, AllScope"
-Set-Alias exists Test-Path -Option "Constant, AllScope"
-
 function exec {
     [CmdletBinding()]
     param([Parameter(Position=0,Mandatory=1)][scriptblock]$cmd)
@@ -68,7 +64,7 @@ function Initialize-VS {
     # https://wiki.python.org/moin/WindowsCompilers
     # setuptools automatically selects the right compiler for building
     # the extension module. The following is mostly for building any
-    # dependencies like libraw.
+    # native dependencies, here via CMake.
     # https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line
     # https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
 
@@ -84,7 +80,7 @@ function Initialize-VS {
     :outer foreach ($version in $VS_VERSIONS) {
         foreach ($edition in $VS_EDITIONS) {
             $VS_INIT_CMD = "$VS_ROOT\$version\$edition\$VS_INIT_CMD_SUFFIX"
-            if (exists $VS_INIT_CMD) {
+            if (Test-Path $VS_INIT_CMD) {
                 $found = $true
                 break outer
             }
@@ -145,7 +141,7 @@ python -m pip uninstall -y rawpy
 ls dist\*.whl | % { exec { python -m pip install $_ } }
 
 # Avoid using in-source package during tests
-New-Item -Force -ItemType directory tmp_for_test | out-null
+mkdir -f tmp_for_test | out-null
 pushd tmp_for_test
 exec { python -c "import rawpy" }
 popd
@@ -160,7 +156,7 @@ ls dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -m pip install -r dev-requirements.txt }
 
 # Avoid using in-source package during tests
-New-Item -Force -ItemType directory tmp_for_test | out-null
+mkdir -f tmp_for_test | out-null
 pushd tmp_for_test
 exec { pytest --verbosity=3 -s ../test }
 popd
