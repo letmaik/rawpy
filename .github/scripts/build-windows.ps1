@@ -33,7 +33,7 @@ function Create-VEnv {
     [CmdletBinding()]
     param([Parameter(Position=0,Mandatory=1)][string]$name)
     if ($env:USE_CONDA -eq 1) {
-        exec { conda create --yes --name rawpy_$name -c defaults --strict-channel-priority python=$env:PYTHON_VERSION --force }
+        exec { conda create --yes --name $name -c defaults --strict-channel-priority python=$env:PYTHON_VERSION --force }
     } else {
         exec { python -m venv env\$name }
     }
@@ -43,7 +43,7 @@ function Enter-VEnv {
     [CmdletBinding()]
     param([Parameter(Position=0,Mandatory=1)][string]$name)
     if ($env:USE_CONDA -eq 1) {
-        conda activate rawpy_$name
+        conda activate $name
     } else {
         & .\env\$name\scripts\activate
     }
