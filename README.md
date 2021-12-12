@@ -67,8 +67,7 @@ Install rawpy by running:
 pip install rawpy
 ```
 
-Binary wheels are provided for Linux, macOS, and Windows.
-Currently, Linux and macOS wheels are only available as 64 bit versions.
+64-bit binary wheels are provided for Linux, macOS, and Windows.
 
 ### Stable vs. pre-release
 
@@ -88,8 +87,8 @@ The following table shows which PyPI binary wheels support which features.
 
 | Feature            | Windows | macOS | Linux |
 | ------------------ | ------- | ----- | ----- |
-| LCMS color engine  | no      | yes   | yes   |
-| RedCine codec      | no      | yes   | yes   |
+| LCMS color engine  | yes     | yes   | yes   |
+| RedCine codec      | yes     | yes   | yes   |
 | DNG deflate codec  | yes     | yes   | yes   |
 | DNG lossy codec    | yes     | yes   | yes   |
 | Demosaic Pack GPL2 | no      | no    | no    |
@@ -97,12 +96,6 @@ The following table shows which PyPI binary wheels support which features.
 | OpenMP             | yes     | no    | yes   |
 
 Tip: You can dynamically query supported features by inspecting the `rawpy.flags` dictionary.
-
-Note on Windows features: The LCMS color engine and RedCine codec features are currently not
-supported as the [automated build process](https://github.com/letmaik/rawpy/actions)
-to generate wheels relies on Anaconda to supply any needed library dependencies.
-For RedCine codec support, the Windows variant of the [Jasper library](https://anaconda.org/anaconda/jasper) is missing,
-and for LCMS color engine support, the [LCMS library](https://anaconda.org/anaconda/lcms) is missing.
 
 Note on GPL demosaic packs: The GPL2 and GPL3 demosaic packs are not included as rawpy is licensed
 under the MIT license which is incompatible with GPL.
@@ -159,6 +152,7 @@ You need to have Visual Studio installed to build rawpy.
 
 In a PowerShell window:
 ```sh
+$env:USE_CONDA = '1'
 $env:PYTHON_VERSION = '3.7'
 $env:PYTHON_ARCH = '64'
 $env:NUMPY_VERSION = '1.14.*'
@@ -167,7 +161,8 @@ cd rawpy
 .github/scripts/build-windows.ps1
 ```
 The above will download all build dependencies (including a Python installation)
-and is fully configured through the three environment variables.
+and is fully configured through the four environment variables.
+Set `USE_CONDA = '0'` to build within an existing Python environment.
 
 ### NumPy Dependency
 
@@ -175,10 +170,10 @@ rawpy depends on NumPy. The minimum supported NumPy version depends on your Pyth
 
 | Python | NumPy    |
 | ------ | -------- |
-| 3.6    | >= 1.11  |
 | 3.7    | >= 1.14  |
 | 3.8    | >= 1.17  |
 | 3.9    | >= 1.19  |
+| 3.10   | >= 1.21  |
 
 
 [libraw]: https://www.libraw.org

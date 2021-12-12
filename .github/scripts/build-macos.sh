@@ -16,17 +16,6 @@ export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 # The Python variant to install, see exception below.
 export PYTHON_INSTALLER_MACOS_VERSION=$MACOS_MIN_VERSION
 
-# Work-around issue building on newer XCode versions.
-# https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981
-if [ $PYTHON_VERSION == "3.5" ]; then
-    # No 10.9 installer available, use 10.6.
-    # The resulting wheel platform tags still have 10.6 (=target of Python itself),
-    # even though technically the wheel should only be run on 10.9 upwards.
-    # This is fixed manually below by renaming the wheel.
-    # See https://github.com/pypa/wheel/issues/312.
-    export PYTHON_INSTALLER_MACOS_VERSION=10.6
-fi
-
 # Install Python
 # Note: The GitHub Actions supplied Python versions are not used
 # as they are built without MACOSX_DEPLOYMENT_TARGET/-mmacosx-version-min
