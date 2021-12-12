@@ -1,72 +1,37 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Params class &mdash; rawpy 0.16.0 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-  
-  
-
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Params class &mdash; rawpy 0.17.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Exceptions" href="exceptions.html" />
     <link rel="prev" title="RawPy class" href="rawpy.RawPy.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> rawpy
-          
-
-          
+            <a href="../index.html" class="icon icon-home"> rawpy
           </a>
-
-          
-            
-            
               <div class="version">
-                0.16.0
+                0.17.0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -74,18 +39,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="classes.html">Classes</a><ul class="current">
@@ -101,78 +55,37 @@
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">rawpy</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">API Reference</a> &raquo;</li>
-        
           <li><a href="classes.html">Classes</a> &raquo;</li>
-        
       <li>Params class</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/api/rawpy.Params.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="params-class">
+             
+  <section id="params-class">
 <h1>Params class<a class="headerlink" href="#params-class" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="rawpy.Params">
-<em class="property">class </em><code class="sig-prename descclassname">rawpy.</code><code class="sig-name descname">Params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">demosaic_algorithm</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">half_size</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">four_color_rgb</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">dcb_iterations</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">dcb_enhance</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fbdd_noise_reduction</span><span class="o">=</span><span class="default_value">FBDDNoiseReductionMode.Off</span></em>, <em class="sig-param"><span class="n">noise_thr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">median_filter_passes</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">use_camera_wb</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_auto_wb</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">user_wb</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output_color</span><span class="o">=</span><span class="default_value">ColorSpace.sRGB</span></em>, <em class="sig-param"><span class="n">output_bps</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">user_flip</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">user_black</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">user_sat</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_auto_bright</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">auto_bright_thr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">adjust_maximum_thr</span><span class="o">=</span><span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">bright</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">highlight_mode</span><span class="o">=</span><span class="default_value">HighlightMode.Clip</span></em>, <em class="sig-param"><span class="n">exp_shift</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exp_preserve_highlights</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">no_auto_scale</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chromatic_aberration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bad_pixels_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.Params" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="rawpy.Params">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">Params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demosaic_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">half_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">four_color_rgb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dcb_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dcb_enhance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fbdd_noise_reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FBDDNoiseReductionMode.Off</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_thr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">median_filter_passes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_camera_wb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_auto_wb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_wb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ColorSpace.sRGB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_bps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_flip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_black</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_sat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_auto_bright</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_bright_thr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjust_maximum_thr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bright</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highlight_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">HighlightMode.Clip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_preserve_highlights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chromatic_aberration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad_pixels_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.Params" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class that handles postprocessing parameters.</p>
 <p>If use_camera_wb and use_auto_wb are False and user_wb is None, then
 daylight white balance correction is used.
@@ -220,62 +133,37 @@ for alternative repair algorithms, e.g. using the median.</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="exceptions.html" class="btn btn-neutral float-right" title="Exceptions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="rawpy.RawPy.html" class="btn btn-neutral float-left" title="RawPy class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rawpy.RawPy.html" class="btn btn-neutral float-left" title="RawPy class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="exceptions.html" class="btn btn-neutral float-right" title="Exceptions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        
-        &copy; Copyright 2014, Maik Riechert
-
-    </p>
+    <p>&#169; Copyright 2014, Maik Riechert.</p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
