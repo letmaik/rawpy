@@ -89,6 +89,11 @@ popd
 
 ls -al $LIB_INSTALL_PREFIX/lib
 
+# By default, wheels are tagged with the architecture of the Python
+# installation, which would produce universal2 even if only building
+# for x86_64. The following line overrides that behavior.
+export _PYTHON_HOST_PLATFORM="macosx-${MACOS_MIN_VERSION}-x86_64"
+
 export CC=clang
 export CXX=clang++
 export CFLAGS="-arch x86_64"
