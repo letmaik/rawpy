@@ -68,22 +68,22 @@ jobs:
           python-version: '3.10'
           numpy-version: '1.21.*'
 
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.7'
           python-arch: '64'
           numpy-version: '1.14.*'
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.8'
           python-arch: '64'
           numpy-version: '1.17.*'
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.9'
           python-arch: '64'
           numpy-version: '1.19.*'
-        - os-image: windows-latest
+        - os-image: windows-2019
           os-name: windows
           python-version: '3.10'
           python-arch: '64'
