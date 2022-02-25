@@ -23,7 +23,7 @@ export PYTHON_INSTALLER_MACOS_VERSION=$MACOS_MIN_VERSION
 # Instead we install python.org binaries which are built with 10.6/10.9 target
 # and hence provide wider compatibility for the wheels we create.
 # See https://github.com/actions/setup-python/issues/26.
-git clone https://github.com/matthew-brett/multibuild.git
+git clone https://github.com/multi-build/multibuild.git
 pushd multibuild
 set +x # reduce noise
 source osx_utils.sh
