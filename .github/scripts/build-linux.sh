@@ -97,22 +97,10 @@ retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
 ${PYBIN}/pip freeze
 
 # Build rawpy wheel
-rm -rf wheelhouse
-retry ${PYBIN}/pip wheel . -w wheelhouse
+export LDFLAGS="-Wl,--strip-debug"
+${PYBIN}/python setup.py bdist_wheel --dist-dir dist-tmp
 
-# Bundle external shared libraries into wheel
-auditwheel repair wheelhouse/rawpy*.whl -w wheelhouse
-
-# Install package and test
-${PYBIN}/pip install rawpy --no-index -f wheelhouse
-
-retry ${PYBIN}/pip install -r dev-requirements.txt
-retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
-
-pushd $HOME
-${PYBIN}/pytest --verbosity=3 -s /io/test
-popd
-
-# Move wheel to dist/ folder for easier deployment
-mkdir -p dist
-mv wheelhouse/rawpy*manylinux*.whl dist/
+# Bundle external shared libraries into wheel and fix the wheel tags
+mkdir dist
+auditwheel repair dist-tmp/rawpy*.whl -w dist
+ls -al dist

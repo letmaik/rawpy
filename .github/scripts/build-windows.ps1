@@ -20,9 +20,8 @@ function Initialize-Python {
         & $env:CONDA_ROOT\shell\condabin\conda-hook.ps1
         exec { conda update --yes -n base -c defaults conda }
     }
-    # Check Python version/arch
+    # Check Python version
     exec { python -c "import platform; assert platform.python_version().startswith('$env:PYTHON_VERSION')" }
-    exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
 }
 
 function Create-VEnv {
@@ -73,7 +72,7 @@ function Initialize-VS {
     $VS_EDITIONS = @("Enterprise", "Professional", "Community")
     $VS_INIT_CMD_SUFFIX = "Common7\Tools\vsdevcmd.bat"
 
-    $VS_ARCH = if ($env:PYTHON_ARCH -eq '32') { 'x86' } else { 'x64' }
+    $VS_ARCH = if ($env:PYTHON_ARCH -eq 'x86') { 'x86' } else { 'x64' }
     $VS_INIT_ARGS = "-arch=$VS_ARCH -no_logo"
 
     $found = $false
@@ -106,8 +105,8 @@ function Initialize-VS {
 if (!$env:PYTHON_VERSION) {
     throw "PYTHON_VERSION env var missing, must be x.y"
 }
-if ($env:PYTHON_ARCH -ne '32' -and $env:PYTHON_ARCH -ne '64') {
-    throw "PYTHON_ARCH env var must be 32 or 64"
+if ($env:PYTHON_ARCH -ne 'x86' -and $env:PYTHON_ARCH -ne 'x86_64') {
+    throw "PYTHON_ARCH env var must be x86 or x86_64"
 }
 if (!$env:NUMPY_VERSION) {
     throw "NUMPY_VERSION env var missing"
@@ -132,33 +131,4 @@ Create-And-Enter-VEnv build
 exec { python -m pip install --upgrade pip wheel setuptools }
 exec { python -m pip install --only-binary :all: numpy==$env:NUMPY_VERSION cython }
 exec { python -u setup.py bdist_wheel }
-Exit-VEnv
-
-# Install and import in an empty environment.
-# This is to catch DLL issues that may be hidden with dependencies.
-Create-And-Enter-VEnv import-test
-python -m pip uninstall -y rawpy
-ls dist\*.whl | % { exec { python -m pip install $_ } }
-
-# Avoid using in-source package during tests
-mkdir -f tmp_for_test | out-null
-pushd tmp_for_test
-exec { python -c "import rawpy" }
-popd
-
-Exit-VEnv
-
-# Run test suite with all required and optional dependencies
-Create-And-Enter-VEnv testsuite
-exec { python -m pip install --only-binary :all: numpy scikit-image }
-python -m pip uninstall -y rawpy
-ls dist\*.whl | % { exec { python -m pip install $_ } }
-exec { python -m pip install -r dev-requirements.txt }
-
-# Avoid using in-source package during tests
-mkdir -f tmp_for_test | out-null
-pushd tmp_for_test
-exec { pytest --verbosity=3 -s ../test }
-popd
-
 Exit-VEnv

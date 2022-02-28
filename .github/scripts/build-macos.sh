@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e -x
 
-source .github/scripts/retry.sh
-
 CHECK_SHA256=.github/scripts/check_sha256.sh
 
 # General note:
@@ -33,7 +31,7 @@ set -x
 popd
 
 # Install dependencies
-retry pip install numpy==$NUMPY_VERSION cython wheel delocate
+pip install numpy==$NUMPY_VERSION cython wheel delocate
 
 # List installed packages
 pip freeze
@@ -92,11 +90,11 @@ ls -al $LIB_INSTALL_PREFIX/lib
 # By default, wheels are tagged with the architecture of the Python
 # installation, which would produce universal2 even if only building
 # for x86_64. The following line overrides that behavior.
-export _PYTHON_HOST_PLATFORM="macosx-${MACOS_MIN_VERSION}-x86_64"
+export _PYTHON_HOST_PLATFORM="macosx-${MACOS_MIN_VERSION}-${PYTHON_ARCH}"
 
 export CC=clang
 export CXX=clang++
-export CFLAGS="-arch x86_64"
+export CFLAGS="-arch ${PYTHON_ARCH}"
 export CXXFLAGS=$CFLAGS
 export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
@@ -104,14 +102,8 @@ export ARCHFLAGS=$CFLAGS
 # Build wheel
 python setup.py bdist_wheel
 
-# Fix wheel platform tag, see above for details.
-if [ $PYTHON_VERSION == "3.5" ]; then
-    filename=$(ls dist/*.whl)
-    mv -v "$filename" "${filename/macosx_10_6_intel/macosx_10_9_x86_64}"
-fi
-
 delocate-listdeps --all --depending dist/*.whl # lists library dependencies
-delocate-wheel --verbose --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
+delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.
@@ -132,16 +124,3 @@ for file in rawpy/.dylibs/*.dylib; do
 done
 popd
 set -x
-
-# Install rawpy
-pip install dist/*.whl
-
-# Test installed rawpy
-retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
-retry pip install -r dev-requirements.txt
-# make sure it's working without any required libraries installed
-rm -rf $LIB_INSTALL_PREFIX
-mkdir tmp_for_test
-pushd tmp_for_test
-pytest --verbosity=3 -s ../test
-popd
