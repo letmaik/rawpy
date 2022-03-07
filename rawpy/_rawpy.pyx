@@ -21,7 +21,7 @@ import warnings
 from enum import Enum
 
 cdef extern from "Python.h":
-    wchar_t* PyUnicode_AsWideCharString(object, Py_ssize_t *)
+    wchar_t* PyUnicode_AsWideCharString(object, Py_ssize_t *) except NULL
 
 cdef extern from "def_helper.h":
     cdef int LIBRAW_XTRANS
