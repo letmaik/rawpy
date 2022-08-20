@@ -1021,6 +1021,7 @@ class ColorSpace(Enum):
     Wide=3
     ProPhoto=4
     XYZ=5
+    ACES=6
     
 class HighlightMode(Enum):
     """
