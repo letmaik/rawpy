@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exceptions &mdash; rawpy 0.17.1 documentation</title>
+  <title>Exceptions &mdash; rawpy 0.17.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -30,7 +31,7 @@
             <a href="../index.html" class="icon icon-home"> rawpy
           </a>
               <div class="version">
-                0.17.1
+                0.17.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -83,9 +84,9 @@
            <div itemprop="articleBody">
              
   <section id="exceptions">
-<h1>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h1>
+<h1>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this heading">¶</a></h1>
 <section id="notsupportederror">
-<h2>NotSupportedError<a class="headerlink" href="#notsupportederror" title="Permalink to this headline">¶</a></h2>
+<h2>NotSupportedError<a class="headerlink" href="#notsupportederror" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference internal" href="#rawpy.NotSupportedError" title="rawpy.NotSupportedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.NotSupportedError</span></code></a> is raised if a feature of LibRaw is used that
 was not enabled during the LibRaw library build, for example demosaic algorithms that are
 part of the GPL2/GPL3 packs.</p>
@@ -96,7 +97,7 @@ part of the GPL2/GPL3 packs.</p>
 
 </section>
 <section id="librawerror">
-<h2>LibRawError<a class="headerlink" href="#librawerror" title="Permalink to this headline">¶</a></h2>
+<h2>LibRawError<a class="headerlink" href="#librawerror" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference internal" href="#rawpy.LibRawError" title="rawpy.LibRawError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawError</span></code></a> is the base type of <a class="reference internal" href="#rawpy.LibRawFatalError" title="rawpy.LibRawFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawFatalError</span></code></a> and <a class="reference internal" href="#rawpy.LibRawNonFatalError" title="rawpy.LibRawNonFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawNonFatalError</span></code></a>
 and can be used to catch any LibRaw errors.</p>
 <dl class="py class">
@@ -106,7 +107,7 @@ and can be used to catch any LibRaw errors.</p>
 
 </section>
 <section id="librawfatalerror">
-<h2>LibRawFatalError<a class="headerlink" href="#librawfatalerror" title="Permalink to this headline">¶</a></h2>
+<h2>LibRawFatalError<a class="headerlink" href="#librawfatalerror" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawFatalError">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawFatalError</span></span><a class="headerlink" href="#rawpy.LibRawFatalError" title="Permalink to this definition">¶</a></dt>
@@ -150,7 +151,7 @@ and can be used to catch any LibRaw errors.</p>
 
 </section>
 <section id="librawnonfatalerror">
-<h2>LibRawNonFatalError<a class="headerlink" href="#librawnonfatalerror" title="Permalink to this headline">¶</a></h2>
+<h2>LibRawNonFatalError<a class="headerlink" href="#librawnonfatalerror" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawNonFatalError">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawNonFatalError</span></span><a class="headerlink" href="#rawpy.LibRawNonFatalError" title="Permalink to this definition">¶</a></dt>
