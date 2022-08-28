@@ -19,7 +19,8 @@ libraw_colordata_black_level_t adjust_bl_(LibRaw* libraw) {
   // The following was copied unchanged from libraw_cxx.cpp LibRaw::adjust_bl().
 
   // Add common part to cblack[] early
-  if (filters > 1000 && (C.cblack[4] + 1) / 2 == 1 && (C.cblack[5] + 1) / 2 == 1)
+  if (filters > 1000 && (C.cblack[4] + 1) / 2 == 1 &&
+    (C.cblack[5] + 1) / 2 == 1)
   {
     int clrs[4];
     int lastg = -1, gcnt = 0;
@@ -35,11 +36,13 @@ libraw_colordata_black_level_t adjust_bl_(LibRaw* libraw) {
     if (gcnt > 1 && lastg >= 0)
       clrs[lastg] = 3;
     for (int c = 0; c < 4; c++)
-      C.cblack[clrs[c]] += C.cblack[6 + c / 2 % C.cblack[4] * C.cblack[5] + c % 2 % C.cblack[5]];
+      C.cblack[clrs[c]] +=
+        C.cblack[6 + c / 2 % C.cblack[4] * C.cblack[5] + c % 2 % C.cblack[5]];
     C.cblack[4] = C.cblack[5] = 0;
     // imgdata.idata.filters = sfilters;
   }
-  else if (filters <= 1000 && C.cblack[4] == 1 && C.cblack[5] == 1) // Fuji RAF dng
+  else if (imgdata.idata.filters <= 1000 && C.cblack[4] == 1 &&
+           C.cblack[5] == 1) // Fuji RAF dng
   {
     for (int c = 0; c < 4; c++)
       C.cblack[c] += C.cblack[6];
@@ -49,7 +52,7 @@ libraw_colordata_black_level_t adjust_bl_(LibRaw* libraw) {
   int i = C.cblack[3];
   int c;
   for (c = 0; c < 3; c++)
-    if (i > C.cblack[c])
+    if (i > (int)C.cblack[c])
       i = C.cblack[c];
 
   for (c = 0; c < 4; c++)
@@ -61,12 +64,12 @@ libraw_colordata_black_level_t adjust_bl_(LibRaw* libraw) {
   if (C.cblack[4] && C.cblack[5])
   {
     i = C.cblack[6];
-    for (c = 1; c < C.cblack[4] * C.cblack[5]; c++)
-      if (i > C.cblack[6 + c])
+    for (c = 1; c < int(C.cblack[4] * C.cblack[5]); c++)
+      if (i > int(C.cblack[6 + c]))
         i = C.cblack[6 + c];
     // Remove i from cblack[6+]
     int nonz = 0;
-    for (c = 0; c < C.cblack[4] * C.cblack[5]; c++)
+    for (c = 0; c < int(C.cblack[4] * C.cblack[5]); c++)
     {
       C.cblack[6 + c] -= i;
       if (C.cblack[6 + c])
