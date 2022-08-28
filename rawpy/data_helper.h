@@ -41,7 +41,7 @@ libraw_colordata_black_level_t adjust_bl_(LibRaw* libraw) {
     C.cblack[4] = C.cblack[5] = 0;
     // imgdata.idata.filters = sfilters;
   }
-  else if (imgdata.idata.filters <= 1000 && C.cblack[4] == 1 &&
+  else if (filters <= 1000 && C.cblack[4] == 1 &&
            C.cblack[5] == 1) // Fuji RAF dng
   {
     for (int c = 0; c < 4; c++)
