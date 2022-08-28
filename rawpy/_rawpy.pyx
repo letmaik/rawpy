@@ -47,7 +47,7 @@ cdef extern from "data_helper.h":
 
     cdef libraw_colordata_black_level_t adjust_bl_(LibRaw* libraw)
 
-cdef extern from "libraw.h":
+cdef extern from "libraw/libraw.h":
     ctypedef unsigned short ushort
     
     # some #define's

@@ -1,5 +1,5 @@
-#include "libraw_version.h"
-#include "libraw_const.h"
+#include <libraw/libraw_version.h>
+#include <libraw/libraw_const.h>
 
 // xtrans supported since 0.16.0
 #ifndef LIBRAW_XTRANS

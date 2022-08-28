@@ -87,7 +87,7 @@ if isWindows or isMac:
     cmake_build = os.path.join(external_dir, 'LibRaw-cmake', 'build')
     install_dir = os.path.join(cmake_build, 'install')
     
-    include_dirs += [os.path.join(install_dir, 'include', 'libraw')]
+    include_dirs += [os.path.join(install_dir, 'include')]
     library_dirs += [os.path.join(install_dir, 'lib')]
     libraries = ['raw_r']
     
@@ -100,7 +100,7 @@ else:
     # this header is only installed when using cmake
     libraw_config_found = False
     for include_dir in include_dirs:
-        if 'libraw_config.h' in os.listdir(include_dir):
+        if os.path.exists(os.path.join(include_dir, 'libraw', 'libraw_config.h')):
             libraw_config_found = True
             break
 
