@@ -192,7 +192,7 @@ cdef extern from "libraw/libraw.h":
 # The open_file method is overloaded on Windows and unfortunately
 # there is no better way to deal with this in Cython.
 IF UNAME_SYSNAME == "Windows":
-    cdef extern from "libraw.h":
+    cdef extern from "libraw/libraw.h":
         cdef cppclass LibRaw:
             libraw_data_t imgdata
             LibRaw()
@@ -209,7 +209,7 @@ IF UNAME_SYSNAME == "Windows":
             const char* strerror(int p)
             void recycle()
 ELSE:
-    cdef extern from "libraw.h":
+    cdef extern from "libraw/libraw.h":
         cdef cppclass LibRaw:
             libraw_data_t imgdata
             LibRaw()
