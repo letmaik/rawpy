@@ -11,7 +11,7 @@
 // libraw_config.h only exists since 0.15.4, and only in cmake builds
 // hence all values defined below are irrelevant if < 0.15.4 or cmake wasn't used
 #if _HAS_LIBRAW_CONFIG_H
-#include "libraw_config.h"
+#include <libraw/libraw_config.h>
 #define _LIBRAW_HAS_FLAGS 1
 #else
 #define _LIBRAW_HAS_FLAGS 0
