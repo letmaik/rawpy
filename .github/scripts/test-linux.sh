@@ -15,7 +15,7 @@ elif [ $PYTHON_VERSION == "3.9" ]; then
 elif [ $PYTHON_VERSION == "3.10" ]; then
     PYBIN="/opt/python/cp310-cp310/bin"
 elif [ $PYTHON_VERSION == "3.11" ]; then
-    PYBIN="/opt/python/cp310-cp311/bin"
+    PYBIN="/opt/python/cp311-cp311/bin"
 else
     echo "Unsupported Python version $PYTHON_VERSION"
     exit 1
