@@ -61,6 +61,12 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
         - os-image: ubuntu-latest
           os-name: linux
@@ -86,6 +92,12 @@ jobs:
           python-arch: 'aarch64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_aarch64
+          python-arch: 'aarch64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
         - os-image: macos-latest
           os-name: mac
@@ -111,6 +123,12 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: macos-latest
+          os-name: mac
+          macos-min-version: '10.9'
+          python-arch: 'x86_64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
         - os-image: windows-2019
           os-name: windows
@@ -132,6 +150,11 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: windows-2019
+          os-name: windows
+          python-arch: 'x86_64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
     runs-on: ${{ matrix.config.os-image }}
 
@@ -213,6 +236,12 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
         - os-image: ubuntu-latest
           os-name: linux
@@ -238,6 +267,12 @@ jobs:
           python-arch: 'aarch64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_aarch64
+          python-arch: 'aarch64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
         - os-image: macos-latest
           os-name: mac
@@ -263,6 +298,12 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: macos-latest
+          os-name: mac
+          macos-min-version: '10.9'
+          python-arch: 'x86_64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
         - os-image: windows-2019
           os-name: windows
@@ -284,6 +325,11 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
+        - os-image: windows-2019
+          os-name: windows
+          python-arch: 'x86_64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
 
     runs-on: ${{ matrix.config.os-image }}
 

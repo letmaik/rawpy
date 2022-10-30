@@ -6,9 +6,7 @@ cd /io
 # List python versions
 ls /opt/python
 
-if [ $PYTHON_VERSION == "3.6" ]; then
-    PYBIN="/opt/python/cp36-cp36m/bin"
-elif [ $PYTHON_VERSION == "3.7" ]; then
+if [ $PYTHON_VERSION == "3.7" ]; then
     PYBIN="/opt/python/cp37-cp37m/bin"
 elif [ $PYTHON_VERSION == "3.8" ]; then
     PYBIN="/opt/python/cp38-cp38/bin"
@@ -16,6 +14,8 @@ elif [ $PYTHON_VERSION == "3.9" ]; then
     PYBIN="/opt/python/cp39-cp39/bin"
 elif [ $PYTHON_VERSION == "3.10" ]; then
     PYBIN="/opt/python/cp310-cp310/bin"
+elif [ $PYTHON_VERSION == "3.11" ]; then
+    PYBIN="/opt/python/cp311-cp311/bin"
 else
     echo "Unsupported Python version $PYTHON_VERSION"
     exit 1
