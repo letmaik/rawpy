@@ -174,6 +174,7 @@ rawpy depends on NumPy. The minimum supported NumPy version depends on your Pyth
 | 3.8    | >= 1.17  |
 | 3.9    | >= 1.19  |
 | 3.10   | >= 1.21  |
+| 3.11   | >= 1.23  |
 
 
 [libraw]: https://www.libraw.org
