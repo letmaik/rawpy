@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>enhance module &mdash; rawpy 0.18.0a1 documentation</title>
+  <title>enhance module &mdash; rawpy 0.17.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -30,7 +31,7 @@
             <a href="../index.html" class="icon icon-home"> rawpy
           </a>
               <div class="version">
-                0.18.0a1
+                0.17.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -42,12 +43,18 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#rawpy.imread"><code class="docutils literal notranslate"><span class="pre">imread()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="classes.html">Classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enums.html">Enumerations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="namedtuples.html">Named Tuples</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">enhance</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">enhance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rawpy.enhance.find_bad_pixels"><code class="docutils literal notranslate"><span class="pre">find_bad_pixels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rawpy.enhance.repair_bad_pixels"><code class="docutils literal notranslate"><span class="pre">repair_bad_pixels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rawpy.enhance.save_dcraw_bad_pixels"><code class="docutils literal notranslate"><span class="pre">save_dcraw_bad_pixels()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -94,7 +101,7 @@ of bad pixels in non-moving high-contrast areas.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>paths</strong> (<em>iterable of str</em>) – paths to RAW images shot with the same camera</p></li>
+<li><p><strong>paths</strong> (<em>iterable</em><em> of </em><em>str</em>) – paths to RAW images shot with the same camera</p></li>
 <li><p><strong>find_hot</strong> (<em>bool</em>) – whether to find hot pixels</p></li>
 <li><p><strong>find_dead</strong> (<em>bool</em>) – whether to find dead pixels</p></li>
 <li><p><strong>confirm_ratio</strong> (<em>float</em>) – ratio of how many out of all given images
