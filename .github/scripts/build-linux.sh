@@ -1,32 +1,29 @@
 #!/bin/bash
 set -e -x
 
-bash --version
-
 cd /io
 
 source .github/scripts/retry.sh
 
+CHECK_SHA256=.github/scripts/check_sha256.sh
+
 # List python versions
 ls /opt/python
 
-if [ $PYTHON_VERSION == "3.6" ]; then
-    PYBIN="/opt/python/cp36-cp36m/bin"
-elif [ $PYTHON_VERSION == "3.7" ]; then
+if [ $PYTHON_VERSION == "3.7" ]; then
     PYBIN="/opt/python/cp37-cp37m/bin"
 elif [ $PYTHON_VERSION == "3.8" ]; then
     PYBIN="/opt/python/cp38-cp38/bin"
 elif [ $PYTHON_VERSION == "3.9" ]; then
     PYBIN="/opt/python/cp39-cp39/bin"
+elif [ $PYTHON_VERSION == "3.10" ]; then
+    PYBIN="/opt/python/cp310-cp310/bin"
+elif [ $PYTHON_VERSION == "3.11" ]; then
+    PYBIN="/opt/python/cp311-cp311/bin"
 else
     echo "Unsupported Python version $PYTHON_VERSION"
     exit 1
 fi
-
-# Install build tools
-curl --retry 3 -o cmake.sh https://cmake.org/files/v3.12/cmake-3.12.4-Linux-x86_64.sh
-chmod +x cmake.sh
-./cmake.sh --prefix=/usr --exclude-subdir --skip-license
 
 # Install zlib:
 # - libraw DNG deflate codec support
@@ -34,13 +31,23 @@ retry yum install -y zlib-devel
 
 # Install liblcms2:
 # - libraw LCMS support
-retry yum install -y lcms2-devel
+curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
+$CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
+tar xzf lcms2.tar.gz
+pushd lcms2-2.11
+# Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
+./configure --prefix=/usr --without-jpeg --without-tiff
+make install -j$(nproc)
+popd
 
 # Install libjpeg:
 # - pillow (a scikit-image dependency) dependency
+# - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-# CentOS 6 has libjpeg 6 only, so build from source.
-curl --retry 3 http://ijg.org/files/jpegsrc.v9d.tar.gz | tar xz
+# TODO: switch to libjpeg-turbo
+curl --retry 3 -o jpegsrc.tar.gz http://ijg.org/files/jpegsrc.v9d.tar.gz
+$CHECK_SHA256 jpegsrc.tar.gz 2303a6acfb6cc533e0e86e8a9d29f7e6079e118b9de3f96e07a71a11c082fa6a
+tar xzf jpegsrc.tar.gz
 pushd jpeg-9d
 ./configure --prefix=/usr
 make install -j$(nproc)
@@ -48,10 +55,10 @@ popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-# CentOS 6 has libjasper, but since it depends on libjpeg we'll build from
-# source, otherwise we would use two different libjpeg versions.
-curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.22.tar.gz | tar xz
-pushd jasper-version-2.0.22
+curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-2.0.32.tar.gz
+$CHECK_SHA256 jasper.tar.gz a3583a06698a6d6106f2fc413aa42d65d86bedf9a988d60e5cfa38bf72bc64b9
+tar xzf jasper.tar.gz
+pushd jasper-version-2.0.32
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
@@ -90,22 +97,10 @@ retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
 ${PYBIN}/pip freeze
 
 # Build rawpy wheel
-rm -rf wheelhouse
-retry ${PYBIN}/pip wheel . -w wheelhouse
+export LDFLAGS="-Wl,--strip-debug"
+${PYBIN}/python setup.py bdist_wheel --dist-dir dist-tmp
 
-# Bundle external shared libraries into wheel
-auditwheel repair wheelhouse/rawpy*.whl -w wheelhouse
-
-# Install package and test
-${PYBIN}/pip install rawpy --no-index -f wheelhouse
-
-retry ${PYBIN}/pip install -r dev-requirements.txt
-retry ${PYBIN}/pip install -U numpy # scipy should trigger an update, but that doesn't happen
-
-pushd $HOME
-${PYBIN}/nosetests --verbosity=3 --nocapture /io/test
-popd
-
-# Move wheel to dist/ folder for easier deployment
-mkdir -p dist
-mv wheelhouse/rawpy*manylinux2010*.whl dist/
+# Bundle external shared libraries into wheel and fix the wheel tags
+mkdir dist
+auditwheel repair dist-tmp/rawpy*.whl -w dist
+ls -al dist

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-source .github/scripts/retry.sh
+CHECK_SHA256=.github/scripts/check_sha256.sh
 
 # General note:
 # Apple guarantees forward, but not backward ABI compatibility unless
@@ -14,17 +14,6 @@ export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 # The Python variant to install, see exception below.
 export PYTHON_INSTALLER_MACOS_VERSION=$MACOS_MIN_VERSION
 
-# Work-around issue building on newer XCode versions.
-# https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981
-if [ $PYTHON_VERSION == "3.5" ]; then
-    # No 10.9 installer available, use 10.6.
-    # The resulting wheel platform tags still have 10.6 (=target of Python itself),
-    # even though technically the wheel should only be run on 10.9 upwards.
-    # This is fixed manually below by renaming the wheel.
-    # See https://github.com/pypa/wheel/issues/312.
-    export PYTHON_INSTALLER_MACOS_VERSION=10.6
-fi
-
 # Install Python
 # Note: The GitHub Actions supplied Python versions are not used
 # as they are built without MACOSX_DEPLOYMENT_TARGET/-mmacosx-version-min
@@ -32,7 +21,7 @@ fi
 # Instead we install python.org binaries which are built with 10.6/10.9 target
 # and hence provide wider compatibility for the wheels we create.
 # See https://github.com/actions/setup-python/issues/26.
-git clone https://github.com/matthew-brett/multibuild.git
+git clone https://github.com/multi-build/multibuild.git
 pushd multibuild
 set +x # reduce noise
 source osx_utils.sh
@@ -42,7 +31,7 @@ set -x
 popd
 
 # Install dependencies
-retry pip install numpy==$NUMPY_VERSION cython wheel delocate
+pip install numpy==$NUMPY_VERSION cython wheel delocate
 
 # List installed packages
 pip freeze
@@ -61,7 +50,10 @@ export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-curl --retry 3 http://ijg.org/files/jpegsrc.v9d.tar.gz | tar xz
+# TODO: switch to libjpeg-turbo
+curl --retry 3 -o jpegsrc.tar.gz http://ijg.org/files/jpegsrc.v9d.tar.gz
+$CHECK_SHA256 jpegsrc.tar.gz 2303a6acfb6cc533e0e86e8a9d29f7e6079e118b9de3f96e07a71a11c082fa6a
+tar xzf jpegsrc.tar.gz
 pushd jpeg-9d
 ./configure --prefix=$LIB_INSTALL_PREFIX
 make install -j
@@ -69,8 +61,10 @@ popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 https://github.com/jasper-software/jasper/archive/version-2.0.22.tar.gz | tar xz
-pushd jasper-version-2.0.22
+curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-2.0.32.tar.gz
+$CHECK_SHA256 jasper.tar.gz a3583a06698a6d6106f2fc413aa42d65d86bedf9a988d60e5cfa38bf72bc64b9
+tar xzf jasper.tar.gz
+pushd jasper-version-2.0.32
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
@@ -81,7 +75,9 @@ popd
 
 # Install Little CMS 2:
 # - libraw lcms support
-curl -L --retry 3 https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz | tar xz
+curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
+$CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
+tar xzf lcms2.tar.gz
 pushd lcms2-2.11
 # Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
 ./configure --prefix=$LIB_INSTALL_PREFIX \
@@ -91,9 +87,14 @@ popd
 
 ls -al $LIB_INSTALL_PREFIX/lib
 
+# By default, wheels are tagged with the architecture of the Python
+# installation, which would produce universal2 even if only building
+# for x86_64. The following line overrides that behavior.
+export _PYTHON_HOST_PLATFORM="macosx-${MACOS_MIN_VERSION}-${PYTHON_ARCH}"
+
 export CC=clang
 export CXX=clang++
-export CFLAGS="-arch x86_64"
+export CFLAGS="-arch ${PYTHON_ARCH}"
 export CXXFLAGS=$CFLAGS
 export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
@@ -101,14 +102,8 @@ export ARCHFLAGS=$CFLAGS
 # Build wheel
 python setup.py bdist_wheel
 
-# Fix wheel platform tag, see above for details.
-if [ $PYTHON_VERSION == "3.5" ]; then
-    filename=$(ls dist/*.whl)
-    mv -v "$filename" "${filename/macosx_10_6_intel/macosx_10_9_x86_64}"
-fi
-
 delocate-listdeps --all --depending dist/*.whl # lists library dependencies
-delocate-wheel --verbose --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
+delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.
@@ -129,16 +124,3 @@ for file in rawpy/.dylibs/*.dylib; do
 done
 popd
 set -x
-
-# Install rawpy
-pip install dist/*.whl
-
-# Test installed rawpy
-retry pip install numpy -U # scipy should trigger an update, but that doesn't happen
-retry pip install -r dev-requirements.txt
-# make sure it's working without any required libraries installed
-rm -rf $LIB_INSTALL_PREFIX
-mkdir tmp_for_test
-pushd tmp_for_test
-nosetests --verbosity=3 --nocapture ../test
-popd

@@ -50,12 +50,7 @@ function InstallMiniconda ($python_version, $architecture, $python_home) {
         Write-Host $python_home "already exists, skipping."
         return $false
     }
-    if ($architecture -eq "32") {
-        $platform_suffix = "x86"
-    } else {
-        $platform_suffix = "x86_64"
-    }
-    $filepath = DownloadMiniconda $python_version $platform_suffix
+    $filepath = DownloadMiniconda $python_version $architecture
     Write-Host "Installing" $filepath "to" $python_home
     $install_log = $python_home + ".log"
     $args = "/RegisterPython=0 /AddToPath=0 /S /D=$python_home"

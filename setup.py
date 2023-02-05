@@ -176,24 +176,17 @@ def windows_libraw_compile():
     os.makedirs(cmake_build, exist_ok=True)
     os.chdir(cmake_build)
         
-    # Hack for conda to force static linking (see https://github.com/letmaik/rawpy/issues/87)
-    zlib_static = os.path.join(sys.prefix, 'Library', 'lib', 'zlibstatic.lib')
-    if os.path.exists(zlib_static):
-        zlib_flag = '-DZLIB_LIBRARY=' + zlib_static + ' '
-    else:
-        zlib_flag = ''
-    
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
     enable_openmp_flag = 'ON' if has_openmp_dll else 'OFF'
     cmds = [cmake + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ' +\
+                    '-DCMAKE_PREFIX_PATH=' + os.environ['CMAKE_PREFIX_PATH'] + ' ' +\
                     '-DLIBRAW_PATH=' + libraw_dir.replace('\\', '/') + ' ' +\
                     '-DENABLE_X3FTOOLS=ON -DENABLE_6BY9RPI=ON ' +\
                     '-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP=' + enable_openmp_flag + ' -DENABLE_RAWSPEED=OFF ' +\
                     ('-DENABLE_DEMOSAIC_PACK_GPL2=ON -DDEMOSAIC_PACK_GPL2_RPATH=../../LibRaw-demosaic-pack-GPL2 ' +\
                      '-DENABLE_DEMOSAIC_PACK_GPL3=ON -DDEMOSAIC_PACK_GPL3_RPATH=../../LibRaw-demosaic-pack-GPL3 '
                      if buildGPLCode else '') +\
-                    zlib_flag +\
                     '-DCMAKE_INSTALL_PREFIX=install',
             cmake + ' --build . --target install',
             ]
@@ -258,14 +251,14 @@ package_data = {}
 # evil hack, check cmd line for relevant commands
 # custom cmdclasses didn't work out in this case
 cmdline = ''.join(sys.argv[1:])
-needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext', 'nosetests'])
+needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext'])
 if isWindows and needsCompile:
     windows_libraw_compile()        
     package_data['rawpy'] = ['*.dll']
 
 elif isMac and needsCompile:
     mac_libraw_compile()        
-    
+
 if any(s in cmdline for s in ['clean', 'sdist']):
     # When running sdist after a previous run of bdist or build_ext
     # then even with the 'clean' command the .egg-info folder stays.
@@ -306,9 +299,11 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Cython',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',

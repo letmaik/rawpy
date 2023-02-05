@@ -1,15 +1,15 @@
 [submodule "external/LibRaw"]
 	path = external/LibRaw
-	url = git://github.com/LibRaw/LibRaw.git
+	url = https://github.com/LibRaw/LibRaw.git
 	ignore = dirty
 [submodule "external/LibRaw-demosaic-pack-GPL2"]
 	path = external/LibRaw-demosaic-pack-GPL2
-	url = git://github.com/LibRaw/LibRaw-demosaic-pack-GPL2.git
+	url = https://github.com/LibRaw/LibRaw-demosaic-pack-GPL2.git
 	ignore = dirty
 [submodule "external/LibRaw-demosaic-pack-GPL3"]
 	path = external/LibRaw-demosaic-pack-GPL3
-	url = git://github.com/LibRaw/LibRaw-demosaic-pack-GPL3.git
+	url = https://github.com/LibRaw/LibRaw-demosaic-pack-GPL3.git
 	ignore = dirty
 [submodule "external/LibRaw-cmake"]
 	path = external/LibRaw-cmake
-	url = git://github.com/LibRaw/LibRaw-cmake
+	url = https://github.com/LibRaw/LibRaw-cmake
