@@ -1,0 +1,21 @@
+{
+    "image": "quay.io/pypa/manylinux2014_x86_64",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/python/cp311-cp311/bin/python"
+            }
+        }
+    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/io,type=bind,consistency=cached",
+    "workspaceFolder": "/io",
+    "remoteEnv": {
+        "PYTHON_ARCH": "x86_64",
+        "PYTHON_VERSION": "3.11",
+        "NUMPY_VERSION": "1.23.*"
+    },
+    "postCreateCommand": "git submodule update --init --recursive"
+}
