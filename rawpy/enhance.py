@@ -162,7 +162,7 @@ def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
         median_ = partial(cv2.medianBlur, ksize=r)
     else:
         kernel = np.ones((r,r))
-        median_ = partial(median, selem=kernel)
+        median_ = partial(median, footprint=kernel)
         
     coords = []
     
@@ -265,7 +265,7 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
         median_ = partial(cv2.medianBlur, ksize=r)
     else:
         kernel = np.ones((r,r))
-        median_ = partial(median, selem=kernel)
+        median_ = partial(median, footprint=kernel)
             
     # we have 4 colors (two greens are always seen as two colors)
     for offset_y in [0,1]:
