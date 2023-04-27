@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RawPy class &mdash; rawpy 0.18.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -29,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> rawpy
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            rawpy
           </a>
               <div class="version">
                 0.18.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -75,7 +76,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="classes.html">Classes</a></li>
       <li class="breadcrumb-item active">RawPy class</li>
@@ -130,7 +131,7 @@ If no image exists or the format is unsupported, an exception is raised.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="namedtuples.html#rawpy.Thumbnail" title="rawpy.Thumbnail"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Thumbnail</span></code></a></p>
 </dd>
 </dl>
@@ -142,7 +143,7 @@ If no image exists or the format is unsupported, an exception is raised.</p>
 <dd><p>Postprocess the currently loaded RAW image and return the
 new resulting image as numpy array.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><em>rawpy.Params</em></a>) – The parameters to use for postprocessing.</p></li>
 <li><p><strong>**kw</strong> – <p>Alternative way to provide postprocessing parameters.
@@ -151,7 +152,7 @@ If keywords are given, then <cite>params</cite> must be omitted.</p>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>ndarray of shape (h,w,c)</p>
 </dd>
 </dl>
@@ -183,7 +184,7 @@ Only usable for flat RAW images (see <a class="reference internal" href="#rawpy.
 <span class="sig-name descname"><span class="pre">black_level_per_channel</span></span><a class="headerlink" href="#rawpy.RawPy.black_level_per_channel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Per-channel black level correction.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of length 4</p>
 </dd>
 </dl>
@@ -194,7 +195,7 @@ Only usable for flat RAW images (see <a class="reference internal" href="#rawpy.
 <span class="sig-name descname"><span class="pre">camera_white_level_per_channel</span></span><a class="headerlink" href="#rawpy.RawPy.camera_white_level_per_channel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Per-channel saturation levels read from raw file metadata, if it exists. Otherwise None.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of length 4, or None if metadata missing</p>
 </dd>
 </dl>
@@ -205,7 +206,7 @@ Only usable for flat RAW images (see <a class="reference internal" href="#rawpy.
 <span class="sig-name descname"><span class="pre">camera_whitebalance</span></span><a class="headerlink" href="#rawpy.RawPy.camera_whitebalance" title="Permalink to this definition">¶</a></dt>
 <dd><p>White balance coefficients (as shot). Either read from file or calculated.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of length 4</p>
 </dd>
 </dl>
@@ -224,7 +225,7 @@ There are cameras with two different greens for example.</p>
 <span class="sig-name descname"><span class="pre">color_matrix</span></span><a class="headerlink" href="#rawpy.RawPy.color_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Color matrix, read from file for some cameras, calculated for others.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (3,4)</p>
 </dd>
 </dl>
@@ -237,7 +238,7 @@ There are cameras with two different greens for example.</p>
 Either read from file, or calculated on the basis of file data, 
 or taken from hardcoded constants.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of length 4</p>
 </dd>
 </dl>
@@ -258,7 +259,7 @@ as some use two different greens.</p>
 Equivalent to calling raw_color(y,x) for each pixel.
 Only usable for flat RAW images (see raw_type property).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (h,w)</p>
 </dd>
 </dl>
@@ -269,7 +270,7 @@ Only usable for flat RAW images (see raw_type property).</p>
 <span class="sig-name descname"><span class="pre">raw_colors_visible</span></span><a class="headerlink" href="#rawpy.RawPy.raw_colors_visible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like raw_colors but without margin.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (hv,wv)</p>
 </dd>
 </dl>
@@ -292,7 +293,7 @@ If you need to work on the array after closing the RawPy instance,
 make sure to create a copy of it with <code class="code docutils literal notranslate"><span class="pre">raw_image</span> <span class="pre">=</span> <span class="pre">raw.raw_image.copy()</span></code>.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (h,w[,c])</p>
 </dd>
 </dl>
@@ -303,7 +304,7 @@ make sure to create a copy of it with <code class="code docutils literal notrans
 <span class="sig-name descname"><span class="pre">raw_image_visible</span></span><a class="headerlink" href="#rawpy.RawPy.raw_image_visible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like raw_image but without margin.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (hv,wv[,c])</p>
 </dd>
 </dl>
@@ -314,7 +315,7 @@ make sure to create a copy of it with <code class="code docutils literal notrans
 <span class="sig-name descname"><span class="pre">raw_pattern</span></span><a class="headerlink" href="#rawpy.RawPy.raw_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>The smallest possible Bayer pattern of this image.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray, or None if not a flat RAW image</p>
 </dd>
 </dl>
@@ -325,7 +326,7 @@ make sure to create a copy of it with <code class="code docutils literal notrans
 <span class="sig-name descname"><span class="pre">raw_type</span></span><a class="headerlink" href="#rawpy.RawPy.raw_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the RAW type.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="enums.html#rawpy.RawType" title="rawpy.RawType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.RawType</span></code></a></p>
 </dd>
 </dl>
@@ -338,7 +339,7 @@ make sure to create a copy of it with <code class="code docutils literal notrans
 This matrix is constant (different for different models).
 Last row is zero for RGB cameras and non-zero for different color models (CMYG and so on).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (4,3)</p>
 </dd>
 </dl>
@@ -356,7 +357,7 @@ the RAW image and postprocessed image.</p>
 <span class="sig-name descname"><span class="pre">tone_curve</span></span><a class="headerlink" href="#rawpy.RawPy.tone_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Camera tone curve, read from file for Nikon, Sony and some other cameras.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of length 65536</p>
 </dd>
 </dl>
@@ -385,7 +386,7 @@ the RAW image and postprocessed image.</p>
 <p>This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a> instead.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (h,w,c)</p>
 </dd>
 </dl>
@@ -404,7 +405,7 @@ If no image exists or the format is unsupported, an exception is raised.</p>
 <p>This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.extract_thumb" title="rawpy.RawPy.extract_thumb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">extract_thumb()</span></code></a> instead.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="namedtuples.html#rawpy.Thumbnail" title="rawpy.Thumbnail"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.Thumbnail</span></code></a></p>
 </dd>
 </dl>
@@ -419,7 +420,7 @@ If no image exists or the format is unsupported, an exception is raised.</p>
 <p>This is a low-level method, consider using <a class="reference internal" href="#rawpy.RawPy.postprocess" title="rawpy.RawPy.postprocess"><code class="xref py py-meth docutils literal notranslate"><span class="pre">postprocess()</span></code></a> instead.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<a class="reference internal" href="rawpy.Params.html#rawpy.Params" title="rawpy.Params"><em>rawpy.Params</em></a>) – The parameters to use for postprocessing.</p></li>
 <li><p><strong>**kw</strong> – <p>Alternative way to provide postprocessing parameters.
@@ -440,7 +441,7 @@ If keywords are given, then <cite>params</cite> must be omitted.</p>
 <p>This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fileobj</strong> (<em>file</em>) – The file-like object.</p>
 </dd>
 </dl>
@@ -455,7 +456,7 @@ If keywords are given, then <cite>params</cite> must be omitted.</p>
 <p>This is a low-level method, consider using <a class="reference internal" href="index.html#rawpy.imread" title="rawpy.imread"><code class="xref py py-func docutils literal notranslate"><span class="pre">rawpy.imread()</span></code></a> instead.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to the RAW image.</p>
 </dd>
 </dl>

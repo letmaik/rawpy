@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>enhance module &mdash; rawpy 0.18.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -28,14 +25,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> rawpy
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            rawpy
           </a>
               <div class="version">
                 0.18.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -74,7 +75,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="modules.html">Modules</a></li>
       <li class="breadcrumb-item active">enhance module</li>
@@ -99,7 +100,7 @@ the same time, that is, each image must contain the same bad pixels.
 Also, there should be movement between the images to avoid the false detection
 of bad pixels in non-moving high-contrast areas.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>paths</strong> (<em>iterable</em><em> of </em><em>str</em>) – paths to RAW images shot with the same camera</p></li>
 <li><p><strong>find_hot</strong> (<em>bool</em>) – whether to find hot pixels</p></li>
@@ -108,10 +109,10 @@ of bad pixels in non-moving high-contrast areas.</p>
 must contain a bad pixel to confirm it as such</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>coordinates of confirmed bad pixels</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (n,2) with y,x coordinates relative to visible RAW size</p>
 </dd>
 </dl>
@@ -124,7 +125,7 @@ must contain a bad pixel to confirm it as such</p></li>
 <p>Note that the function works in-place on the RAW image data.
 It has to be called before postprocessing the image.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>raw</strong> (<a class="reference internal" href="rawpy.RawPy.html#id0" title="rawpy.RawPy"><em>rawpy.RawPy</em></a>) – the RAW image to repair</p></li>
 <li><p><strong>coords</strong> (<em>array-like</em>) – coordinates of bad pixels to repair, 
@@ -142,7 +143,7 @@ array of shape (n,2) with y,x coordinates relative to visible RAW size</p></li>
 <a class="reference external" href="http://www.cybercom.net/~dcoffin/dcraw/.badpixels">dcraw file format</a>.</p>
 <p>Note that timestamps cannot be set and will be written as zero.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> (<em>str</em>) – path of the badpixels file that will be written</p></li>
 <li><p><strong>bad_pixels</strong> (<em>array-like</em>) – array of shape (n,2) with y,x coordinates
