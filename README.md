@@ -164,17 +164,5 @@ The above will download all build dependencies (including a Python installation)
 and is fully configured through the four environment variables.
 Set `USE_CONDA = '0'` to build within an existing Python environment.
 
-### NumPy Dependency
-
-rawpy depends on NumPy. The minimum supported NumPy version depends on your Python version:
-
-| Python | NumPy    |
-| ------ | -------- |
-| 3.7    | >= 1.14  |
-| 3.8    | >= 1.17  |
-| 3.9    | >= 1.19  |
-| 3.10   | >= 1.21  |
-| 3.11   | >= 1.23  |
-
 
 [libraw]: https://www.libraw.org
