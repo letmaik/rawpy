@@ -9,7 +9,7 @@ It also contains some extra functionality for finding and repairing hot/dead pix
 
 ## Sample code
 
-Load a RAW file and save the postprocessed image using default parameters:
+Load a RAW file and save the postprocessed image using default [parameters](https://letmaik.github.io/rawpy/api/rawpy.Params.html):
 
 ```python
 import rawpy
