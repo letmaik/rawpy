@@ -146,4 +146,4 @@ generate_bayer_text_image(out_path='logo_a.png',
 render_as_isometric_voxels(in_path='logo_a.png', out_path='logo_b.png', dpi=600)
 rotate_image(in_path='logo_b.png', out_path='logo_c.png', angle=25.85)
 crop_image_to_content(in_path='logo_c.png', out_path='logo_d.png')
-resize_image(in_path='logo_d.png', out_path='logo_e.png', width=1280, save_kwargs=dict(optimize=True))
+resize_image(in_path='logo_d.png', out_path='logo.png', width=1280, save_kwargs=dict(optimize=True))
