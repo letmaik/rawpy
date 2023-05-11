@@ -1,4 +1,6 @@
-# rawpy
+<p align="center">
+<a href="https://en.wikipedia.org/wiki/Bayer_filter"><img width="500" src="https://raw.githubusercontent.com/letmaik/rawpy/main/logo/logo.png"></a>
+</p>
 
 rawpy is an easy-to-use Python wrapper for the [LibRaw library][libraw].
 It also contains some extra functionality for finding and repairing hot/dead pixels.
