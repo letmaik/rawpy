@@ -32,12 +32,12 @@ def generate_text_image(text: str, font_path: Pathy, font_size: int,
     # Load the font
     font = ImageFont.truetype(str(font_path), font_size)
 
-    # Draw the text onto the image
+    # Draw the text centered onto the image
     width, height = image_size
     d.text((width / 2 + offset_x, height / 2 + offset_y), text,
            fill=(0, 0, 0, 255), font=font, anchor='mm')
 
-    return np.ndarray(img)
+    return np.array(img)
 
 
 def generate_bayer_text_image(out_path: Pathy, text: str, font_path: Pathy, font_size: int,
@@ -131,13 +131,13 @@ def crop_image_to_content(in_path: Pathy, out_path: Pathy):
     img_cropped.save(out_path)
 
 
-def resize_image(in_path: Pathy, out_path: Pathy, width: int):
+def resize_image(in_path: Pathy, out_path: Pathy, width: int, save_kwargs: dict=None):
     img = Image.open(in_path)
 
     height = int(width * img.height / img.width)
     img_resized = img.resize((width, height), resample=Image.LANCZOS)
 
-    img_resized.save(out_path)
+    img_resized.save(out_path, **(save_kwargs or {}))
 
 
 generate_bayer_text_image(out_path='logo_a.png', 
@@ -146,4 +146,4 @@ generate_bayer_text_image(out_path='logo_a.png',
 render_as_isometric_voxels(in_path='logo_a.png', out_path='logo_b.png', dpi=600)
 rotate_image(in_path='logo_b.png', out_path='logo_c.png', angle=25.85)
 crop_image_to_content(in_path='logo_c.png', out_path='logo_d.png')
-resize_image(in_path='logo_d.png', out_path='logo.png', width=1280)
+resize_image(in_path='logo_d.png', out_path='logo_e.png', width=1280, save_kwargs=dict(optimize=True))
