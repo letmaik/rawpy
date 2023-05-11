@@ -1,4 +1,4 @@
-# rawpy
+![rawpy logo](logo/logo.png)
 
 rawpy is an easy-to-use Python wrapper for the [LibRaw library][libraw].
 It also contains some extra functionality for finding and repairing hot/dead pixels.
