@@ -1,14 +1,19 @@
+from typing import Tuple
+from pathlib import Path
+
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
+
+Pathy = Path | str
 
 BAYER_PATTERN = [
     [(255, 0, 0), (0, 255, 0)],  # Red, Green
     [(0, 255, 0), (0, 0, 255)]   # Green, Blue
 ]
 
-def generate_bayer_pattern(width, height):
+def generate_bayer_pattern(width: int, height: int) -> np.ndarray:
     img = np.empty((height, width, 3), dtype=np.uint8)
 
     for y in range(height):
@@ -17,38 +22,44 @@ def generate_bayer_pattern(width, height):
 
     return img
 
-def generate_text_image(text, font_path, font_size, image_size):
+
+def generate_text_image(text: str, font_path: Pathy, font_size: int,
+                        image_size: Tuple[int,int], offset_x: int, offset_y: int) -> np.ndarray:
     # Create a new image with transparent background
     img = Image.new('RGBA', image_size)
     d = ImageDraw.Draw(img)
 
     # Load the font
-    font = ImageFont.truetype(font_path, font_size)
+    font = ImageFont.truetype(str(font_path), font_size)
 
     # Draw the text onto the image
     width, height = image_size
-    d.text((width / 2, height / 2), text,
+    d.text((width / 2 + offset_x, height / 2 + offset_y), text,
            fill=(0, 0, 0, 255), font=font, anchor='mm')
 
-    return img
+    return np.ndarray(img)
 
-def generate_bayer_text_image(text, font_path, font_size, image_size):
+
+def generate_bayer_text_image(out_path: Pathy, text: str, font_path: Pathy, font_size: int,
+                              image_size: Tuple[int,int], offset_x: int=0, offset_y: int=0):
     # Generate a Bayer pattern image of the desired size
     bayer_img = generate_bayer_pattern(*image_size)
 
     # Generate a text image of the same size
-    text_img = generate_text_image(text, font_path, font_size, image_size)
-    text_pixels = np.array(text_img)
+    text_img = generate_text_image(text, font_path, font_size, image_size, offset_x, offset_y)
 
     # Modulate the Bayer pattern by the alpha channel of the text image
     low_opacity = 0.3
-    alpha = np.clip(text_pixels[..., 3] / 255.0, low_opacity, None)  # Normalize alpha to [0, 1]
+    alpha = np.clip(text_img[..., 3] / 255.0, low_opacity, None)  # Normalize alpha to [0, 1]
     result_img = (bayer_img * alpha[..., None]).astype(np.uint8)
 
-    return result_img
+    Image.fromarray(result_img).save(out_path)
 
 
-def render_as_isometric_voxels(img, path):
+def render_as_isometric_voxels(in_path: Pathy, out_path: Pathy, dpi: int):
+    # Load image as numpy array
+    img = np.array(Image.open(in_path))
+
     # Convert to the 0-1 range for matplotlib
     img_3d = img / 255
 
@@ -95,13 +106,13 @@ def render_as_isometric_voxels(img, path):
     ax.set_axis_off()
 
     # Save the plot
-    plt.savefig(path, bbox_inches='tight', pad_inches=0, transparent=True, dpi=300)
+    plt.savefig(out_path, bbox_inches='tight', pad_inches=0, transparent=True, dpi=dpi)
 
     # Close the plot
     plt.close(fig)
 
 
-def rotate_image(in_path, out_path, angle):
+def rotate_image(in_path: Pathy, out_path: Pathy, angle: float):
     img = Image.open(in_path)
 
     img_rotated = img.rotate(angle,
@@ -111,7 +122,7 @@ def rotate_image(in_path, out_path, angle):
     img_rotated.save(out_path)
 
 
-def crop_image(in_path, out_path):
+def crop_image_to_content(in_path: Pathy, out_path: Pathy):
     img = Image.open(in_path)
 
     bbox = img.getbbox()
@@ -120,8 +131,19 @@ def crop_image(in_path, out_path):
     img_cropped.save(out_path)
 
 
-result_img = generate_bayer_text_image('RAWPY', 'Inconsolata_ExtraExpanded-Black.ttf', 18, (66, 12))
-Image.fromarray(result_img).save('logo_a.png')
-render_as_isometric_voxels(result_img, 'logo_b.png')
-rotate_image('logo_b.png', 'logo_c.png', 25.85)
-crop_image('logo_c.png', 'logo_d.png')
+def resize_image(in_path: Pathy, out_path: Pathy, width: int):
+    img = Image.open(in_path)
+
+    height = int(width * img.height / img.width)
+    img_resized = img.resize((width, height), resample=Image.LANCZOS)
+
+    img_resized.save(out_path)
+
+
+generate_bayer_text_image(out_path='logo_a.png', 
+                          text='RAWPY', font_path='devin-chavez-font.ttf', font_size=14,
+                          image_size=(58, 14), offset_x=1)
+render_as_isometric_voxels(in_path='logo_a.png', out_path='logo_b.png', dpi=600)
+rotate_image(in_path='logo_b.png', out_path='logo_c.png', angle=25.85)
+crop_image_to_content(in_path='logo_c.png', out_path='logo_d.png')
+resize_image(in_path='logo_d.png', out_path='logo.png', width=1280)
