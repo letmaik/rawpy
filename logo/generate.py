@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
+from matplotlib.colors import LightSource
 
 BAYER_PATTERN = [
     [(255, 0, 0), (0, 255, 0)],  # Red, Green
@@ -8,7 +9,7 @@ BAYER_PATTERN = [
 ]
 
 def generate_bayer_pattern(width, height):
-    img = np.zeros((height, width, 3), dtype=np.uint8)
+    img = np.empty((height, width, 3), dtype=np.uint8)
 
     for y in range(height):
         for x in range(width):
@@ -40,16 +41,14 @@ def generate_bayer_text_image(text, font_path, font_size, image_size):
     text_pixels = np.array(text_img)
 
     # Modulate the Bayer pattern by the alpha channel of the text image
-    low_opacity = 0.2
+    low_opacity = 0.3
     alpha = np.clip(text_pixels[..., 3] / 255.0, low_opacity, None)  # Normalize alpha to [0, 1]
-    result_img = bayer_img * alpha[..., None]
-
-    # Convert to uint8
-    result_img = result_img.astype(np.uint8)
+    result_img = (bayer_img * alpha[..., None]).astype(np.uint8)
 
     return result_img
 
-def render_as_isometric_voxels(img, path, voxel_depth=1):
+
+def render_as_isometric_voxels(img, path):
     # Convert to the 0-1 range for matplotlib
     img_3d = img / 255
 
@@ -57,17 +56,13 @@ def render_as_isometric_voxels(img, path, voxel_depth=1):
     fig = plt.figure(figsize=(10, 10))
 
     # Add a 3D subplot
-    ax = fig.add_subplot(111, projection='3d', proj_type = 'ortho')
+    ax = fig.add_subplot(111, projection='3d', proj_type='ortho')
 
     # Get the dimensions of the image
     height, width, _ = img_3d.shape
 
     # Create empty 4D arrays for the voxel colors
-    colors = np.ones((height, width, 1, 4))  # initialize with white color and full opacity
-
-    # Create 3D filled arrays for the voxel positions
-    x, y, z = np.indices((height+1, width+1, 2))
-    z = z * voxel_depth  # multiply by voxel depth
+    colors = np.empty((height, width, 1, 4))
 
     # Go through each pixel in the image
     for i in range(height):
@@ -80,7 +75,7 @@ def render_as_isometric_voxels(img, path, voxel_depth=1):
 
     # Draw the voxels
     filled = np.ones((height, width, 1), dtype=bool)
-    ax.voxels(x, y, z, filled, facecolors=colors, edgecolor='k', linewidth=0.5)
+    ax.voxels(filled, facecolors=colors, edgecolor='k', linewidth=0.5, shade=True, lightsource=LightSource(azdeg=315, altdeg=25))
 
     # Set the viewing angle for an isometric projection
     ax.view_init(azim=40, elev=35.264)  # 35.264 is approximately arctan(1/sqrt(2))
@@ -100,48 +95,32 @@ def render_as_isometric_voxels(img, path, voxel_depth=1):
     ax.set_axis_off()
 
     # Save the plot
-    plt.savefig(path, bbox_inches='tight', pad_inches=0, dpi=300)
+    plt.savefig(path, bbox_inches='tight', pad_inches=0, transparent=True, dpi=300)
 
     # Close the plot
     plt.close(fig)
 
+
 def rotate_image(in_path, out_path, angle):
-    # Load the image
     img = Image.open(in_path)
 
-    # Rotate it by angle degrees
     img_rotated = img.rotate(angle,
-                             fillcolor=(255, 255, 255), 
+                             fillcolor=(255, 255, 255, 0), 
                              resample=Image.Resampling.BICUBIC) 
 
-    # Save the result
     img_rotated.save(out_path)
 
+
 def crop_image(in_path, out_path):
-    # Load the image
     img = Image.open(in_path)
 
-    # Convert to grayscale
-    img_gray = img.convert('L')
-
-    # Convert to binary image
-    threshold = 250
-    img_bw = img_gray.point(lambda x: 0 if x < threshold else 255, '1')
-
-    # Invert colors (so whitespace is black)
-    img_bw = Image.fromarray(np.invert(np.array(img_bw)))
-
-    # Get the bounding box
-    bbox = img_bw.getbbox()
-
-    # Crop the image to the bounding box
+    bbox = img.getbbox()
     img_cropped = img.crop(bbox)
 
-    # Save the result
     img_cropped.save(out_path)
 
 
-result_img = generate_bayer_text_image('RAWPY', 'consolab.ttf', 18, (46, 10))
+result_img = generate_bayer_text_image('RAWPY', 'Inconsolata_ExtraExpanded-Black.ttf', 18, (66, 12))
 Image.fromarray(result_img).save('logo_a.png')
 render_as_isometric_voxels(result_img, 'logo_b.png')
 rotate_image('logo_b.png', 'logo_c.png', 25.85)
