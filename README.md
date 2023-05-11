@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://en.wikipedia.org/wiki/Bayer_filter"><img width="500" src="https://raw.githubusercontent.com/letmaik/rawpy/logo/logo/logo.png"></a>
+<a href="https://en.wikipedia.org/wiki/Bayer_filter"><img width="500" src="https://raw.githubusercontent.com/letmaik/rawpy/main/logo/logo.png"></a>
 </p>
 
 rawpy is an easy-to-use Python wrapper for the [LibRaw library][libraw].
