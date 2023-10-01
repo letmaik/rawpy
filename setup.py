@@ -5,7 +5,6 @@ import os
 import shutil
 import sys
 import zipfile
-import re
 import glob
 from urllib.request import urlretrieve
 
@@ -21,6 +20,7 @@ from Cython.Build import cythonize
 # Note: Building GPL demosaic packs only works with libraw <= 0.18.
 #       See https://github.com/letmaik/rawpy/issues/72.
 buildGPLCode = os.getenv('RAWPY_BUILD_GPL_CODE') == '1'
+useSystemLibraw = os.getenv('RAWPY_USE_SYSTEM_LIBRAW') == '1'
 
 # don't treat mingw as Windows (https://stackoverflow.com/a/51200002)
 isWindows = os.name == 'nt' and 'GCC' not in sys.version
@@ -81,7 +81,7 @@ def use_pkg_config():
 # on a configure script, or cmake or other build infrastructure. 
 # A possible work-around could be to statically link against libraw.
 
-if isWindows or isMac:
+if (isWindows or isMac) and not useSystemLibraw:
     external_dir = os.path.abspath('external')
     libraw_dir = os.path.join(external_dir, 'LibRaw')
     cmake_build = os.path.join(external_dir, 'LibRaw-cmake', 'build')
@@ -251,7 +251,7 @@ package_data = {}
 # evil hack, check cmd line for relevant commands
 # custom cmdclasses didn't work out in this case
 cmdline = ''.join(sys.argv[1:])
-needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext'])
+needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext']) and not useSystemLibraw
 if isWindows and needsCompile:
     windows_libraw_compile()        
     package_data['rawpy'] = ['*.dll']
@@ -290,7 +290,6 @@ setup(
       long_description = open('README.md').read(),
       long_description_content_type='text/markdown',
       author = 'Maik Riechert',
-      author_email = 'maik.riechert@arcor.de',
       url = 'https://github.com/letmaik/rawpy',
       classifiers=[
         'Development Status :: 4 - Beta',

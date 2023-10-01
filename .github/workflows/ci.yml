@@ -159,7 +159,7 @@ jobs:
     runs-on: ${{ matrix.config.os-image }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
 
@@ -186,7 +186,7 @@ jobs:
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -200,7 +200,7 @@ jobs:
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Store wheels as artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: dist
@@ -336,12 +336,12 @@ jobs:
     needs: build
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: wheels
         path: dist
@@ -359,7 +359,7 @@ jobs:
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -373,7 +373,7 @@ jobs:
 
     - name: Setup Python (macOS)
       if: matrix.config.os-name == 'mac'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -390,7 +390,7 @@ jobs:
     needs: build
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
    
     - name: Setup Python
       uses: actions/setup-python@v1
@@ -398,7 +398,7 @@ jobs:
         python-version: '3.9'
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: wheels
         path: dist
@@ -412,7 +412,7 @@ jobs:
       run: sphinx-build -b html docs dist-docs
 
     - name: Store docs HTML as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: docs
         path: dist-docs
@@ -426,7 +426,7 @@ jobs:
 
     steps:
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: wheels
         path: dist

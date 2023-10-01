@@ -72,6 +72,7 @@ pushd external/LibRaw-cmake
 mkdir build
 cd build
 cmake .. \
+    -DCMAKE_INSTALL_PREFIX=/usr \
     -DLIBRAW_PATH=$libraw_dir \
     -DENABLE_X3FTOOLS=ON \
     -DENABLE_6BY9RPI=ON \
@@ -80,8 +81,6 @@ cmake .. \
     -DCMAKE_BUILD_TYPE=Release
 make
 make install -j$(nproc)
-echo "/usr/local/lib" | tee /etc/ld.so.conf.d/99local.conf
-ldconfig
 popd
 
 # Install matplotlib (a scikit-image dependency) dependencies

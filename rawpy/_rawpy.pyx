@@ -516,7 +516,7 @@ cdef class RawPy:
             # ndarr must hold a reference to this object,
             # otherwise the underlying data gets lost when the RawPy instance gets out of scope
             # (which would trigger __dealloc__)
-            ndarr.base = <PyObject*> self
+            np.PyArray_SetBaseObject(ndarr, self)
             # Python doesn't know about above assignment as it's in C-level 
             Py_INCREF(self)
             return ndarr
@@ -1037,6 +1037,8 @@ class ColorSpace(Enum):
     ProPhoto=4
     XYZ=5
     ACES=6
+    P3D65=7
+    Rec2020=8
     
 class HighlightMode(Enum):
     """
@@ -1201,7 +1203,7 @@ cdef class processed_image_wrapper:
         ndarr = np.PyArray_SimpleNewFromData(3, shape, 
                                              np.NPY_UINT8 if self.processed_image.bits == 8 else np.NPY_UINT16,
                                              self.processed_image.data)
-        ndarr.base = <PyObject*> self
+        np.PyArray_SetBaseObject(ndarr, self)
         # Python doesn't know about above assignment as it's in C-level 
         Py_INCREF(self)
         return ndarr

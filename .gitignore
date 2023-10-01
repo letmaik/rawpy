@@ -72,3 +72,5 @@ docs/_build/
 /external/miniconda*
 Miniconda*.exe
 /vcpkg
+
+!/logo/logo.png

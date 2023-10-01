@@ -1,4 +1,6 @@
-# rawpy
+<p align="center">
+<a href="https://en.wikipedia.org/wiki/Bayer_filter"><img width="500" src="https://raw.githubusercontent.com/letmaik/rawpy/main/logo/logo.png"></a>
+</p>
 
 rawpy is an easy-to-use Python wrapper for the [LibRaw library][libraw].
 It also contains some extra functionality for finding and repairing hot/dead pixels.
@@ -9,7 +11,7 @@ It also contains some extra functionality for finding and repairing hot/dead pix
 
 ## Sample code
 
-Load a RAW file and save the postprocessed image using default parameters:
+Load a RAW file and save the postprocessed image using default [parameters](https://letmaik.github.io/rawpy/api/rawpy.Params.html):
 
 ```python
 import rawpy
@@ -163,18 +165,6 @@ cd rawpy
 The above will download all build dependencies (including a Python installation)
 and is fully configured through the four environment variables.
 Set `USE_CONDA = '0'` to build within an existing Python environment.
-
-### NumPy Dependency
-
-rawpy depends on NumPy. The minimum supported NumPy version depends on your Python version:
-
-| Python | NumPy    |
-| ------ | -------- |
-| 3.7    | >= 1.14  |
-| 3.8    | >= 1.17  |
-| 3.9    | >= 1.19  |
-| 3.10   | >= 1.21  |
-| 3.11   | >= 1.23  |
 
 
 [libraw]: https://www.libraw.org
