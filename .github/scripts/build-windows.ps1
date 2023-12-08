@@ -119,7 +119,7 @@ Get-ChildItem env:
 
 # Install vcpkg and build dependencies
 if (!(Test-Path ./vcpkg)) {
-    exec { git clone https://github.com/microsoft/vcpkg -b 2023.04.15 --depth 1}
+    exec { git clone https://github.com/microsoft/vcpkg -b 2023.11.20 --depth 1}
     exec { ./vcpkg/bootstrap-vcpkg }
 }
 exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=x64-windows-static --recurse }
