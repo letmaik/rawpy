@@ -31,7 +31,7 @@ set -x
 popd
 
 # Install dependencies
-pip install numpy==$NUMPY_VERSION cython wheel delocate
+pip install numpy==$NUMPY_VERSION cython wheel delocate setuptools
 
 # List installed packages
 pip freeze
