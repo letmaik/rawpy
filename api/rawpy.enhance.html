@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>enhance module &mdash; rawpy 0.18.1 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>enhance module &mdash; rawpy 0.19.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/documentation_options.js?v=cbfb3150"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,11 +30,12 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
-            rawpy
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.18.1
+                0.19.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -89,10 +92,10 @@
            <div itemprop="articleBody">
              
   <section id="module-rawpy.enhance">
-<span id="enhance-module"></span><h1>enhance module<a class="headerlink" href="#module-rawpy.enhance" title="Permalink to this heading">¶</a></h1>
+<span id="enhance-module"></span><h1>enhance module<a class="headerlink" href="#module-rawpy.enhance" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="rawpy.enhance.find_bad_pixels">
-<span class="sig-prename descclassname"><span class="pre">rawpy.enhance.</span></span><span class="sig-name descname"><span class="pre">find_bad_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_dead</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confirm_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.find_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">rawpy.enhance.</span></span><span class="sig-name descname"><span class="pre">find_bad_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_dead</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confirm_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.find_bad_pixels" title="Link to this definition">¶</a></dt>
 <dd><p>Find and return coordinates of hot/dead pixels in the given RAW images.</p>
 <p>The probability that a detected bad pixel is really a bad pixel gets
 higher the more input images are given. The images should be taken around
@@ -120,7 +123,7 @@ must contain a bad pixel to confirm it as such</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="rawpy.enhance.repair_bad_pixels">
-<span class="sig-prename descclassname"><span class="pre">rawpy.enhance.</span></span><span class="sig-name descname"><span class="pre">repair_bad_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.repair_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">rawpy.enhance.</span></span><span class="sig-name descname"><span class="pre">repair_bad_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.repair_bad_pixels" title="Link to this definition">¶</a></dt>
 <dd><p>Repair bad pixels in the given RAW image.</p>
 <p>Note that the function works in-place on the RAW image data.
 It has to be called before postprocessing the image.</p>
@@ -138,7 +141,7 @@ array of shape (n,2) with y,x coordinates relative to visible RAW size</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="rawpy.enhance.save_dcraw_bad_pixels">
-<span class="sig-prename descclassname"><span class="pre">rawpy.enhance.</span></span><span class="sig-name descname"><span class="pre">save_dcraw_bad_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad_pixels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.save_dcraw_bad_pixels" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">rawpy.enhance.</span></span><span class="sig-name descname"><span class="pre">save_dcraw_bad_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad_pixels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.enhance.save_dcraw_bad_pixels" title="Link to this definition">¶</a></dt>
 <dd><p>Save the given bad pixel coordinates in 
 <a class="reference external" href="http://www.cybercom.net/~dcoffin/dcraw/.badpixels">dcraw file format</a>.</p>
 <p>Note that timestamps cannot be set and will be written as zero.</p>

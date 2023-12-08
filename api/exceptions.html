@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exceptions &mdash; rawpy 0.18.1 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Exceptions &mdash; rawpy 0.19.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/documentation_options.js?v=cbfb3150"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -29,11 +31,12 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
-            rawpy
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.18.1
+                0.19.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -114,118 +117,118 @@
            <div itemprop="articleBody">
              
   <section id="exceptions">
-<h1>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this heading">¶</a></h1>
+<h1>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h1>
 <section id="notsupportederror">
-<h2>NotSupportedError<a class="headerlink" href="#notsupportederror" title="Permalink to this heading">¶</a></h2>
+<h2>NotSupportedError<a class="headerlink" href="#notsupportederror" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="#rawpy.NotSupportedError" title="rawpy.NotSupportedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.NotSupportedError</span></code></a> is raised if a feature of LibRaw is used that
 was not enabled during the LibRaw library build, for example demosaic algorithms that are
 part of the GPL2/GPL3 packs.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.NotSupportedError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">NotSupportedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.NotSupportedError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">NotSupportedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawpy.NotSupportedError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
 <section id="librawerror">
-<h2>LibRawError<a class="headerlink" href="#librawerror" title="Permalink to this heading">¶</a></h2>
+<h2>LibRawError<a class="headerlink" href="#librawerror" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="#rawpy.LibRawError" title="rawpy.LibRawError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawError</span></code></a> is the base type of <a class="reference internal" href="#rawpy.LibRawFatalError" title="rawpy.LibRawFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawFatalError</span></code></a> and <a class="reference internal" href="#rawpy.LibRawNonFatalError" title="rawpy.LibRawNonFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawNonFatalError</span></code></a>
 and can be used to catch any LibRaw errors.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawError</span></span><a class="headerlink" href="#rawpy.LibRawError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawError</span></span><a class="headerlink" href="#rawpy.LibRawError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
 <section id="librawfatalerror">
-<h2>LibRawFatalError<a class="headerlink" href="#librawfatalerror" title="Permalink to this heading">¶</a></h2>
+<h2>LibRawFatalError<a class="headerlink" href="#librawfatalerror" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawFatalError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawFatalError</span></span><a class="headerlink" href="#rawpy.LibRawFatalError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawFatalError</span></span><a class="headerlink" href="#rawpy.LibRawFatalError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>The following error types are subtypes of <a class="reference internal" href="#rawpy.LibRawFatalError" title="rawpy.LibRawFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawFatalError</span></code></a>:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawUnsufficientMemoryError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawUnsufficientMemoryError</span></span><a class="headerlink" href="#rawpy.LibRawUnsufficientMemoryError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawUnsufficientMemoryError</span></span><a class="headerlink" href="#rawpy.LibRawUnsufficientMemoryError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawDataError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawDataError</span></span><a class="headerlink" href="#rawpy.LibRawDataError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawDataError</span></span><a class="headerlink" href="#rawpy.LibRawDataError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawIOError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawIOError</span></span><a class="headerlink" href="#rawpy.LibRawIOError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawIOError</span></span><a class="headerlink" href="#rawpy.LibRawIOError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawCancelledByCallbackError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawCancelledByCallbackError</span></span><a class="headerlink" href="#rawpy.LibRawCancelledByCallbackError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawCancelledByCallbackError</span></span><a class="headerlink" href="#rawpy.LibRawCancelledByCallbackError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawBadCropError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawBadCropError</span></span><a class="headerlink" href="#rawpy.LibRawBadCropError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawBadCropError</span></span><a class="headerlink" href="#rawpy.LibRawBadCropError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawTooBigError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawTooBigError</span></span><a class="headerlink" href="#rawpy.LibRawTooBigError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawTooBigError</span></span><a class="headerlink" href="#rawpy.LibRawTooBigError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawMemPoolOverflowError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawMemPoolOverflowError</span></span><a class="headerlink" href="#rawpy.LibRawMemPoolOverflowError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawMemPoolOverflowError</span></span><a class="headerlink" href="#rawpy.LibRawMemPoolOverflowError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
 <section id="librawnonfatalerror">
-<h2>LibRawNonFatalError<a class="headerlink" href="#librawnonfatalerror" title="Permalink to this heading">¶</a></h2>
+<h2>LibRawNonFatalError<a class="headerlink" href="#librawnonfatalerror" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawNonFatalError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawNonFatalError</span></span><a class="headerlink" href="#rawpy.LibRawNonFatalError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawNonFatalError</span></span><a class="headerlink" href="#rawpy.LibRawNonFatalError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>The following error types are subtypes of <a class="reference internal" href="#rawpy.LibRawNonFatalError" title="rawpy.LibRawNonFatalError"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawpy.LibRawNonFatalError</span></code></a>:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawUnspecifiedError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawUnspecifiedError</span></span><a class="headerlink" href="#rawpy.LibRawUnspecifiedError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawUnspecifiedError</span></span><a class="headerlink" href="#rawpy.LibRawUnspecifiedError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawFileUnsupportedError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawFileUnsupportedError</span></span><a class="headerlink" href="#rawpy.LibRawFileUnsupportedError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawFileUnsupportedError</span></span><a class="headerlink" href="#rawpy.LibRawFileUnsupportedError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawRequestForNonexistentImageError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawRequestForNonexistentImageError</span></span><a class="headerlink" href="#rawpy.LibRawRequestForNonexistentImageError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawRequestForNonexistentImageError</span></span><a class="headerlink" href="#rawpy.LibRawRequestForNonexistentImageError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawOutOfOrderCallError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawOutOfOrderCallError</span></span><a class="headerlink" href="#rawpy.LibRawOutOfOrderCallError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawOutOfOrderCallError</span></span><a class="headerlink" href="#rawpy.LibRawOutOfOrderCallError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawNoThumbnailError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawNoThumbnailError</span></span><a class="headerlink" href="#rawpy.LibRawNoThumbnailError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawNoThumbnailError</span></span><a class="headerlink" href="#rawpy.LibRawNoThumbnailError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawUnsupportedThumbnailError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawUnsupportedThumbnailError</span></span><a class="headerlink" href="#rawpy.LibRawUnsupportedThumbnailError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawUnsupportedThumbnailError</span></span><a class="headerlink" href="#rawpy.LibRawUnsupportedThumbnailError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawInputClosedError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawInputClosedError</span></span><a class="headerlink" href="#rawpy.LibRawInputClosedError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawInputClosedError</span></span><a class="headerlink" href="#rawpy.LibRawInputClosedError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="rawpy.LibRawNotImplementedError">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawNotImplementedError</span></span><a class="headerlink" href="#rawpy.LibRawNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawpy.</span></span><span class="sig-name descname"><span class="pre">LibRawNotImplementedError</span></span><a class="headerlink" href="#rawpy.LibRawNotImplementedError" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
