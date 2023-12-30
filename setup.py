@@ -29,7 +29,7 @@ is64Bit = sys.maxsize > 2**32
 
 # adapted from cffi's setup.py
 # the following may be overridden if pkg-config exists
-libraries = ['libraw']
+libraries = ['libraw_r']
 include_dirs = []
 library_dirs = []
 extra_compile_args = []
@@ -38,7 +38,7 @@ extra_link_args = []
 def _ask_pkg_config(resultlist, option, result_prefix='', sysroot=False):
     pkg_config = os.environ.get('PKG_CONFIG','pkg-config')
     try:
-        p = subprocess.Popen([pkg_config, option, 'libraw'],
+        p = subprocess.Popen([pkg_config, option, 'libraw_r'],
                              stdout=subprocess.PIPE)
     except OSError as e:
         if e.errno != errno.ENOENT:
