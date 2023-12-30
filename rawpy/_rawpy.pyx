@@ -407,8 +407,7 @@ cdef class RawPy:
                 res = self.p.open_file(wchars)
             PyMem_Free(wchars)
         ELSE:
-            with nogil:
-                res = self.p.open_file(path.encode('UTF-8'))
+            res = self.p.open_file(path.encode('UTF-8'))
         self.handle_error(res)
     
     def open_buffer(self, fileobj):
