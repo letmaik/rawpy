@@ -1,5 +1,3 @@
-from __future__ import division, print_function, absolute_import
-
 import os
 import shutil
 import pytest
@@ -281,20 +279,9 @@ def testLibRawOutOfOrderCallError():
         raw.unpack()
     
 def save(path, im):
-    # both imageio and skimage currently save uint16 images with 180deg rotation
-    # as they both use freeimage and this has some weird internal formats
-    # see https://github.com/scikit-image/scikit-image/issues/1101
-    # and https://github.com/imageio/imageio/issues/3
-    from distutils.version import StrictVersion
-    if im.dtype == np.uint16 and StrictVersion(imageio.__version__) <= StrictVersion('0.5.1'):
-        im = im[::-1,::-1]
     imageio.imsave(path, im)
 
 def print_stats(rgb):
-    # np.min supports axis tuple from 1.10
-    from distutils.version import StrictVersion
-    if StrictVersion(np.__version__) <= StrictVersion('1.10'):
-        return
     print(rgb.dtype, 
           np.min(rgb, axis=(0,1)), np.max(rgb, axis=(0,1)), # range for each channel
           [len(np.unique(rgb[:,:,0])), len(np.unique(rgb[:,:,1])), len(np.unique(rgb[:,:,2]))], # unique values
