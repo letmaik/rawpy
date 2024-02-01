@@ -35,6 +35,9 @@ raw5TestPath = os.path.join(thisDir, 'RAW_CANON_40D_SRAW_V103.CR2')
 # Kodak DC50 with special characters in filename
 raw6TestPath = os.path.join(thisDir, 'RAW_KODAK_DC50_é.KDC')
 
+# Raw Bayer image without metadata
+raw7TestPath = os.path.join(thisDir, 'rawbayer.tiff')
+
 def testVersion():
     print('using libraw', rawpy.libraw_version)
     pprint(rawpy.flags)
@@ -102,6 +105,15 @@ def testBufferOpen():
             rgb = raw.postprocess()
     print_stats(rgb)
     save('test_buffer.tiff', rgb)
+
+def testBayerOpen():
+    arr = imageio.imread(raw7TestPath)
+    raw = rawpy.RawPy()
+    raw.open_bayer(arr.tobytes(), arr.shape[1], arr.shape[0], "GBRG")
+    rgb = raw.postprocess()
+    assert_array_equal(rgb.shape, [1088, 2048, 3])
+    print_stats(rgb)
+    save('test_bayer.tiff', rgb)
 
 def testContextManager():
     with rawpy.imread(rawTestPath) as raw:

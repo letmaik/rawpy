@@ -60,6 +60,12 @@ cdef extern from "libraw.h":
     cdef enum LibRaw_image_formats:
         LIBRAW_IMAGE_JPEG
         LIBRAW_IMAGE_BITMAP
+
+    cdef enum LibRaw_openbayer_patterns:
+        LIBRAW_OPENBAYER_RGGB
+        LIBRAW_OPENBAYER_BGGR
+        LIBRAW_OPENBAYER_GRBG
+        LIBRAW_OPENBAYER_GBRG
     
     ctypedef struct libraw_image_sizes_t:
         ushort raw_height, raw_width
@@ -198,6 +204,7 @@ IF UNAME_SYSNAME == "Windows":
             LibRaw()
             int open_buffer(void *buffer, size_t bufsize)
             int open_file(const wchar_t *fname)
+            int open_bayer(unsigned char *data, unsigned datalen, ushort _raw_width, ushort _raw_height, ushort _left_margin, ushort _top_margin, ushort _right_margin, ushort _bottom_margin, unsigned char procflags, unsigned char bayer_pattern, unsigned unused_bits, unsigned otherflags, unsigned black_level)
             int unpack()
             int unpack_thumb()
             int COLOR(int row, int col)
@@ -215,6 +222,7 @@ ELSE:
             LibRaw()
             int open_buffer(void *buffer, size_t bufsize)
             int open_file(const char *fname)
+            int open_bayer(unsigned char *data, unsigned datalen, ushort _raw_width, ushort _raw_height, ushort _left_margin, ushort _top_margin, ushort _right_margin, ushort _bottom_margin, unsigned char procflags, unsigned char bayer_pattern, unsigned unused_bits, unsigned otherflags, unsigned black_level)
             int unpack()
             int unpack_thumb()
             int COLOR(int row, int col)
@@ -423,6 +431,50 @@ cdef class RawPy:
         cdef char *buf = self.bytes
         self.handle_error(self.p.open_buffer(buf, len(self.bytes)))        
     
+    def open_bayer(self, bufobj, ushort raw_width, ushort raw_height, bayer_pattern, *, ushort left_margin=0, ushort top_margin=0, ushort right_margin=0, ushort bottom_margin=0, unsigned black_level=0):
+        """
+        Opens the given RAW Bayer image data.
+
+        .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
+
+        :param bufobj: The raw Bayer image data as bytes object.
+        :param ushort raw_width: The width of the RAW image.
+        :param ushort raw_height: The height of the RAW image.
+        :param str bayer_pattern: The Bayer pattern of the RAW image, one of RGGB, BGGR, GRBG, or GBRG.
+        :param ushort left_margin: The left margin of the RAW image.
+        :param ushort top_margin: The top margin of the RAW image.
+        :param ushort right_margin: The right margin of the RAW image.
+        :param ushort bottom_margin: The bottom margin of the RAW image.
+        :param unsigned black_level: The black level of the RAW image.
+        """
+        self.unpack_called = False
+        self.unpack_thumb_called = False
+
+        cdef unsigned char bayer_pattern_ = 0
+        if bayer_pattern == "RGGB":
+            bayer_pattern_ = LIBRAW_OPENBAYER_RGGB
+        elif bayer_pattern == "BGGR":
+            bayer_pattern_ = LIBRAW_OPENBAYER_BGGR
+        elif bayer_pattern == "GRBG":
+            bayer_pattern_ = LIBRAW_OPENBAYER_GRBG
+        elif bayer_pattern == "GBRG":
+            bayer_pattern_ = LIBRAW_OPENBAYER_GBRG
+        else:
+            raise ValueError('unknown Bayer pattern: {}'.format(bayer_pattern))
+
+        # we keep a reference to the byte buffer to avoid garbage collection
+        self.bytes = bufobj
+        cdef unsigned char *buf = self.bytes
+
+        cdef unsigned char procflags = 0
+        cdef unsigned unused_bits = 0
+        cdef unsigned otherflags = 0
+        
+        self.handle_error(self.p.open_bayer(
+            buf, len(self.bytes),
+            raw_width, raw_height, left_margin, top_margin, right_margin, bottom_margin, procflags, bayer_pattern_, unused_bits, otherflags, black_level)
+            )
+
     def unpack(self):
         """
         Unpacks/decodes the opened RAW image.
