@@ -12,6 +12,7 @@ scikit-image
 # test dependencies
 pytest
 imageio
+setuptools
 
 # documentation dependencies
 sphinx_rtd_theme
