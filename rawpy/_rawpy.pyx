@@ -196,35 +196,35 @@ IF UNAME_SYSNAME == "Windows":
         cdef cppclass LibRaw:
             libraw_data_t imgdata
             LibRaw()
-            int open_buffer(void *buffer, size_t bufsize)
-            int open_file(const wchar_t *fname)
-            int unpack()
-            int unpack_thumb()
-            int COLOR(int row, int col)
-            int dcraw_process()
-            libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
-            libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
-            void dcraw_clear_mem(libraw_processed_image_t* img)
-            void free_image()
-            const char* strerror(int p)
-            void recycle()
+            int open_buffer(void *buffer, size_t bufsize) nogil
+            int open_file(const wchar_t *fname) nogil
+            int unpack() nogil
+            int unpack_thumb() nogil
+            int COLOR(int row, int col) nogil
+            int dcraw_process() nogil
+            libraw_processed_image_t* dcraw_make_mem_image(int *errcode) nogil
+            libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode) nogil
+            void dcraw_clear_mem(libraw_processed_image_t* img) nogil
+            void free_image() nogil
+            const char* strerror(int p) nogil
+            void recycle() nogil
 ELSE:
     cdef extern from "libraw.h":
         cdef cppclass LibRaw:
             libraw_data_t imgdata
             LibRaw()
-            int open_buffer(void *buffer, size_t bufsize)
-            int open_file(const char *fname)
-            int unpack()
-            int unpack_thumb()
+            int open_buffer(void *buffer, size_t bufsize) nogil
+            int open_file(const char *fname) nogil
+            int unpack() nogil
+            int unpack_thumb() nogil
             int COLOR(int row, int col)
-            int dcraw_process()
-            libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
-            libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
-            void dcraw_clear_mem(libraw_processed_image_t* img)
-            void free_image()
-            const char* strerror(int p)
-            void recycle()
+            int dcraw_process() nogil
+            libraw_processed_image_t* dcraw_make_mem_image(int *errcode) nogil
+            libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode) nogil
+            void dcraw_clear_mem(libraw_processed_image_t* img) nogil
+            void free_image() nogil
+            const char* strerror(int p) nogil
+            void recycle() nogil
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 
@@ -384,7 +384,8 @@ cdef class RawPy:
               # work with raw object
         
         """
-        self.p.recycle()
+        with nogil:
+            self.p.recycle()
     
     def open_file(self, path):
         """
@@ -402,10 +403,12 @@ cdef class RawPy:
             wchars = PyUnicode_AsWideCharString(path, &wchars_len)
             if wchars == NULL:
                 raise RuntimeError('cannot convert unicode path to wide chars')
-            res = self.p.open_file(wchars)
+            with nogil:
+                res = self.p.open_file(wchars)
             PyMem_Free(wchars)
         ELSE:
-            res = self.p.open_file(path.encode('UTF-8'))
+            with nogil:
+                res = self.p.open_file(path.encode('UTF-8'))
         self.handle_error(res)
     
     def open_buffer(self, fileobj):
@@ -421,7 +424,10 @@ cdef class RawPy:
         # we keep a reference to the byte buffer to avoid garbage collection
         self.bytes = fileobj.read()
         cdef char *buf = self.bytes
-        self.handle_error(self.p.open_buffer(buf, len(self.bytes)))        
+        buf_len = len(self.bytes)
+        with nogil:
+            e = self.p.open_buffer(buf, buf_len)
+        self.handle_error(e)
     
     def unpack(self):
         """
@@ -429,7 +435,9 @@ cdef class RawPy:
         
         .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
         """
-        self.handle_error(self.p.unpack())
+        with nogil:
+            e = self.p.unpack()
+        self.handle_error(e)
         self.bytes = None
         self.unpack_called = True
 
@@ -443,7 +451,9 @@ cdef class RawPy:
         
         .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.extract_thumb` instead.
         """
-        self.handle_error(self.p.unpack_thumb())
+        with nogil:
+            e = self.p.unpack_thumb()
+        self.handle_error(e)
         self.unpack_thumb_called = True
 
     cdef ensure_unpack_thumb(self):
@@ -793,7 +803,9 @@ cdef class RawPy:
         if params is None:
             params = Params(**kw)
         self.apply_params(params)
-        self.handle_error(self.p.dcraw_process())
+        with nogil:
+            e = self.p.dcraw_process()
+        self.handle_error(e)
         
     def dcraw_make_mem_image(self):
         """
@@ -804,7 +816,9 @@ cdef class RawPy:
         :rtype: ndarray of shape (h,w,c)
         """
         cdef int errcode = 0
-        cdef libraw_processed_image_t* img = self.p.dcraw_make_mem_image(&errcode)
+        cdef libraw_processed_image_t* img
+        with nogil:
+            img = self.p.dcraw_make_mem_image(&errcode)
         self.handle_error(errcode)
         assert img.type == LIBRAW_IMAGE_BITMAP
         wrapped = processed_image_wrapper()
@@ -826,7 +840,8 @@ cdef class RawPy:
         """
         cdef int errcode = 0
         cdef libraw_processed_image_t* img
-        img = self.p.dcraw_make_mem_thumb(&errcode)
+        with nogil:
+            img = self.p.dcraw_make_mem_thumb(&errcode)
         self.handle_error(errcode)
         if img.type == LIBRAW_IMAGE_BITMAP:
             wrapped = processed_image_wrapper()
