@@ -99,38 +99,50 @@ jobs:
           python-version: '3.12'
           numpy-version: '1.26.*'
 
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.8'
           numpy-version: '1.17.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.9'
           numpy-version: '1.19.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.11'
           numpy-version: '1.23.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.12'
           numpy-version: '1.26.*'
 
-        - os-image: macos-14
+        - os-image: macos-14 # M1
+          os-name: mac
+          macos-min-version: '11.0'
+          python-arch: 'arm64'
+          python-version: '3.10'
+          numpy-version: '1.21.*'
+        - os-image: macos-14 # M1
+          os-name: mac
+          macos-min-version: '11.0'
+          python-arch: 'arm64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
+        - os-image: macos-14 # M1
           os-name: mac
           macos-min-version: '11.0'
           python-arch: 'arm64'
@@ -281,38 +293,50 @@ jobs:
           python-version: '3.12'
           numpy-version: '1.26.*'
 
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.8'
           numpy-version: '1.17.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.9'
           numpy-version: '1.19.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '1.21.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.11'
           numpy-version: '1.23.*'
-        - os-image: macos-latest
+        - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
           python-arch: 'x86_64'
           python-version: '3.12'
           numpy-version: '1.26.*'
-        
-        - os-image: macos-14
+
+        - os-image: macos-14 # M1
+          os-name: mac
+          macos-min-version: '11.0'
+          python-arch: 'arm64'
+          python-version: '3.10'
+          numpy-version: '1.21.*'
+        - os-image: macos-14 # M1
+          os-name: mac
+          macos-min-version: '11.0'
+          python-arch: 'arm64'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
+        - os-image: macos-14 # M1
           os-name: mac
           macos-min-version: '11.0'
           python-arch: 'arm64'
