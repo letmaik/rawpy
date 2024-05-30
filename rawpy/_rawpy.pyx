@@ -351,6 +351,9 @@ _LIBRAW_ERROR_MAP = {
     -100013: LibRawMemPoolOverflowError
 }
 
+cdef void callback(void *method, const char* file, const int offset) noexcept:
+    (<object>method)(file, offset)
+
 cdef class RawPy:
     """
     Load RAW images, work on their data, and create a postprocessed (demosaiced) image.
