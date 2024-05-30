@@ -279,7 +279,8 @@ def testErrorHandler():
     erroneous_offsets = []
     def errorHandler(file, offset, erroneous_offsets):
         erroneous_offsets.add([offset])
-    raw.set_data_error_handler(lambda file, offset: errorHandler(file, offset, erroneous_offsets))
+    im.set_data_error_handler(lambda file, offset: errorHandler(file, offset, erroneous_offsets))
+    im.postprocess()
     print("erroneous offsets: %s" % str(erroneous_offsets))
 
 def save(path, im):

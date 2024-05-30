@@ -465,9 +465,6 @@ cdef class RawPy:
     cdef ensure_unpack_thumb(self):
         if not self.unpack_thumb_called:
             self.unpack_thumb()
-    
-    def set_error_handler(self, method):
-        self.p.set_dataerror_handler(callback, <void *>method)
 
     property raw_type:
         """
