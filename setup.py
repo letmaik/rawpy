@@ -308,5 +308,5 @@ setup(
       packages = find_packages(),
       ext_modules = extensions,
       package_data = package_data,
-      install_requires=['numpy']
+      install_requires=['numpy <= 1.26.4']
 )
