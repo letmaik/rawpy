@@ -137,7 +137,7 @@ def testThumbExtractJPEG():
     with rawpy.imread(rawTestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.JPEG
-    img = imageio.imread(thumb.data)
+    img = imageio.v3.imread(thumb.data)
     assert_array_equal(img.shape, [2832, 4256, 3])
 
 def testThumbExtractBitmap():
@@ -273,15 +273,15 @@ def save(path, im):
     # as they both use freeimage and this has some weird internal formats
     # see https://github.com/scikit-image/scikit-image/issues/1101
     # and https://github.com/imageio/imageio/issues/3
-    from distutils.version import StrictVersion
-    if im.dtype == np.uint16 and StrictVersion(imageio.__version__) <= StrictVersion('0.5.1'):
+    from packaging.version import Version
+    if im.dtype == np.uint16 and Version(imageio.__version__) <= Version('0.5.1'):
         im = im[::-1,::-1]
-    imageio.imsave(path, im)
+    imageio.v3.imwrite(path, im)
 
 def print_stats(rgb):
     # np.min supports axis tuple from 1.10
-    from distutils.version import StrictVersion
-    if StrictVersion(np.__version__) <= StrictVersion('1.10'):
+    from packaging.version import Version
+    if Version(np.__version__) <= Version('1.10'):
         return
     print(rgb.dtype, 
           np.min(rgb, axis=(0,1)), np.max(rgb, axis=(0,1)), # range for each channel
