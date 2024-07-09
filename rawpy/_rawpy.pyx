@@ -189,6 +189,8 @@ cdef extern from "libraw.h":
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
 
+    ctypedef void (*data_callback)(void *callback_data, const char *file, const int offset)
+
 # The open_file method is overloaded on Windows and unfortunately
 # there is no better way to deal with this in Cython.
 IF UNAME_SYSNAME == "Windows":
@@ -208,6 +210,7 @@ IF UNAME_SYSNAME == "Windows":
             void free_image() nogil
             const char* strerror(int p) nogil
             void recycle() nogil
+            void set_dataerror_handler(data_callback func, void *callback_data) nogil
 ELSE:
     cdef extern from "libraw.h":
         cdef cppclass LibRaw:
@@ -225,6 +228,7 @@ ELSE:
             void free_image() nogil
             const char* strerror(int p) nogil
             void recycle() nogil
+            void set_dataerror_handler(data_callback func, void *callback_data) nogil
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 
@@ -347,6 +351,9 @@ _LIBRAW_ERROR_MAP = {
     -100013: LibRawMemPoolOverflowError
 }
 
+cdef void callback(void *method, const char* file, const int offset) noexcept:
+    (<object>method)(file, offset)
+
 cdef class RawPy:
     """
     Load RAW images, work on their data, and create a postprocessed (demosaiced) image.
@@ -458,7 +465,7 @@ cdef class RawPy:
     cdef ensure_unpack_thumb(self):
         if not self.unpack_thumb_called:
             self.unpack_thumb()
-    
+
     property raw_type:
         """
         Return the RAW type.
@@ -952,6 +959,17 @@ cdef class RawPy:
                 raise LibRawFatalError(errstr)
             else:
                 raise LibRawNonFatalError(errstr)
+
+    def set_data_error_handler(self, method):
+        """
+        Set data error handler.
+                
+        :param method(file, offset): 
+            A function taking two arguments:
+            - file: a string with the file name
+            - offset: an offset at which data is erroneous
+        """
+        self.p.set_dataerror_handler(callback, <void *>method)
 
 class DemosaicAlgorithm(Enum):
     """
