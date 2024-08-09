@@ -350,11 +350,11 @@ if __name__ == '__main__':
     paths = [os.path.join(prefix, f) for f in testfiles]
     coords = find_bad_pixels(paths)
         
-    import imageio
+    import imageio.v3 as iio
     raw = rawpy.imread(paths[0])
     if not os.path.exists('test_original.png'):
         rgb = raw.postprocess()
-        imageio.imsave('test_original.png', rgb)
+        iio.imwrite('test_original.png', rgb)
     
     # A. use dcraw repair
     # Note that this method fails when two bad pixels are direct neighbors.
@@ -365,7 +365,7 @@ if __name__ == '__main__':
     save_dcraw_bad_pixels(bad_pixels_path, coords)
     rgb = raw.postprocess(bad_pixels_path=bad_pixels_path)
     print('badpixel dcraw repair+postprocessing:', time.time()-t0, 's')
-    imageio.imsave('test_hotpixels_repaired_dcraw.png', rgb)
+    iio.imwrite('test_hotpixels_repaired_dcraw.png', rgb)
     
     # B. use own repair function
     # With method='median' we still consider each bad pixel separately
@@ -374,7 +374,7 @@ if __name__ == '__main__':
     repair_bad_pixels(raw, coords, method='median')
     rgb = raw.postprocess()
     print('badpixel repair+postprocessing:', time.time()-t0, 's')
-    imageio.imsave('test_hotpixels_repaired.png', rgb)
+    iio.imwrite('test_hotpixels_repaired.png', rgb)
     
     # TODO method 'mean' not implemented yet
     

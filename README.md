@@ -15,12 +15,12 @@ Load a RAW file and save the postprocessed image using default [parameters](http
 
 ```python
 import rawpy
-import imageio
+import imageio.v3 as iio
 
 path = 'image.nef'
 with rawpy.imread(path) as raw:
     rgb = raw.postprocess()
-imageio.imsave('default.tiff', rgb)
+iio.imwrite('default.tiff', rgb)
 ```
 
 Save as 16-bit linear image:
@@ -28,7 +28,7 @@ Save as 16-bit linear image:
 ```python
 with rawpy.imread(path) as raw:
     rgb = raw.postprocess(gamma=(1,1), no_auto_bright=True, output_bps=16)
-imageio.imsave('linear.tiff', rgb)
+iio.imwrite('linear.tiff', rgb)
 ```
 
 Extract embedded thumbnail/preview image and save as JPEG:
@@ -44,7 +44,7 @@ if thumb.format == rawpy.ThumbFormat.JPEG:
         f.write(thumb.data)
 elif thumb.format == rawpy.ThumbFormat.BITMAP:
     # thumb.data is an RGB numpy array, convert with imageio
-    imageio.imsave('thumb.jpeg', thumb.data)
+    iio.imwrite('thumb.jpeg', thumb.data)
 ```
 
 Find bad pixels using multiple RAW files and repair them:
@@ -59,7 +59,7 @@ for path in paths:
     with rawpy.imread(path) as raw:
         rawpy.enhance.repair_bad_pixels(raw, bad_pixels, method='median')
         rgb = raw.postprocess()
-    imageio.imsave(path + '.tiff', rgb)
+    iio.imwrite(path + '.tiff', rgb)
 ```
 
 ## Installation

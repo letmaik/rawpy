@@ -879,7 +879,7 @@ cdef class RawPy:
                   with open('thumb.jpg', 'wb') as f:
                     f.write(thumb.data)
                 elif thumb.format == rawpy.ThumbFormat.BITMAP:
-                  imageio.imsave('thumb.tiff', thumb.data)
+                  imageio.v3.imwrite('thumb.tiff', thumb.data)
         
         :rtype: :class:`rawpy.Thumbnail`
         """
