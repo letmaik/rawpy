@@ -202,7 +202,7 @@ jobs:
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Store wheels as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: wheels
         path: dist
@@ -345,7 +345,7 @@ jobs:
         submodules: true
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: wheels
         path: dist
@@ -402,7 +402,7 @@ jobs:
         python-version: '3.9'
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: wheels
         path: dist
@@ -416,7 +416,7 @@ jobs:
       run: sphinx-build -b html docs dist-docs
 
     - name: Store docs HTML as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: docs
         path: dist-docs
@@ -430,7 +430,7 @@ jobs:
 
     steps:
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: wheels
         path: dist
@@ -453,7 +453,7 @@ jobs:
 
     steps:
     - name: Download docs HTML from artifact storage
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: docs
         path: dist-docs
