@@ -955,6 +955,7 @@ cdef class RawPy:
             else:
                 raise LibRawNonFatalError(errstr)
 
+        cdef int error_count
         with nogil:
             error_count = self.p.error_count()
         if error_count > 0:
