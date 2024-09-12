@@ -167,7 +167,7 @@ jobs:
 
     - name: Set up QEMU
       if: matrix.config.python-arch == 'aarch64'
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v3
 
     - name: Build wheels (Linux)
       if: matrix.config.os-name == 'linux'
@@ -188,7 +188,7 @@ jobs:
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -353,7 +353,7 @@ jobs:
 
     - name: Set up QEMU
       if: matrix.config.python-arch == 'aarch64'
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v3
 
     - name: Test wheel (Linux)
       if: matrix.config.os-name == 'linux'
@@ -364,7 +364,7 @@ jobs:
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -378,7 +378,7 @@ jobs:
 
     - name: Setup Python (macOS)
       if: matrix.config.os-name == 'mac'
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -398,7 +398,7 @@ jobs:
     - uses: actions/checkout@v4
    
     - name: Setup Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
 
@@ -438,7 +438,7 @@ jobs:
         path: dist
 
     - name: Setup Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v5
     
     - name: Upload wheels to PyPI
       run: |
