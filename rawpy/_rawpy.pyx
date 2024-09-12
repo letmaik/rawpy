@@ -866,6 +866,9 @@ cdef class RawPy:
         If no image exists or the format is unsupported, an exception is raised.
 
         .. code-block:: python
+            import imageio.v3 as iio
+
+            ...
         
             with rawpy.imread('image.nef') as raw:
               try:
@@ -879,7 +882,7 @@ cdef class RawPy:
                   with open('thumb.jpg', 'wb') as f:
                     f.write(thumb.data)
                 elif thumb.format == rawpy.ThumbFormat.BITMAP:
-                  imageio.imsave('thumb.tiff', thumb.data)
+                  iio.imwrite('thumb.tiff', thumb.data)
         
         :rtype: :class:`rawpy.Thumbnail`
         """

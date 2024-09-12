@@ -11,7 +11,7 @@ scikit-image
 
 # test dependencies
 pytest
-imageio
+imageio>=2.21  # for imageio.v3 / iio support
 setuptools
 
 # documentation dependencies
