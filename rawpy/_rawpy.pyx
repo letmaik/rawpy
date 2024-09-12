@@ -201,6 +201,7 @@ IF UNAME_SYSNAME == "Windows":
             int unpack() nogil
             int unpack_thumb() nogil
             int COLOR(int row, int col) nogil
+            int error_count() nogil
             int dcraw_process() nogil
             libraw_processed_image_t* dcraw_make_mem_image(int *errcode) nogil
             libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode) nogil
@@ -218,6 +219,7 @@ ELSE:
             int unpack() nogil
             int unpack_thumb() nogil
             int COLOR(int row, int col)
+            int error_count() nogil
             int dcraw_process() nogil
             libraw_processed_image_t* dcraw_make_mem_image(int *errcode) nogil
             libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode) nogil
@@ -952,6 +954,12 @@ cdef class RawPy:
                 raise LibRawFatalError(errstr)
             else:
                 raise LibRawNonFatalError(errstr)
+
+        cdef int error_count
+        with nogil:
+            error_count = self.p.error_count()
+        if error_count > 0:
+            raise LibRawDataError("Data error or unsupported file format")
 
 class DemosaicAlgorithm(Enum):
     """

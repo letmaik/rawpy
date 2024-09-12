@@ -35,6 +35,9 @@ raw5TestPath = os.path.join(thisDir, 'RAW_CANON_40D_SRAW_V103.CR2')
 # Kodak DC50 with special characters in filename
 raw6TestPath = os.path.join(thisDir, 'RAW_KODAK_DC50_é.KDC')
 
+# CR2 file with corrupted data
+raw7TestPath = os.path.join(thisDir, 'M0054341_01_00005.cr2')
+
 def testVersion():
     print('using libraw', rawpy.libraw_version)
     pprint(rawpy.flags)
@@ -267,7 +270,14 @@ def testLibRawOutOfOrderCallError():
     with pytest.raises(rawpy.LibRawOutOfOrderCallError):
         raw = rawpy.RawPy()
         raw.unpack()
-    
+
+def testCorruptFile():
+    im = rawpy.imread(raw7TestPath)
+    with pytest.raises(rawpy.LibRawDataError):
+        im.postprocess()
+    with pytest.raises(rawpy.LibRawDataError):
+        im.extract_thumb()
+
 def save(path, im):
     # both imageio and skimage currently save uint16 images with 180deg rotation
     # as they both use freeimage and this has some weird internal formats
@@ -289,4 +299,4 @@ if __name__ == '__main__':
     #testFileOpenAndPostProcess()
     #testBadPixelRepair()
     testFindBadPixelsNikonD4()
-    
+    testCorruptFile()
