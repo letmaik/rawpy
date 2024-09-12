@@ -390,6 +390,7 @@ jobs:
       env:
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
+        NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
@@ -404,6 +405,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
+        NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Setup Python (macOS)
       if: matrix.config.os-name == 'mac'
@@ -417,6 +419,7 @@ jobs:
       env:
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
+        NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
   docs:
     runs-on: ubuntu-latest
