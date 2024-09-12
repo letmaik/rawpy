@@ -65,6 +65,9 @@ if (!$env:PYTHON_VERSION) {
 if ($env:PYTHON_ARCH -ne 'x86' -and $env:PYTHON_ARCH -ne 'x86_64') {
     throw "PYTHON_ARCH env var must be x86 or x86_64"
 }
+if (!$env:NUMPY_VERSION) {
+    throw "NUMPY_VERSION env var missing"
+}
 
 $PYVER = ($env:PYTHON_VERSION).Replace('.', '')
 
@@ -90,7 +93,7 @@ Exit-VEnv
 Create-And-Enter-VEnv testsuite
 python -m pip uninstall -y rawpy
 ls dist\*cp${PYVER}*win*.whl | % { exec { python -m pip install $_ } }
-exec { python -m pip install -r dev-requirements.txt }
+exec { python -m pip install -r dev-requirements.txt numpy==$env:NUMPY_VERSION }
 
 # Avoid using in-source package during tests
 mkdir -f tmp_for_test | out-null
