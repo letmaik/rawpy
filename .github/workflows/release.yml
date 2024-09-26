@@ -1,0 +1,86 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+jobs:
+  release:
+    strategy:
+      matrix:
+        PYTHON_VERSION: ["vfx2024","vfx2025"]
+    runs-on: windows-latest
+    env:
+          GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: check version
+        continue-on-error: true
+        run: |
+          $libraw_view=gh release -R LibRaw/LibRaw view --json tagName|ConvertFrom-Json
+          $LIBRAW_VERSION=$libraw_view.tagName
+
+          $rawpy_view = gh release -R letmaik/rawpy view --json tagName|ConvertFrom-Json
+          $RAWPY_VERSION = $rawpy_view.tagName
+          $RAWPY_VERSION=$RAWPY_VERSION.replace("v","")
+
+          $tag= "${{ matrix.PYTHON_VERSION }}"
+
+          try{gh release download $tag -R Glatzel/rawpy --pattern "*$RAWPY_VERSION+$LIBRAW_VERSION*.whl" -O temp/rawpy.whl}catch{}
+          if(Test-Path temp/rawpy.whl){echo "NEED_BUILD=false" >> "$env:GITHUB_ENV"}
+          else{echo "NEED_BUILD=true" >> "$env:GITHUB_ENV"}
+
+      # - run: echo "${{ env.NEED_BUILD }}"
+      - name: sync
+        if: ${{ env.NEED_BUILD == 'true'}}
+        run: gh repo sync Glatzel/rawpy
+
+      - name: checkout
+        if: ${{ success() && env.NEED_BUILD == 'true'}}
+        uses: actions/checkout@v4
+
+      - name: Set up pixi
+        if: ${{ success() && env.NEED_BUILD == 'true' }}
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          run-install: false
+
+      - name: build
+        if: ${{ success() && env.NEED_BUILD == 'true' }}
+        run: |
+          pixi install -e ${{ matrix.PYTHON_VERSION }} --verbose 
+          ./glatzel/init_build.ps1
+          pixi run -e ${{ matrix.PYTHON_VERSION }} python -u setup.py bdist_wheel
+
+      - name: check whl
+        if: ${{ success() && env.NEED_BUILD == 'true' }}
+        run: if(Test-path dist\rawpy*.whl){}else{$lastexitcode=1}
+      
+      - name: release
+        if: ${{ success() && env.NEED_BUILD == 'true' }}
+        run: |
+          $libraw_view = gh release -R LibRaw/LibRaw view --json tagName | ConvertFrom-Json
+          $LIBRAW_VERSION = $libraw_view.tagName
+
+          $rawpy_view = gh release -R letmaik/rawpy view --json tagName | ConvertFrom-Json
+          $RAWPY_VERSION = $rawpy_view.tagName
+          $RAWPY_VERSION = $RAWPY_VERSION.replace("v", "")
+
+          Rename-Item ./dist/*.whl "rawpy-$RAWPY_VERSION+$LIBRAW_VERSION-py3-none-any.whl"
+          $whl = Get-ChildItem "./dist/*.whl" | Sort-Object -Property Name -Descending | select -first 1
+
+          $tag = "${{ matrix.PYTHON_VERSION }}"
+          try {
+              git tag $tag
+              git push origin $tag
+          }
+          catch {}
+
+          $lastexitcode = 0
+          try { gh release create $tag "$whl#rawpy-$RAWPY_VERSION-libraw-$LIBRAW_VERSION.whl" -R Glatzel/rawpy --latest }catch {}
+          if ($lastexitcode -ne 0) {
+              try { gh release upload $tag "$whl#rawpy-$RAWPY_VERSION-libraw-$LIBRAW_VERSION.whl" -R Glatzel/rawpy }catch {} 
+          }
