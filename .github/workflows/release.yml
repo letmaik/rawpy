@@ -14,7 +14,8 @@ jobs:
         PYTHON_VERSION: ["vfx2024","vfx2025"]
     runs-on: windows-latest
     env:
-          GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
+      NEED_BUILD: false
 
     steps:
       - name: check version
