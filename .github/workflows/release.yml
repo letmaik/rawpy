@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
+
 jobs:
   release:
     strategy:
@@ -18,7 +19,6 @@ jobs:
       NEED_BUILD: false
       LIBRAW_VERSION:
       RAWPY_VERSION:
-      
 
     steps:
       - name: check version
@@ -64,21 +64,15 @@ jobs:
         if: ${{ success() && env.NEED_BUILD == 'true' }}
         run: if(Test-path dist\rawpy*.whl){}else{$lastexitcode=1}
       
-      - name: release
+      - name: rename whl
         if: ${{ success() && env.NEED_BUILD == 'true' }}
         run: |
-          Rename-Item ./dist/*.whl "rawpy-$RAWPY_VERSION+$LIBRAW_VERSION-py3-none-any.whl"
+          Rename-Item ./dist/*.whl "rawpy-${{env.RAWPY_VERSION}}+${{env.LIBRAW_VERSION}}-py3-none-any.whl"
           $whl = Get-ChildItem "./dist/*.whl" | Sort-Object -Property Name -Descending | select -first 1
 
-          $tag = "${{ matrix.PYTHON_VERSION }}"
-          try {
-              git tag $tag
-              git push origin $tag
-          }
-          catch {}
-
-          $lastexitcode = 0
-          try { gh release create $tag "$whl#rawpy-$RAWPY_VERSION-libraw-$LIBRAW_VERSION.whl" -R Glatzel/rawpy --latest }catch {}
-          if ($lastexitcode -ne 0) {
-              try { gh release upload $tag "$whl#rawpy-$RAWPY_VERSION-libraw-$LIBRAW_VERSION.whl" -R Glatzel/rawpy }catch {} 
-          }
+      - name: Release
+        if: ${{ success() && env.NEED_BUILD == 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/rawpy-${{env.RAWPY_VERSION}}+${{env.LIBRAW_VERSION}}-py3-none-any.whl
+          tag_name: ${{ matrix.PYTHON_VERSION }}
