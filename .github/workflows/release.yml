@@ -16,6 +16,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       NEED_BUILD: false
+      LIBRAW_VERSION:
+      RAWPY_VERSION:
+      
 
     steps:
       - name: check version
@@ -23,10 +26,12 @@ jobs:
         run: |
           $libraw_view=gh release -R LibRaw/LibRaw view --json tagName|ConvertFrom-Json
           $LIBRAW_VERSION=$libraw_view.tagName
+          "LIBRAW_VERSION=$LIBRAW_VERSION" >> "$env:GITHUB_ENV"
 
           $rawpy_view = gh release -R letmaik/rawpy view --json tagName|ConvertFrom-Json
           $RAWPY_VERSION = $rawpy_view.tagName
           $RAWPY_VERSION=$RAWPY_VERSION.replace("v","")
+          "RAWPY_VERSION=$RAWPY_VERSION" >> "$env:GITHUB_ENV"
 
           $tag= "${{ matrix.PYTHON_VERSION }}"
 
@@ -34,7 +39,6 @@ jobs:
           if(Test-Path temp/rawpy.whl){echo "NEED_BUILD=false" >> "$env:GITHUB_ENV"}
           else{echo "NEED_BUILD=true" >> "$env:GITHUB_ENV"}
 
-      # - run: echo "${{ env.NEED_BUILD }}"
       - name: sync
         if: ${{ env.NEED_BUILD == 'true'}}
         run: gh repo sync Glatzel/rawpy
@@ -63,13 +67,6 @@ jobs:
       - name: release
         if: ${{ success() && env.NEED_BUILD == 'true' }}
         run: |
-          $libraw_view = gh release -R LibRaw/LibRaw view --json tagName | ConvertFrom-Json
-          $LIBRAW_VERSION = $libraw_view.tagName
-
-          $rawpy_view = gh release -R letmaik/rawpy view --json tagName | ConvertFrom-Json
-          $RAWPY_VERSION = $rawpy_view.tagName
-          $RAWPY_VERSION = $RAWPY_VERSION.replace("v", "")
-
           Rename-Item ./dist/*.whl "rawpy-$RAWPY_VERSION+$LIBRAW_VERSION-py3-none-any.whl"
           $whl = Get-ChildItem "./dist/*.whl" | Sort-Object -Property Name -Descending | select -first 1
 
