@@ -88,7 +88,7 @@ retry yum install -y libpng-devel freetype-devel
 retry yum install -y lapack-devel blas-devel
 
 # install compile-time dependencies
-retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython
+retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython setuptools
 
 # List installed packages
 ${PYBIN}/pip freeze
