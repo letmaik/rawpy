@@ -228,6 +228,38 @@ def testVisibleSize():
         assert_equal(h, s.height)
         assert_equal(w, s.width)
         
+def testCropSizeNikon():
+    with rawpy.imread(rawTestPath) as raw:
+        s = raw.sizes
+        assert_equal(s.crop_left_margin, 0)
+        assert_equal(s.crop_top_margin, 0)
+        assert_equal(s.crop_width, 0)
+        assert_equal(s.crop_height, 0)
+
+def testCropSizeCanon():
+    with rawpy.imread(raw3TestPath) as raw:
+        s = raw.sizes
+        assert_equal(s.crop_left_margin, 168)
+        assert_equal(s.crop_top_margin, 56)
+        assert_equal(s.crop_width, 5616)
+        assert_equal(s.crop_height, 3744)
+
+def testCropSizeSigma():
+    with rawpy.imread(raw4TestPath) as raw:
+        s = raw.sizes
+        assert_equal(s.crop_left_margin, 0)
+        assert_equal(s.crop_top_margin, 0)
+        assert_equal(s.crop_width, 0)
+        assert_equal(s.crop_height, 0)
+
+def testCropSizeKodak():
+    with rawpy.imread(raw6TestPath) as raw:
+        s = raw.sizes
+        assert_equal(s.crop_left_margin, 0)
+        assert_equal(s.crop_top_margin, 0)
+        assert_equal(s.crop_width, 0)
+        assert_equal(s.crop_height, 0)
+
 def testHalfSizeParameter():
     raw = rawpy.imread(rawTestPath)
     s = raw.sizes
