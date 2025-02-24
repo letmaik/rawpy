@@ -576,7 +576,6 @@ cdef class RawPy:
         the RAW image and postprocessed image.        
         """
         def __get__(self):
-            self.ensure_unpack()
             cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
 
             # LibRaw returns 65535 for cleft and ctop in some files - probably those that do not specify them
@@ -599,7 +598,6 @@ cdef class RawPy:
         as some use two different greens. 
         """
         def __get__(self):
-            self.ensure_unpack()
             return self.p.imgdata.idata.colors
     
     property color_desc:
@@ -609,7 +607,6 @@ cdef class RawPy:
         There are cameras with two different greens for example.
         """
         def __get__(self):
-            self.ensure_unpack()
             return self.p.imgdata.idata.cdesc
     
     cpdef int raw_color(self, int row, int column):
@@ -650,7 +647,6 @@ cdef class RawPy:
         :rtype: ndarray of shape (hv,wv)
         """
         def __get__(self):
-            self.ensure_unpack()
             s = self.sizes
             return self.raw_colors[s.top_margin:s.top_margin+s.height,
                                    s.left_margin:s.left_margin+s.width]
