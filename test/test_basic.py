@@ -310,6 +310,11 @@ def testCorruptFile():
     with pytest.raises(rawpy.LibRawDataError):
         im.extract_thumb()
 
+def testOpenNonExistentFile():
+    with pytest.raises(rawpy.LibRawIOError):
+        with rawpy.open("nonexistent.nef") as f:
+            pass
+
 def print_stats(rgb):
     print(rgb.dtype, 
           np.min(rgb, axis=(0,1)), np.max(rgb, axis=(0,1)), # range for each channel
