@@ -312,7 +312,7 @@ def testCorruptFile():
 
 def testOpenNonExistentFile():
     with pytest.raises(rawpy.LibRawIOError):
-        with rawpy.open("nonexistent.nef") as f:
+        with rawpy.imread("nonexistent.nef") as f:
             pass
 
 def print_stats(rgb):
