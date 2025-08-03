@@ -67,7 +67,10 @@ function Initialize-VS {
     # https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line
     # https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
 
-    $VS_ROOT = "C:\Program Files (x86)\Microsoft Visual Studio"
+    $VS_ROOTS = @(
+        "C:\Program Files\Microsoft Visual Studio",
+        "C:\Program Files (x86)\Microsoft Visual Studio"
+    )
     $VS_VERSIONS = @("2017", "2019", "2022")
     $VS_EDITIONS = @("Enterprise", "Professional", "Community")
     $VS_INIT_CMD_SUFFIX = "Common7\Tools\vsdevcmd.bat"
@@ -76,12 +79,14 @@ function Initialize-VS {
     $VS_INIT_ARGS = "-arch=$VS_ARCH -no_logo"
 
     $found = $false
-    :outer foreach ($version in $VS_VERSIONS) {
-        foreach ($edition in $VS_EDITIONS) {
-            $VS_INIT_CMD = "$VS_ROOT\$version\$edition\$VS_INIT_CMD_SUFFIX"
-            if (Test-Path $VS_INIT_CMD) {
-                $found = $true
-                break outer
+    :outer foreach ($VS_ROOT in $VS_ROOTS) {
+        foreach ($version in $VS_VERSIONS) {
+            foreach ($edition in $VS_EDITIONS) {
+                $VS_INIT_CMD = "$VS_ROOT\$version\$edition\$VS_INIT_CMD_SUFFIX"
+                if (Test-Path $VS_INIT_CMD) {
+                    $found = $true
+                    break outer
+                }
             }
         }
     }
