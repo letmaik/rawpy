@@ -7,7 +7,8 @@ cython
 numpy
 
 # optional runtime dependencies
-scikit-image<0.26; python_version<'3.14'
+# Pin version to avoid build failures on platforms without pre-built wheels
+scikit-image<0.26
 
 # test dependencies
 pytest
