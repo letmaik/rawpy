@@ -30,6 +30,10 @@ source venv/bin/activate
 set -x
 popd
 
+# Upgrade pip and prefer binary packages
+python -m pip install --upgrade pip
+export PIP_PREFER_BINARY=1
+
 # Install dependencies
 pip install numpy==$NUMPY_VERSION cython wheel delocate setuptools
 
