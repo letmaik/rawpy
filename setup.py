@@ -228,11 +228,7 @@ def mac_libraw_compile():
     os.chdir(cmake_build)
         
     install_name_dir = os.path.join(install_dir, 'lib')
-    # CMAKE_PREFIX_PATH is set in build-macos.sh to point to libjpeg, libjasper, lcms2
-    cmake_prefix_path = os.environ.get('CMAKE_PREFIX_PATH', '')
-    cmake_prefix_path_arg = '-DCMAKE_PREFIX_PATH=' + cmake_prefix_path + ' ' if cmake_prefix_path else ''
     cmds = ['cmake .. -DCMAKE_BUILD_TYPE=Release ' +\
-                    cmake_prefix_path_arg +\
                     '-DLIBRAW_PATH=' + libraw_dir + ' ' +\
                     '-DENABLE_X3FTOOLS=ON -DENABLE_6BY9RPI=ON ' +\
                     '-DENABLE_OPENMP=OFF ' +\
