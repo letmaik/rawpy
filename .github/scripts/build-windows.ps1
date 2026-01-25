@@ -120,6 +120,9 @@ if (!$env:NUMPY_VERSION) {
 Initialize-VS
 Initialize-Python
 
+# Prefer binary packages over building from source
+$env:PIP_PREFER_BINARY = 1
+
 Get-ChildItem env:
 
 # Install vcpkg and build dependencies
