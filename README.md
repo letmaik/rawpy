@@ -166,5 +166,24 @@ The above will download all build dependencies (including a Python installation)
 and is fully configured through the four environment variables.
 Set `USE_CONDA = '0'` to build within an existing Python environment.
 
+## FAQ
+
+### I'm getting "LibRawFileUnsupportedError: Unsupported file format or not RAW file"
+
+This error occurs when rawpy/LibRaw cannot recognize the file as a supported RAW image format. Common causes include:
+
+1. **The file is not actually a RAW file** - Make sure you're trying to open a RAW image file (e.g., .NEF, .CR2, .ARW, .DNG, etc.) and not a regular image format like JPEG or PNG.
+
+2. **The file is corrupted or incomplete** - If the file was not fully downloaded or is damaged, LibRaw cannot read it properly.
+
+3. **The file lacks proper headers** - Some proprietary or headerless RAW formats are not supported by LibRaw. RAW files need to contain proper metadata headers that identify the camera model, sensor configuration, and other essential information for LibRaw to decode them.
+
+4. **Unsupported camera or RAW format** - While LibRaw supports a [wide range of cameras](https://www.libraw.org/supported-cameras), some very new or obscure camera models may not be supported yet. Check the LibRaw website for the list of supported cameras.
+
+**What you can do:**
+- Verify the file is a genuine RAW file from a supported camera
+- Try opening the file with the camera manufacturer's software to confirm it's valid
+- Check if you're using the latest version of rawpy, as newer versions may support additional cameras
+- If you have a headerless or proprietary RAW format, you may need to convert it to a standard format like DNG using the camera manufacturer's tools first
 
 [libraw]: https://www.libraw.org
