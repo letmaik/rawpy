@@ -254,10 +254,15 @@ cmdline = ''.join(sys.argv[1:])
 needsCompile = any(s in cmdline for s in ['install', 'bdist', 'build_ext']) and not useSystemLibraw
 if isWindows and needsCompile:
     windows_libraw_compile()        
-    package_data['rawpy'] = ['*.dll']
+    package_data['rawpy'] = ['*.dll', '*.pyi']
 
 elif isMac and needsCompile:
-    mac_libraw_compile()        
+    mac_libraw_compile()
+    package_data['rawpy'] = ['*.pyi']
+else:
+    # Always include .pyi files for type stubs
+    if 'rawpy' not in package_data:
+        package_data['rawpy'] = ['*.pyi']        
 
 if any(s in cmdline for s in ['clean', 'sdist']):
     # When running sdist after a previous run of bdist or build_ext
