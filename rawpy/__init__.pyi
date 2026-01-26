@@ -35,33 +35,33 @@ class Thumbnail(NamedTuple):
 # Enums
 class RawType(Enum):
     """RAW image type."""
-    Flat: int
+    Flat = 0
     """Bayer type or black and white"""
-    Stack: int
+    Stack = 1
     """Foveon and other multi-color images"""
 
 class ThumbFormat(Enum):
     """Thumbnail format."""
-    JPEG: int
+    JPEG = 1
     """JPEG image as bytes object."""
-    BITMAP: int
+    BITMAP = 2
     """RGB image as ndarray object."""
 
 class DemosaicAlgorithm(Enum):
     """Demosaic algorithms."""
-    LINEAR: int
-    VNG: int
-    PPG: int
-    AHD: int
-    DCB: int
-    MODIFIED_AHD: int
-    AFD: int
-    VCD: int
-    MIXED_VCD_MODIFIED_AHD: int
-    LMMSE: int
-    AMAZE: int
-    DHT: int
-    AAHD: int
+    LINEAR = 0
+    VNG = 1
+    PPG = 2
+    AHD = 3
+    DCB = 4
+    MODIFIED_AHD = 5
+    AFD = 6
+    VCD = 7
+    MIXED_VCD_MODIFIED_AHD = 8
+    LMMSE = 9
+    AMAZE = 10
+    DHT = 11
+    AAHD = 12
     
     @property
     def isSupported(self) -> Optional[bool]: ...
@@ -69,25 +69,25 @@ class DemosaicAlgorithm(Enum):
 
 class FBDDNoiseReductionMode(Enum):
     """FBDD noise reduction mode."""
-    Off: int
-    Light: int
-    Full: int
+    Off = 0
+    Light = 1
+    Full = 2
 
 class ColorSpace(Enum):
     """Output color space."""
-    raw: int
-    sRGB: int
-    Adobe: int
-    Wide: int
-    ProPhoto: int
-    XYZ: int
-    ACES: int
+    raw = 0
+    sRGB = 1
+    Adobe = 2
+    Wide = 3
+    ProPhoto = 4
+    XYZ = 5
+    ACES = 6
 
 class HighlightMode(Enum):
     """Highlight mode."""
-    Clip: int
-    Ignore: int
-    Blend: int
+    Clip = 0
+    Ignore = 1
+    Blend = 2
     
     @staticmethod
     def Reconstruct(level: int) -> int: ...
