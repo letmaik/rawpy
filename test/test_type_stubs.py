@@ -44,12 +44,14 @@ def test_basic_types() -> None:
         )
         rgb2: np.ndarray = raw.postprocess(params)
         
-        # Test extract_thumb
+        # Test extract_thumb with proper type narrowing
         thumb: rawpy.Thumbnail = raw.extract_thumb()
         if thumb.format == rawpy.ThumbFormat.JPEG:
-            data: bytes = thumb.data  # type: ignore
+            # Type narrowing: when format is JPEG, data should be bytes
+            jpeg_data: bytes = thumb.data if isinstance(thumb.data, bytes) else b''
         elif thumb.format == rawpy.ThumbFormat.BITMAP:
-            data_array: np.ndarray = thumb.data  # type: ignore
+            # Type narrowing: when format is BITMAP, data should be ndarray
+            bitmap_data: np.ndarray = thumb.data if isinstance(thumb.data, np.ndarray) else np.array([])
 
 
 def test_enums() -> None:
