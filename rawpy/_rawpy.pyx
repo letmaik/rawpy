@@ -959,6 +959,7 @@ cdef class RawPy:
         p.gamm[1] = params.gamm[1]
         p.aber[0] = params.aber[0]
         p.aber[2] = params.aber[1]
+        p.shot_select = params.shot_select
     
     cdef handle_error(self, int code):
         if code > 0:
@@ -1106,7 +1107,7 @@ class Params(object):
                  bright=1.0, highlight_mode=HighlightMode.Clip,
                  exp_shift=None, exp_preserve_highlights=0.0, no_auto_scale=False,
                  gamma=None, chromatic_aberration=None,
-                 bad_pixels_path=None):
+                 bad_pixels_path=None, shot_select=0):
         """
 
         If use_camera_wb and use_auto_wb are False and user_wb is None, then
@@ -1149,6 +1150,8 @@ class Params(object):
         :param str bad_pixels_path: path to dcraw bad pixels file. Each bad pixel will be corrected using
                                     the mean of the neighbor pixels. See the :mod:`rawpy.enhance` module
                                     for alternative repair algorithms, e.g. using the median.
+        :param int shot_select: select which image to extract from RAW files that contain multiple images
+                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
         """
 
         if demosaic_algorithm:
@@ -1208,7 +1211,8 @@ class Params(object):
             self.aber = (chromatic_aberration[0], chromatic_aberration[1])
         else:
             self.aber = (1, 1)
-        self.bad_pixels = bad_pixels_path            
+        self.bad_pixels = bad_pixels_path
+        self.shot_select = shot_select            
     
 cdef class processed_image_wrapper:
     cdef RawPy raw
