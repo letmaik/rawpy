@@ -175,6 +175,35 @@ def testBayerPattern():
     assert_equal(raw.color_desc, expected_desc)
     assert_array_equal(raw.raw_pattern, [[3,2],[0,1]])
 
+def testAutoWhiteBalance():
+    # Test that auto_whitebalance returns None before postprocessing
+    raw = rawpy.imread(rawTestPath)
+    assert_equal(raw.auto_whitebalance, None)
+    
+    # Test that auto_whitebalance returns coefficients after postprocessing with use_auto_wb
+    rgb = raw.postprocess(use_auto_wb=True, no_auto_bright=True)
+    auto_wb = raw.auto_whitebalance
+    assert auto_wb is not None
+    assert_equal(len(auto_wb), 4)
+    # All coefficients should be positive
+    assert all(c > 0 for c in auto_wb)
+    
+    # Test with use_camera_wb
+    raw = rawpy.imread(rawTestPath)
+    rgb = raw.postprocess(use_camera_wb=True, no_auto_bright=True)
+    camera_wb = raw.auto_whitebalance
+    assert camera_wb is not None
+    assert_equal(len(camera_wb), 4)
+    
+    # Test with custom user_wb
+    custom_wb = [2.0, 1.0, 1.5, 1.0]
+    raw = rawpy.imread(rawTestPath)
+    rgb = raw.postprocess(user_wb=custom_wb, no_auto_bright=True)
+    used_wb = raw.auto_whitebalance
+    assert used_wb is not None
+    # The used wb should match the custom wb we provided
+    assert_array_equal(used_wb, custom_wb)
+
 def testBadPixelRepair():
     def getColorNeighbors(raw, y, x):
         # 5x5 area around coordinate masked by color of coordinate
