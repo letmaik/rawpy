@@ -66,8 +66,8 @@ def test_multiprocessing_spawn():
                 pass
 
 
-def test_multiprocessing_warning_in_fork():
-    """Test that a warning is issued when using fork method (if OpenMP is enabled)."""
+def test_multiprocessing_warning_detection():
+    """Test that the warning detection function exists and works correctly."""
     # Skip on Windows
     if sys.platform == 'win32':
         pytest.skip("Test only relevant on Unix-like systems")
@@ -76,16 +76,11 @@ def test_multiprocessing_warning_in_fork():
     if not rawpy.flags or not rawpy.flags.get('OPENMP', False):
         pytest.skip("OpenMP not enabled, warning not expected")
     
-    # This test can't easily be done in the same process
-    # because the warning only triggers in child processes
-    # So we'll just verify the warning code exists
+    # Verify the warning function exists
     from rawpy import _check_multiprocessing_fork
-    
-    # The function exists
     assert _check_multiprocessing_fork is not None
     
     # When called in main process, should not warn
-    # (we're in MainProcess here)
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         _check_multiprocessing_fork()
@@ -94,29 +89,11 @@ def test_multiprocessing_warning_in_fork():
         assert len(fork_warnings) == 0
 
 
-def child_process_function_for_warning_test():
-    """
-    This function is meant to be run in a forked child process
-    to test if the warning is properly issued.
-    """
-    import warnings
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        import rawpy
-        # Trigger the check
-        with rawpy.imread(rawTestPath) as raw:
-            raw.postprocess(half_size=True)
-        
-        # Check if warning was issued
-        fork_warnings = [warning for warning in w if 'fork' in str(warning.message).lower()]
-        return len(fork_warnings) > 0
-
-
 if __name__ == '__main__':
     print("Testing multiprocessing with spawn method...")
     test_multiprocessing_spawn()
     print("SUCCESS: No deadlocks with spawn method!")
     
     print("\nTesting warning detection...")
-    test_multiprocessing_warning_in_fork()
+    test_multiprocessing_warning_detection()
     print("SUCCESS: Warning system working correctly!")

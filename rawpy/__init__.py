@@ -47,9 +47,9 @@ def _check_multiprocessing_fork():
                         "This can cause deadlocks when OpenMP is enabled (which it is in this build). "
                         "Please use mp.set_start_method('spawn') or mp.set_start_method('forkserver') "
                         "at the start of your main module. "
-                        "See https://github.com/letmaik/rawpy#faq for more information.",
+                        "See https://github.com/letmaik/rawpy#im-getting-deadlocks-when-using-multiprocessing-on-linux for more information.",
                         RuntimeWarning,
-                        stacklevel=3
+                        stacklevel=2
                     )
                     _warned_about_multiprocessing = True
             except (RuntimeError, ValueError):
