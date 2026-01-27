@@ -52,17 +52,25 @@ def test_user_cblack_postprocess():
 
 
 def test_user_cblack_vs_user_black():
-    """Test that user_cblack and user_black can both be used."""
+    """Test that user_cblack and user_black can be used together in a single call.
+    
+    user_cblack values are corrections/offsets applied on top of user_black.
+    For example: user_black=100, user_cblack=[10, 20, 30, 20] results in
+    effective black levels of [110, 120, 130, 120] for each channel.
+    """
     with rawpy.imread(rawTestPath) as raw:
-        # Process with single black level
-        rgb_single = raw.postprocess(user_black=100, no_auto_bright=True)
+        # Process with both user_black and user_cblack in a single call
+        # user_cblack provides per-channel corrections on top of user_black base value
+        rgb = raw.postprocess(
+            user_black=100,
+            user_cblack=[10, 20, 30, 20],
+            no_auto_bright=True
+        )
+        assert rgb.shape[2] == 3  # RGB image
         
-        # Process with per-channel black levels (all same value)
-        rgb_multi = raw.postprocess(user_cblack=[100, 100, 100, 100], no_auto_bright=True)
-        
-        # When all channels have the same value, results should be similar
-        # (might not be exactly equal due to processing differences)
-        assert rgb_single.shape == rgb_multi.shape
+        # Verify that using both parameters together works without errors
+        # and produces a valid image
+        assert rgb.dtype == np.uint8  # Default output_bps is 8
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

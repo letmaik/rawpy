@@ -1134,6 +1134,7 @@ class Params(object):
                               default is to use image orientation from the RAW image if available
         :param int user_black: custom black level
         :param list user_cblack: list of length 4 with per-channel corrections to user_black.
+                                 These are offsets applied on top of user_black for [R, G, B, G2] channels.
         :param int user_sat: saturation adjustment (custom white level)
         :param bool no_auto_scale: Whether to disable pixel value scaling
         :param bool no_auto_bright: whether to disable automatic increase of brightness
