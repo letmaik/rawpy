@@ -27,9 +27,10 @@ def test_shot_select_nonexistent_image():
 
 
 def test_shot_select_via_open_file():
-    """Test that shot_select can be passed via open_file"""
+    """Test that shot_select can be set via set_unpack_params"""
     raw = rawpy.RawPy()
-    raw.open_file(rawTestPath, shot_select=0)
+    raw.open_file(rawTestPath)
+    raw.set_unpack_params(shot_select=0)
     raw.unpack()
     rgb = raw.postprocess()
     assert rgb is not None

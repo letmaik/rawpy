@@ -411,15 +411,13 @@ cdef class RawPy:
         with nogil:
             self.p.recycle()
     
-    def open_file(self, path, shot_select=0):
+    def open_file(self, path):
         """
         Opens the given RAW image file. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
         .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
         
         :param str path: The path to the RAW image.
-        :param int shot_select: select which image to extract from RAW files that contain multiple images
-                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
         """
         cdef wchar_t *wchars
         cdef Py_ssize_t wchars_len
@@ -435,19 +433,14 @@ cdef class RawPy:
         ELSE:
             res = self.p.open_file(path.encode('UTF-8'))
         self.handle_error(res)
-        # Set shot_select after opening file
-        cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
-        rp.shot_select = shot_select
     
-    def open_buffer(self, fileobj, shot_select=0):
+    def open_buffer(self, fileobj):
         """
         Opens the given RAW image file-like object. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
         .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
         
         :param file fileobj: The file-like object.
-        :param int shot_select: select which image to extract from RAW files that contain multiple images
-                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
         """
         self.unpack_called = False
         self.unpack_thumb_called = False
@@ -458,7 +451,19 @@ cdef class RawPy:
         with nogil:
             e = self.p.open_buffer(buf, buf_len)
         self.handle_error(e)
-        # Set shot_select after opening buffer
+    
+    def set_unpack_params(self, shot_select=0):
+        """
+        Set parameters that affect RAW image unpacking.
+        
+        This should be called after opening a file and before unpacking.
+        
+        .. NOTE:: This is a low-level method. When using :func:`rawpy.imread`,
+                  unpack parameters can be provided directly.
+        
+        :param int shot_select: select which image to extract from RAW files that contain multiple images
+                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
+        """
         cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
         rp.shot_select = shot_select
     

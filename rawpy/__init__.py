@@ -17,7 +17,8 @@ def imread(pathOrFile, shot_select=0):
     """
     d = RawPy()
     if hasattr(pathOrFile, 'read'):
-        d.open_buffer(pathOrFile, shot_select=shot_select)
+        d.open_buffer(pathOrFile)
     else:
-        d.open_file(pathOrFile, shot_select=shot_select)
+        d.open_file(pathOrFile)
+    d.set_unpack_params(shot_select=shot_select)
     return d
