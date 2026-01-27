@@ -16,7 +16,6 @@ def test_shot_select_parameter_exists():
         rgb = raw.postprocess(shot_select=0, no_auto_bright=True)
         assert rgb is not None
         assert rgb.shape[2] == 3  # RGB image
-        
 
 def test_shot_select_different_values():
     """Test that different shot_select values can be set"""

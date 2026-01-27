@@ -102,7 +102,6 @@ cdef extern from "libraw.h":
         double      aber[4]        # -C 
         double      gamm[6]        # -g 
         float       user_mul[4]    # -r mul0 mul1 mul2 mul3 
-        unsigned    shot_select    # -s 
         float       bright         # -b 
         float       threshold      #  -n 
         int         half_size      # -h 
@@ -1228,7 +1227,7 @@ class Params(object):
         else:
             self.aber = (1, 1)
         self.bad_pixels = bad_pixels_path
-        self.shot_select = shot_select            
+        self.shot_select = shot_select
     
 cdef class processed_image_wrapper:
     cdef RawPy raw
