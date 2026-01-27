@@ -145,7 +145,93 @@ sudo ldconfig
 The LibRaw library is installed in /usr/local/lib (if installed manually) and apparently this folder is not searched
 for libraries by default in some Linux distributions.
 
-### Installation from source on Windows
+### Building wheels locally
+
+The CI build scripts can be used to build wheels locally on Linux, macOS, and Windows.
+These scripts are designed to work in both CI and local development environments.
+
+#### macOS
+
+Requirements:
+- Xcode command line tools (`xcode-select --install`)
+- CMake (`brew install cmake` or download from https://cmake.org/)
+
+Set the required environment variables and run the build script:
+
+```sh
+export MACOS_MIN_VERSION=11.0
+export PYTHON_ARCH=arm64  # or x86_64 for Intel Macs
+export PYTHON_VERSION=3.9  # or any supported version (3.9-3.14)
+export NUMPY_VERSION=2.0.*
+.github/scripts/build-macos.sh
+```
+
+The script will:
+- Clone the multibuild repository if not already present
+- Download and compile dependencies (libjpeg-turbo, libjasper, lcms2) if not already installed
+- Build the rawpy wheel in the `dist/` directory
+
+On subsequent runs, the script will skip downloading and building dependencies that are already present,
+making rebuilds much faster.
+
+#### Linux
+
+For Linux, the build scripts use a manylinux Docker container to ensure broad compatibility:
+
+```sh
+docker run --rm \
+  -e PYTHON_VERSION=3.9 \
+  -e NUMPY_VERSION=2.0.* \
+  -e PYTHON_ARCH=x86_64 \
+  -v `pwd`:/io \
+  quay.io/pypa/manylinux_2_28_x86_64 \
+  /io/.github/scripts/build-linux.sh
+```
+
+The script will:
+- Install required system dependencies
+- Download and compile dependencies (libjpeg-turbo, libjasper, lcms2) if not already installed
+- Build and repair the rawpy wheel using auditwheel
+- Place the wheel in the `dist/` directory
+
+Like the macOS script, subsequent runs will skip dependencies that are already installed.
+
+#### Windows
+
+Requirements:
+- Visual Studio (with C++ build tools)
+- PowerShell
+
+In a PowerShell window:
+```sh
+$env:USE_CONDA = '1'
+$env:PYTHON_VERSION = '3.9'
+$env:PYTHON_ARCH = '64'
+$env:NUMPY_VERSION = '2.0.*'
+.github/scripts/build-windows.ps1
+```
+The above will download all build dependencies (including a Python installation)
+and is fully configured through the four environment variables.
+Set `USE_CONDA = '0'` to build within an existing Python environment.
+
+#### Troubleshooting
+
+If you encounter issues during local builds:
+
+1. **"fatal: destination path 'multibuild' already exists"** (macOS): This is now handled automatically.
+   The script checks if the directory exists before cloning.
+
+2. **Library already installed errors**: The scripts now check for existing installations and skip
+   rebuilding dependencies that are already present.
+
+3. **Clean rebuild**: If you want to force a complete rebuild from scratch, you can remove:
+   - macOS: `multibuild/`, `external/libs/`, and any `*.tar.gz` files
+   - Linux: Remove the Docker container and start fresh
+
+4. **Build failures**: Check that all required environment variables are set correctly and that
+   you have the necessary build tools installed for your platform.
+
+### Installation from source on Windows (alternative method)
 
 These instructions are experimental and support is not provided for them.
 Typically, there should be no need to build manually since wheels are hosted on PyPI.

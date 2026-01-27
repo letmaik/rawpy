@@ -21,7 +21,9 @@ export PYTHON_INSTALLER_MACOS_VERSION=$MACOS_MIN_VERSION
 # Instead we install python.org binaries which are built with 10.6/10.9 target
 # and hence provide wider compatibility for the wheels we create.
 # See https://github.com/actions/setup-python/issues/26.
-git clone https://github.com/multi-build/multibuild.git
+if [ ! -d "multibuild" ]; then
+    git clone https://github.com/multi-build/multibuild.git
+fi
 pushd multibuild
 set +x # reduce noise
 source osx_utils.sh
@@ -57,43 +59,49 @@ export PATH=$LIB_INSTALL_PREFIX/bin:$PATH
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
-$CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
-tar xzf libjpeg-turbo.tar.gz
-pushd libjpeg-turbo-3.1.3
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
-      -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DWITH_JPEG8=ON
-make install -j
-popd
+if [ ! -d "$LIB_INSTALL_PREFIX/include/turbojpeg.h" ] && [ ! -f "$LIB_INSTALL_PREFIX/lib/libturbojpeg.dylib" ]; then
+    curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
+    $CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
+    tar xzf libjpeg-turbo.tar.gz
+    pushd libjpeg-turbo-3.1.3
+    mkdir -p build
+    cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
+          -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DWITH_JPEG8=ON
+    make install -j
+    popd
+fi
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-4.2.5.tar.gz
-$CHECK_SHA256 jasper.tar.gz 3f4b1df7cab7a3cc67b9f6e28c730372f030b54b0faa8548a9ee04ae83fffd44
-tar xzf jasper.tar.gz
-pushd jasper-version-4.2.5
-mkdir cmake_build
-cd cmake_build
-cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
-      -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF \
-      -DCMAKE_INSTALL_NAME_DIR=$LIB_INSTALL_PREFIX/lib \
-      -DALLOW_IN_SOURCE_BUILD=ON ..
-make install -j
-popd
+if [ ! -f "$LIB_INSTALL_PREFIX/lib/libjasper.dylib" ]; then
+    curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-4.2.5.tar.gz
+    $CHECK_SHA256 jasper.tar.gz 3f4b1df7cab7a3cc67b9f6e28c730372f030b54b0faa8548a9ee04ae83fffd44
+    tar xzf jasper.tar.gz
+    pushd jasper-version-4.2.5
+    mkdir -p cmake_build
+    cd cmake_build
+    cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
+          -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF \
+          -DCMAKE_INSTALL_NAME_DIR=$LIB_INSTALL_PREFIX/lib \
+          -DALLOW_IN_SOURCE_BUILD=ON ..
+    make install -j
+    popd
+fi
 
 # Install Little CMS 2:
 # - libraw lcms support
-curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
-$CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
-tar xzf lcms2.tar.gz
-pushd lcms2-2.11
-# Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
-./configure --prefix=$LIB_INSTALL_PREFIX \
-            --without-jpeg --without-tiff
-make install -j
-popd
+if [ ! -f "$LIB_INSTALL_PREFIX/lib/liblcms2.dylib" ]; then
+    curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
+    $CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
+    tar xzf lcms2.tar.gz
+    pushd lcms2-2.11
+    # Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
+    ./configure --prefix=$LIB_INSTALL_PREFIX \
+                --without-jpeg --without-tiff
+    make install -j
+    popd
+fi
 
 ls -al $LIB_INSTALL_PREFIX/lib
 

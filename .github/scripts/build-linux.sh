@@ -25,43 +25,49 @@ retry dnf install -y zlib-devel
 
 # Install liblcms2:
 # - libraw LCMS support
-curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
-$CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
-tar xzf lcms2.tar.gz
-pushd lcms2-2.11
-# Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
-./configure --prefix=/usr --without-jpeg --without-tiff
-make install -j$(nproc)
-popd
+if [ ! -f "/usr/lib64/liblcms2.so" ] && [ ! -f "/usr/lib/liblcms2.so" ]; then
+    curl -L --retry 3 -o lcms2.tar.gz https://downloads.sourceforge.net/project/lcms/lcms/2.11/lcms2-2.11.tar.gz
+    $CHECK_SHA256 lcms2.tar.gz dc49b9c8e4d7cdff376040571a722902b682a795bf92985a85b48854c270772e
+    tar xzf lcms2.tar.gz
+    pushd lcms2-2.11
+    # Note: libjpeg and libtiff are only needed for the jpegicc/tifficc tools.
+    ./configure --prefix=/usr --without-jpeg --without-tiff
+    make install -j$(nproc)
+    popd
+fi
 
 # Install libjpeg-turbo:
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
-$CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
-tar xzf libjpeg-turbo.tar.gz
-pushd libjpeg-turbo-3.1.3
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
-      -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DWITH_JPEG8=ON
-make install -j$(nproc)
-popd
+if [ ! -f "/usr/lib64/libturbojpeg.so" ] && [ ! -f "/usr/lib/libturbojpeg.so" ]; then
+    curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
+    $CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
+    tar xzf libjpeg-turbo.tar.gz
+    pushd libjpeg-turbo-3.1.3
+    mkdir -p build
+    cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+          -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DWITH_JPEG8=ON
+    make install -j$(nproc)
+    popd
+fi
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-4.2.5.tar.gz
-$CHECK_SHA256 jasper.tar.gz 3f4b1df7cab7a3cc67b9f6e28c730372f030b54b0faa8548a9ee04ae83fffd44
-tar xzf jasper.tar.gz
-pushd jasper-version-4.2.5
-mkdir cmake_build
-cd cmake_build
-cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
-      -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF \
-      -DALLOW_IN_SOURCE_BUILD=ON ..
-make install -j$(nproc)
-popd
+if [ ! -f "/usr/lib64/libjasper.so" ] && [ ! -f "/usr/lib/libjasper.so" ]; then
+    curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-4.2.5.tar.gz
+    $CHECK_SHA256 jasper.tar.gz 3f4b1df7cab7a3cc67b9f6e28c730372f030b54b0faa8548a9ee04ae83fffd44
+    tar xzf jasper.tar.gz
+    pushd jasper-version-4.2.5
+    mkdir -p cmake_build
+    cd cmake_build
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+          -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF \
+          -DALLOW_IN_SOURCE_BUILD=ON ..
+    make install -j$(nproc)
+    popd
+fi
 
 # Install libraw
 libraw_dir=$(pwd)/external/LibRaw
