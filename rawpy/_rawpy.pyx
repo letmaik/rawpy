@@ -724,13 +724,18 @@ cdef class RawPy:
     property auto_whitebalance:
         """
         White balance coefficients used during postprocessing.
+        
         This property returns the actual white balance multipliers that were used
-        (or will be used) during postprocessing, whether from camera settings,
-        auto white balance calculation, or user-specified values.
+        (or will be used) during postprocessing, regardless of the white balance mode:
+        whether from camera settings, auto white balance calculation, user-specified
+        values, or daylight balance.
         
         This property must be accessed after calling :meth:`~rawpy.RawPy.postprocess`
         or :meth:`~rawpy.RawPy.dcraw_process` to get the coefficients that were
         actually applied. If accessed before postprocessing, it returns None.
+        
+        This corresponds to LibRaw's ``imgdata.color.pre_mul[]`` array after processing,
+        which contains the white balance multipliers applied to the raw sensor data.
         
         :rtype: list of length 4, or None if postprocessing hasn't been called yet
         """

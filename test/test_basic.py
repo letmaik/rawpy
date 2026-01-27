@@ -196,13 +196,18 @@ def testAutoWhiteBalance():
     assert_equal(len(camera_wb), 4)
     
     # Test with custom user_wb
+    # LibRaw should use the provided coefficients, though they may be normalized
     custom_wb = [2.0, 1.0, 1.5, 1.0]
     raw = rawpy.imread(rawTestPath)
     rgb = raw.postprocess(user_wb=custom_wb, no_auto_bright=True)
     used_wb = raw.auto_whitebalance
     assert used_wb is not None
-    # The used wb should match the custom wb we provided
-    assert_array_equal(used_wb, custom_wb)
+    # Check that the coefficients are proportional to the custom values
+    # (LibRaw may normalize them, so we check the relative ratios)
+    norm_custom = [c / custom_wb[1] for c in custom_wb]
+    norm_used = [c / used_wb[1] for c in used_wb]
+    np.testing.assert_allclose(norm_used, norm_custom, rtol=1e-5)
+
 
 def testBadPixelRepair():
     def getColorNeighbors(raw, y, x):
