@@ -112,7 +112,6 @@ export ARCHFLAGS=$CFLAGS
 # Build wheel
 python setup.py bdist_wheel
 
-delocate-listdeps --all --depending dist/*.whl # lists library dependencies
 DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-listdeps --all --depending dist/*.whl # lists library dependencies
 DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
