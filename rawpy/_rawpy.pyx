@@ -941,6 +941,9 @@ cdef class RawPy:
         p.output_bps = params.output_bps
         p.user_flip = params.user_flip
         p.user_black = params.user_black
+        if params.user_cblack:
+            for i in range(4):
+                p.user_cblack[i] = params.user_cblack[i]
         p.user_sat = params.user_sat
         p.no_auto_bright = params.no_auto_bright
         p.no_auto_scale = params.no_auto_scale
@@ -1101,7 +1104,7 @@ class Params(object):
                  noise_thr=None, median_filter_passes=0,
                  use_camera_wb=False, use_auto_wb=False, user_wb=None,
                  output_color=ColorSpace.sRGB, output_bps=8, 
-                 user_flip=None, user_black=None, user_sat=None,
+                 user_flip=None, user_black=None, user_cblack=None, user_sat=None,
                  no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
                  bright=1.0, highlight_mode=HighlightMode.Clip,
                  exp_shift=None, exp_preserve_highlights=0.0, no_auto_scale=False,
@@ -1130,6 +1133,8 @@ class Params(object):
         :param int user_flip: 0=none, 3=180, 5=90CCW, 6=90CW,
                               default is to use image orientation from the RAW image if available
         :param int user_black: custom black level
+        :param list user_cblack: list of length 4 with per-channel black levels for [R, G, B, G2].
+                                 If provided, this overrides user_black.
         :param int user_sat: saturation adjustment (custom white level)
         :param bool no_auto_scale: Whether to disable pixel value scaling
         :param bool no_auto_bright: whether to disable automatic increase of brightness
@@ -1174,6 +1179,11 @@ class Params(object):
         self.output_bps = output_bps
         self.user_flip = user_flip if user_flip is not None else -1
         self.user_black = user_black if user_black is not None else -1
+        if user_cblack is not None:
+            assert len(user_cblack) == 4
+            self.user_cblack = user_cblack
+        else:
+            self.user_cblack = [0, 0, 0, 0]
         self.user_sat = user_sat if user_sat is not None else -1
         self.no_auto_bright = no_auto_bright
         self.no_auto_scale = no_auto_scale
