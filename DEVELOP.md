@@ -185,7 +185,7 @@ Then open http://localhost:8000 in your browser.
    
    Edit `rawpy/_version.py`:
    ```python
-   __version__ = "0.26.0"
+   __version__ = "X.Y.Z"  # e.g., "0.26.0"
    ```
 
 2. **Update LibRaw Submodule** (if needed)
@@ -193,7 +193,7 @@ Then open http://localhost:8000 in your browser.
    ```bash
    cd external/LibRaw
    git fetch --tags
-   git checkout 0.21.0  # or desired stable tag
+   git checkout 0.21.2  # or desired stable tag
    cd ../..
    git add external/LibRaw
    ```
@@ -202,13 +202,13 @@ Then open http://localhost:8000 in your browser.
    
    ```bash
    git add rawpy/_version.py
-   git commit -m "Release v0.26.0"
+   git commit -m "Release vX.Y.Z"
    ```
 
 4. **Create and Push Tag**
    
    ```bash
-   git tag v0.26.0
+   git tag vX.Y.Z  # e.g., v0.26.0
    git push origin main --tags
    ```
 
@@ -229,9 +229,9 @@ Pre-releases follow the same process but use a pre-release version number:
    
    Edit `rawpy/_version.py`:
    ```python
-   __version__ = "0.26.0a1"  # Alpha pre-release
+   __version__ = "X.Y.Za1"  # Alpha pre-release (e.g., "0.26.0a1")
    # or
-   __version__ = "0.26.0b1"  # Beta pre-release
+   __version__ = "X.Y.Zb1"  # Beta pre-release (e.g., "0.26.0b1")
    ```
 
 2. **Update LibRaw to Snapshot** (if desired)
@@ -261,7 +261,7 @@ The `.github/workflows/ci.yml` workflow handles:
    - Linux (x86_64 and aarch64)
    - macOS (Apple Silicon)
    - Windows (x86_64)
-   - Python versions: 3.9, 3.10, 3.11, 3.12, 3.13, 3.14
+   - Python versions: 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14 (when available)
 
 2. **Test Job**: Tests all built wheels across platforms
 
