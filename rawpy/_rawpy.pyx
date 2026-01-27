@@ -411,13 +411,15 @@ cdef class RawPy:
         with nogil:
             self.p.recycle()
     
-    def open_file(self, path):
+    def open_file(self, path, shot_select=0):
         """
         Opens the given RAW image file. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
         .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
         
         :param str path: The path to the RAW image.
+        :param int shot_select: select which image to extract from RAW files that contain multiple images
+                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
         """
         cdef wchar_t *wchars
         cdef Py_ssize_t wchars_len
@@ -433,14 +435,19 @@ cdef class RawPy:
         ELSE:
             res = self.p.open_file(path.encode('UTF-8'))
         self.handle_error(res)
+        # Set shot_select after opening file
+        cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
+        rp.shot_select = shot_select
     
-    def open_buffer(self, fileobj):
+    def open_buffer(self, fileobj, shot_select=0):
         """
         Opens the given RAW image file-like object. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
         .. NOTE:: This is a low-level method, consider using :func:`rawpy.imread` instead.
         
         :param file fileobj: The file-like object.
+        :param int shot_select: select which image to extract from RAW files that contain multiple images
+                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
         """
         self.unpack_called = False
         self.unpack_thumb_called = False
@@ -451,6 +458,9 @@ cdef class RawPy:
         with nogil:
             e = self.p.open_buffer(buf, buf_len)
         self.handle_error(e)
+        # Set shot_select after opening buffer
+        cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
+        rp.shot_select = shot_select
     
     def unpack(self):
         """
@@ -971,10 +981,6 @@ cdef class RawPy:
         p.gamm[1] = params.gamm[1]
         p.aber[0] = params.aber[0]
         p.aber[2] = params.aber[1]
-        
-        # shot_select is in rawparams, not params
-        cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
-        rp.shot_select = params.shot_select
     
     cdef handle_error(self, int code):
         if code > 0:
@@ -1122,7 +1128,7 @@ class Params(object):
                  bright=1.0, highlight_mode=HighlightMode.Clip,
                  exp_shift=None, exp_preserve_highlights=0.0, no_auto_scale=False,
                  gamma=None, chromatic_aberration=None,
-                 bad_pixels_path=None, shot_select=0):
+                 bad_pixels_path=None):
         """
 
         If use_camera_wb and use_auto_wb are False and user_wb is None, then
@@ -1165,8 +1171,6 @@ class Params(object):
         :param str bad_pixels_path: path to dcraw bad pixels file. Each bad pixel will be corrected using
                                     the mean of the neighbor pixels. See the :mod:`rawpy.enhance` module
                                     for alternative repair algorithms, e.g. using the median.
-        :param int shot_select: select which image to extract from RAW files that contain multiple images
-                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
         """
 
         if demosaic_algorithm:
@@ -1227,7 +1231,6 @@ class Params(object):
         else:
             self.aber = (1, 1)
         self.bad_pixels = bad_pixels_path
-        self.shot_select = shot_select
     
 cdef class processed_image_wrapper:
     cdef RawPy raw
