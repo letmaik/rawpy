@@ -21,7 +21,7 @@ fi
 
 # Install zlib:
 # - libraw DNG deflate codec support
-retry yum install -y zlib-devel
+retry dnf install -y zlib-devel
 
 # Install liblcms2:
 # - libraw LCMS support
@@ -81,10 +81,10 @@ make install -j$(nproc)
 popd
 
 # Install matplotlib (a scikit-image dependency) dependencies
-retry yum install -y libpng-devel freetype-devel
+retry dnf install -y libpng-devel freetype-devel
 
 # Install numpy/scipy deps
-retry yum install -y lapack-devel blas-devel
+retry dnf install -y lapack-devel blas-devel
 
 # Upgrade pip and prefer binary packages
 ${PYBIN}/python -m pip install --upgrade pip

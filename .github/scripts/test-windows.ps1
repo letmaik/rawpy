@@ -73,6 +73,10 @@ $PYVER = ($env:PYTHON_VERSION).Replace('.', '')
 
 Initialize-Python
 
+# Upgrade pip and prefer binary packages
+exec { python -m pip install --upgrade pip }
+$env:PIP_PREFER_BINARY = 1
+
 Get-ChildItem env:
 
 # Install and import in an empty environment.

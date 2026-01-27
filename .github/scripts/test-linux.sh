@@ -16,6 +16,10 @@ if [ ! -d "$PYBIN" ]; then
 fi
 PYVER=${PYTHON_VERSION//.}
 
+# Upgrade pip and prefer binary packages
+${PYBIN}/python -m pip install --upgrade pip
+export PIP_PREFER_BINARY=1
+
 # Install package and test
 ${PYBIN}/pip install ./dist/rawpy*cp${PYVER}*manylinux*${PYTHON_ARCH}*.whl
 ${PYBIN}/pip install -r dev-requirements.txt "numpy==${NUMPY_VERSION}"

@@ -7,6 +7,10 @@ VENV=testsuite
 python -m venv env/$VENV
 source env/$VENV/bin/activate
 
+# Upgrade pip and prefer binary packages
+python -m pip install --upgrade pip
+export PIP_PREFER_BINARY=1
+
 # Install rawpy
 pip install dist/rawpy*cp${PYVER}*macosx*${PYTHON_ARCH}*.whl
 
