@@ -49,6 +49,9 @@ pip freeze
 
 LIB_INSTALL_PREFIX=$(pwd)/external/libs
 export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
+export PKG_CONFIG_PATH=$LIB_INSTALL_PREFIX/lib/pkgconfig
+export LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib
+export PATH=$LIB_INSTALL_PREFIX/bin:$PATH
 
 # Install libjpeg-turbo:
 # - pillow (a scikit-image dependency) dependency
