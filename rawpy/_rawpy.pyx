@@ -2,7 +2,8 @@
 # cython: embedsignature=True
 # cython: language_level=3
 
-from __future__ import print_function
+from __future__ import print_function, annotations
+from typing import Optional, Union, Tuple, List, Any
 
 from cpython.ref cimport PyObject, Py_INCREF
 from cpython.bytes cimport PyBytes_FromStringAndSize
@@ -378,13 +379,13 @@ cdef class RawPy:
     def __dealloc__(self):
         del self.p
         
-    def __enter__(self):
+    def __enter__(self) -> 'RawPy':
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self.close()
         
-    def close(self):
+    def close(self) -> None:
         """
         Release all resources and close the RAW image.
         
@@ -399,7 +400,7 @@ cdef class RawPy:
         with nogil:
             self.p.recycle()
     
-    def open_file(self, path):
+    def open_file(self, path: str) -> None:
         """
         Opens the given RAW image file. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
@@ -422,7 +423,7 @@ cdef class RawPy:
             res = self.p.open_file(path.encode('UTF-8'))
         self.handle_error(res)
     
-    def open_buffer(self, fileobj):
+    def open_buffer(self, fileobj: Any) -> None:
         """
         Opens the given RAW image file-like object. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
@@ -440,7 +441,7 @@ cdef class RawPy:
             e = self.p.open_buffer(buf, buf_len)
         self.handle_error(e)
     
-    def unpack(self):
+    def unpack(self) -> None:
         """
         Unpacks/decodes the opened RAW image.
         
@@ -456,7 +457,7 @@ cdef class RawPy:
         if not self.unpack_called:
             self.unpack()
 
-    def unpack_thumb(self):
+    def unpack_thumb(self) -> None:
         """
         Unpacks/decodes the thumbnail/preview image, whichever is bigger.
         
@@ -799,7 +800,7 @@ cdef class RawPy:
             return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT,
                                                 &self.p.imgdata.rawdata.color.curve)
 
-    def dcraw_process(self, params=None, **kw):
+    def dcraw_process(self, params: Optional['Params'] = None, **kw) -> None:
         """
         Postprocess the currently loaded RAW image.
         
@@ -871,7 +872,7 @@ cdef class RawPy:
         else:
             raise NotImplementedError('thumb type: {}'.format(img.type))
 
-    def extract_thumb(self):
+    def extract_thumb(self) -> 'Thumbnail':
         """
         Extracts and returns the thumbnail/preview image (whichever is bigger)
         of the opened RAW image as :class:`rawpy.Thumbnail` object.
@@ -904,7 +905,7 @@ cdef class RawPy:
         thumb = self.dcraw_make_mem_thumb()
         return thumb
     
-    def postprocess(self, params=None, **kw):
+    def postprocess(self, params: Optional['Params'] = None, **kw) -> np.ndarray:
         """
         Postprocess the currently loaded RAW image and return the
         new resulting image as numpy array.
@@ -1095,18 +1096,34 @@ class Params(object):
     """
     A class that handles postprocessing parameters.
     """
-    def __init__(self, demosaic_algorithm=None, half_size=False, four_color_rgb=False,
-                 dcb_iterations=0, dcb_enhance=False,
-                 fbdd_noise_reduction=FBDDNoiseReductionMode.Off,
-                 noise_thr=None, median_filter_passes=0,
-                 use_camera_wb=False, use_auto_wb=False, user_wb=None,
-                 output_color=ColorSpace.sRGB, output_bps=8, 
-                 user_flip=None, user_black=None, user_sat=None,
-                 no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
-                 bright=1.0, highlight_mode=HighlightMode.Clip,
-                 exp_shift=None, exp_preserve_highlights=0.0, no_auto_scale=False,
-                 gamma=None, chromatic_aberration=None,
-                 bad_pixels_path=None):
+    def __init__(self, 
+                 demosaic_algorithm: Optional['DemosaicAlgorithm'] = None, 
+                 half_size: bool = False, 
+                 four_color_rgb: bool = False,
+                 dcb_iterations: int = 0, 
+                 dcb_enhance: bool = False,
+                 fbdd_noise_reduction: 'FBDDNoiseReductionMode' = FBDDNoiseReductionMode.Off,
+                 noise_thr: Optional[float] = None, 
+                 median_filter_passes: int = 0,
+                 use_camera_wb: bool = False, 
+                 use_auto_wb: bool = False, 
+                 user_wb: Optional[List[float]] = None,
+                 output_color: 'ColorSpace' = ColorSpace.sRGB, 
+                 output_bps: int = 8, 
+                 user_flip: Optional[int] = None, 
+                 user_black: Optional[int] = None, 
+                 user_sat: Optional[int] = None,
+                 no_auto_bright: bool = False, 
+                 auto_bright_thr: Optional[float] = None, 
+                 adjust_maximum_thr: float = 0.75,
+                 bright: float = 1.0, 
+                 highlight_mode: Union['HighlightMode', int] = HighlightMode.Clip,
+                 exp_shift: Optional[float] = None, 
+                 exp_preserve_highlights: float = 0.0, 
+                 no_auto_scale: bool = False,
+                 gamma: Optional[Tuple[float, float]] = None, 
+                 chromatic_aberration: Optional[Tuple[float, float]] = None,
+                 bad_pixels_path: Optional[str] = None) -> None:
         """
 
         If use_camera_wb and use_auto_wb are False and user_wb is None, then
