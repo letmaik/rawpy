@@ -165,6 +165,18 @@ cdef extern from "libraw.h":
         # Force use x3f data decoding either if demosaic pack GPL2 enabled 
         int force_foveon_x3f
 
+    ctypedef struct libraw_raw_unpack_params_t:
+        int use_rawspeed
+        int use_dngsdk
+        unsigned options
+        unsigned shot_select
+        unsigned specials
+        unsigned max_raw_memory_mb
+        int sony_arw2_posterization_thr
+        float coolscan_nef_gamma
+        char p4shot_order[5]
+        char **custom_camera_strings
+
     ctypedef struct libraw_iparams_t:
         char        make[64]
         char        model[64]
@@ -183,6 +195,7 @@ cdef extern from "libraw.h":
         libraw_image_sizes_t        sizes
         libraw_iparams_t            idata
         libraw_output_params_t        params
+        libraw_raw_unpack_params_t  rawparams
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
         libraw_colordata_t          color
@@ -959,7 +972,10 @@ cdef class RawPy:
         p.gamm[1] = params.gamm[1]
         p.aber[0] = params.aber[0]
         p.aber[2] = params.aber[1]
-        p.shot_select = params.shot_select
+        
+        # shot_select is in rawparams, not params
+        cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
+        rp.shot_select = params.shot_select
     
     cdef handle_error(self, int code):
         if code > 0:
