@@ -49,17 +49,22 @@ pip freeze
 
 LIB_INSTALL_PREFIX=$(pwd)/external/libs
 export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
+export PKG_CONFIG_PATH=$LIB_INSTALL_PREFIX/lib/pkgconfig
+export LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib
+export PATH=$LIB_INSTALL_PREFIX/bin:$PATH
 
-# Install libjpeg:
+# Install libjpeg-turbo:
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-# TODO: switch to libjpeg-turbo
-curl --retry 3 -o jpegsrc.tar.gz http://ijg.org/files/jpegsrc.v9d.tar.gz
-$CHECK_SHA256 jpegsrc.tar.gz 2303a6acfb6cc533e0e86e8a9d29f7e6079e118b9de3f96e07a71a11c082fa6a
-tar xzf jpegsrc.tar.gz
-pushd jpeg-9d
-./configure --prefix=$LIB_INSTALL_PREFIX
+curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
+$CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
+tar xzf libjpeg-turbo.tar.gz
+pushd libjpeg-turbo-3.1.3
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
+      -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DWITH_JPEG8=ON
 make install -j
 popd
 
@@ -107,8 +112,8 @@ export ARCHFLAGS=$CFLAGS
 # Build wheel
 python setup.py bdist_wheel
 
-delocate-listdeps --all --depending dist/*.whl # lists library dependencies
-delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
+DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-listdeps --all --depending dist/*.whl # lists library dependencies
+DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.
