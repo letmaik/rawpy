@@ -1133,8 +1133,7 @@ class Params(object):
         :param int user_flip: 0=none, 3=180, 5=90CCW, 6=90CW,
                               default is to use image orientation from the RAW image if available
         :param int user_black: custom black level
-        :param list user_cblack: list of length 4 with per-channel black levels for [R, G, B, G2].
-                                 If provided, this overrides user_black.
+        :param list user_cblack: list of length 4 with per-channel corrections to user_black.
         :param int user_sat: saturation adjustment (custom white level)
         :param bool no_auto_scale: Whether to disable pixel value scaling
         :param bool no_auto_bright: whether to disable automatic increase of brightness
