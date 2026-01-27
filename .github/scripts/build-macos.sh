@@ -30,6 +30,10 @@ source venv/bin/activate
 set -x
 popd
 
+# Upgrade pip and prefer binary packages
+python -m pip install --upgrade pip
+export PIP_PREFER_BINARY=1
+
 # Install dependencies
 pip install numpy==$NUMPY_VERSION cython wheel delocate setuptools
 
@@ -45,31 +49,37 @@ pip freeze
 
 LIB_INSTALL_PREFIX=$(pwd)/external/libs
 export CMAKE_PREFIX_PATH=$LIB_INSTALL_PREFIX
+export PKG_CONFIG_PATH=$LIB_INSTALL_PREFIX/lib/pkgconfig
+export LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib
+export PATH=$LIB_INSTALL_PREFIX/bin:$PATH
 
-# Install libjpeg:
+# Install libjpeg-turbo:
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-# TODO: switch to libjpeg-turbo
-curl --retry 3 -o jpegsrc.tar.gz http://ijg.org/files/jpegsrc.v9d.tar.gz
-$CHECK_SHA256 jpegsrc.tar.gz 2303a6acfb6cc533e0e86e8a9d29f7e6079e118b9de3f96e07a71a11c082fa6a
-tar xzf jpegsrc.tar.gz
-pushd jpeg-9d
-./configure --prefix=$LIB_INSTALL_PREFIX
+curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
+$CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
+tar xzf libjpeg-turbo.tar.gz
+pushd libjpeg-turbo-3.1.3
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
+      -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DWITH_JPEG8=ON
 make install -j
 popd
 
 # Install libjasper:
 # - libraw RedCine codec support
-curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-2.0.32.tar.gz
-$CHECK_SHA256 jasper.tar.gz a3583a06698a6d6106f2fc413aa42d65d86bedf9a988d60e5cfa38bf72bc64b9
+curl -L --retry 3 -o jasper.tar.gz https://github.com/jasper-software/jasper/archive/version-4.2.5.tar.gz
+$CHECK_SHA256 jasper.tar.gz 3f4b1df7cab7a3cc67b9f6e28c730372f030b54b0faa8548a9ee04ae83fffd44
 tar xzf jasper.tar.gz
-pushd jasper-version-2.0.32
+pushd jasper-version-4.2.5
 mkdir cmake_build
 cd cmake_build
 cmake -DCMAKE_INSTALL_PREFIX=$LIB_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Release \
       -DJAS_ENABLE_OPENGL=OFF -DJAS_ENABLE_DOC=OFF -DJAS_ENABLE_PROGRAMS=OFF \
-      -DCMAKE_INSTALL_NAME_DIR=$LIB_INSTALL_PREFIX/lib ..
+      -DCMAKE_INSTALL_NAME_DIR=$LIB_INSTALL_PREFIX/lib \
+      -DALLOW_IN_SOURCE_BUILD=ON ..
 make install -j
 popd
 
@@ -102,8 +112,8 @@ export ARCHFLAGS=$CFLAGS
 # Build wheel
 python setup.py bdist_wheel
 
-delocate-listdeps --all --depending dist/*.whl # lists library dependencies
-delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
+DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-listdeps --all --depending dist/*.whl # lists library dependencies
+DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.
