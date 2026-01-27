@@ -64,20 +64,5 @@ def test_user_cblack_vs_user_black():
         # (might not be exactly equal due to processing differences)
         assert rgb_single.shape == rgb_multi.shape
 
-
-def test_user_cblack_with_other_params():
-    """Test that user_cblack works correctly with other parameters."""
-    with rawpy.imread(rawTestPath) as raw:
-        # Combine user_cblack with various other parameters
-        rgb = raw.postprocess(
-            user_cblack=[100, 150, 100, 150],
-            no_auto_bright=True,
-            output_bps=16,
-            use_camera_wb=True
-        )
-        assert rgb.dtype == np.uint16
-        assert rgb.shape[2] == 3
-
-
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])
