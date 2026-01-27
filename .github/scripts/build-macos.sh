@@ -124,7 +124,7 @@ DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-listdeps --all --depending di
 DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
-# Dump target versions of dependend libraries.
+# Dump target versions of dependent libraries.
 # Currently, delocate does not support checking those.
 # See https://github.com/matthew-brett/delocate/issues/56.
 set +x # reduce noise

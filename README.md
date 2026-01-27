@@ -231,7 +231,7 @@ If you encounter issues during local builds:
 4. **Build failures**: Check that all required environment variables are set correctly and that
    you have the necessary build tools installed for your platform.
 
-### Installation from source on Windows (alternative method)
+### Installation from source on Windows
 
 These instructions are experimental and support is not provided for them.
 Typically, there should be no need to build manually since wheels are hosted on PyPI.
