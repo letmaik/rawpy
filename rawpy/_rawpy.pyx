@@ -726,7 +726,7 @@ cdef class RawPy:
         White balance coefficients used during postprocessing.
         
         This property returns the actual white balance multipliers that were used
-        (or will be used) during postprocessing, regardless of the white balance mode:
+        during postprocessing, regardless of the white balance mode:
         whether from camera settings, auto white balance calculation, user-specified
         values, or daylight balance.
         
