@@ -203,7 +203,7 @@ Requirements:
 - PowerShell
 
 In a PowerShell window:
-```sh
+```powershell
 $env:USE_CONDA = '1'
 $env:PYTHON_VERSION = '3.9'
 $env:PYTHON_ARCH = '64'

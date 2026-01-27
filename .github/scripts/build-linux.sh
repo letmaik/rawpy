@@ -40,7 +40,7 @@ fi
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-if [ ! -f "/usr/lib64/libturbojpeg.so" ] && [ ! -f "/usr/lib/libturbojpeg.so" ]; then
+if [ ! -f "/usr/lib64/libjpeg.so" ] && [ ! -f "/usr/lib/libjpeg.so" ] && [ ! -f "/usr/lib64/libturbojpeg.so" ] && [ ! -f "/usr/lib/libturbojpeg.so" ]; then
     curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
     $CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
     tar xzf libjpeg-turbo.tar.gz

@@ -59,7 +59,7 @@ export PATH=$LIB_INSTALL_PREFIX/bin:$PATH
 # - pillow (a scikit-image dependency) dependency
 # - libjasper dependency
 # - libraw DNG lossy codec support (requires libjpeg >= 8)
-if [ ! -f "$LIB_INSTALL_PREFIX/lib/libturbojpeg.dylib" ]; then
+if [ ! -f "$LIB_INSTALL_PREFIX/lib/libjpeg.dylib" ] && [ ! -f "$LIB_INSTALL_PREFIX/lib/libturbojpeg.dylib" ]; then
     curl -L --retry 3 -o libjpeg-turbo.tar.gz https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.3/libjpeg-turbo-3.1.3.tar.gz
     $CHECK_SHA256 libjpeg-turbo.tar.gz 075920b826834ac4ddf97661cc73491047855859affd671d52079c6867c1c6c0
     tar xzf libjpeg-turbo.tar.gz
