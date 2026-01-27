@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
 
 from typing import TYPE_CHECKING, Union, BinaryIO
 
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
         NotSupportedError,
     )
 
-def imread(pathOrFile: Union[str, BinaryIO]) -> 'RawPy':
+def imread(pathOrFile: Union[str, BinaryIO]) -> RawPy:
     """
     Convenience function that creates a :class:`rawpy.RawPy` instance, opens the given file,
     and returns the :class:`rawpy.RawPy` instance for further processing.
