@@ -102,7 +102,6 @@ cdef extern from "libraw.h":
         double      aber[4]        # -C 
         double      gamm[6]        # -g 
         float       user_mul[4]    # -r mul0 mul1 mul2 mul3 
-        unsigned    shot_select    # -s 
         float       bright         # -b 
         float       threshold      #  -n 
         int         half_size      # -h 
@@ -165,6 +164,18 @@ cdef extern from "libraw.h":
         # Force use x3f data decoding either if demosaic pack GPL2 enabled 
         int force_foveon_x3f
 
+    ctypedef struct libraw_raw_unpack_params_t:
+        int use_rawspeed
+        int use_dngsdk
+        unsigned options
+        unsigned shot_select
+        unsigned specials
+        unsigned max_raw_memory_mb
+        int sony_arw2_posterization_thr
+        float coolscan_nef_gamma
+        char p4shot_order[5]
+        char **custom_camera_strings
+
     ctypedef struct libraw_iparams_t:
         char        make[64]
         char        model[64]
@@ -183,6 +194,7 @@ cdef extern from "libraw.h":
         libraw_image_sizes_t        sizes
         libraw_iparams_t            idata
         libraw_output_params_t        params
+        libraw_raw_unpack_params_t  rawparams
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
         libraw_colordata_t          color
@@ -439,6 +451,21 @@ cdef class RawPy:
         with nogil:
             e = self.p.open_buffer(buf, buf_len)
         self.handle_error(e)
+    
+    def set_unpack_params(self, shot_select=0):
+        """
+        Set parameters that affect RAW image unpacking.
+        
+        This should be called after opening a file and before unpacking.
+        
+        .. NOTE:: This is a low-level method. When using :func:`rawpy.imread`,
+                  unpack parameters can be provided directly.
+        
+        :param int shot_select: select which image to extract from RAW files that contain multiple images
+                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
+        """
+        cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
+        rp.shot_select = shot_select
     
     def unpack(self):
         """
@@ -1208,7 +1235,7 @@ class Params(object):
             self.aber = (chromatic_aberration[0], chromatic_aberration[1])
         else:
             self.aber = (1, 1)
-        self.bad_pixels = bad_pixels_path            
+        self.bad_pixels = bad_pixels_path
     
 cdef class processed_image_wrapper:
     cdef RawPy raw
