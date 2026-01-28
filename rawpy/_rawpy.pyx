@@ -507,20 +507,21 @@ cdef class RawPy:
         if not self.unpack_thumb_called:
             self.unpack_thumb()
     
-    property raw_type:
+    @property
+    def raw_type(self) -> RawType:
         """
         Return the RAW type.
         
         :rtype: :class:`rawpy.RawType`
         """
-        def __get__(self):
-            self.ensure_unpack()
-            if self.p.imgdata.rawdata.raw_image != NULL:
-                return RawType.Flat
-            else:
-                return RawType.Stack
+        self.ensure_unpack()
+        if self.p.imgdata.rawdata.raw_image != NULL:
+            return RawType.Flat
+        else:
+            return RawType.Stack
     
-    property raw_image:
+    @property
+    def raw_image(self) -> np.ndarray:
         """
         View of RAW image. Includes margin.
 
@@ -538,47 +539,46 @@ cdef class RawPy:
         
         :rtype: ndarray of shape (h,w[,c])
         """
-        def __get__(self):
-            self.ensure_unpack()
-            cdef np.npy_intp shape_bayer[2]
-            cdef np.npy_intp shape_rgb[3]
-            cdef np.ndarray ndarr
-            if self.p.imgdata.rawdata.raw_image != NULL:
-                shape_bayer[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
-                shape_bayer[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
-                ndarr = np.PyArray_SimpleNewFromData(2, shape_bayer, np.NPY_USHORT, self.p.imgdata.rawdata.raw_image)
-            elif self.p.imgdata.rawdata.color3_image != NULL:
-                shape_rgb[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
-                shape_rgb[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
-                shape_rgb[2] = <np.npy_intp> 3
-                ndarr = np.PyArray_SimpleNewFromData(3, shape_rgb, np.NPY_USHORT, self.p.imgdata.rawdata.color3_image)
-            elif self.p.imgdata.rawdata.color4_image != NULL:
-                shape_rgb[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
-                shape_rgb[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
-                shape_rgb[2] = <np.npy_intp> 4
-                ndarr = np.PyArray_SimpleNewFromData(3, shape_rgb, np.NPY_USHORT, self.p.imgdata.rawdata.color4_image)
-            else:
-                raise RuntimeError('unsupported raw data')
+        self.ensure_unpack()
+        cdef np.npy_intp shape_bayer[2]
+        cdef np.npy_intp shape_rgb[3]
+        cdef np.ndarray ndarr
+        if self.p.imgdata.rawdata.raw_image != NULL:
+            shape_bayer[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+            shape_bayer[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+            ndarr = np.PyArray_SimpleNewFromData(2, shape_bayer, np.NPY_USHORT, self.p.imgdata.rawdata.raw_image)
+        elif self.p.imgdata.rawdata.color3_image != NULL:
+            shape_rgb[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+            shape_rgb[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+            shape_rgb[2] = <np.npy_intp> 3
+            ndarr = np.PyArray_SimpleNewFromData(3, shape_rgb, np.NPY_USHORT, self.p.imgdata.rawdata.color3_image)
+        elif self.p.imgdata.rawdata.color4_image != NULL:
+            shape_rgb[0] = <np.npy_intp> self.p.imgdata.sizes.raw_height
+            shape_rgb[1] = <np.npy_intp> self.p.imgdata.sizes.raw_width
+            shape_rgb[2] = <np.npy_intp> 4
+            ndarr = np.PyArray_SimpleNewFromData(3, shape_rgb, np.NPY_USHORT, self.p.imgdata.rawdata.color4_image)
+        else:
+            raise RuntimeError('unsupported raw data')
 
-            # ndarr must hold a reference to this object,
-            # otherwise the underlying data gets lost when the RawPy instance gets out of scope
-            # (which would trigger __dealloc__)
-            np.PyArray_SetBaseObject(ndarr, self)
-            # Python doesn't know about above assignment as it's in C-level 
-            Py_INCREF(self)
-            return ndarr
+        # ndarr must hold a reference to this object,
+        # otherwise the underlying data gets lost when the RawPy instance gets out of scope
+        # (which would trigger __dealloc__)
+        np.PyArray_SetBaseObject(ndarr, self)
+        # Python doesn't know about above assignment as it's in C-level 
+        Py_INCREF(self)
+        return ndarr
     
-    property raw_image_visible:
+    @property
+    def raw_image_visible(self) -> np.ndarray:
         """
         Like raw_image but without margin.
         
         :rtype: ndarray of shape (hv,wv[,c])
         """
-        def __get__(self):           
-            self.ensure_unpack()
-            s = self.sizes
-            return self.raw_image[s.top_margin:s.top_margin+s.height,
-                                  s.left_margin:s.left_margin+s.width]
+        self.ensure_unpack()
+        s = self.sizes
+        return self.raw_image[s.top_margin:s.top_margin+s.height,
+                              s.left_margin:s.left_margin+s.width]
             
     cpdef ushort raw_value(self, int row, int column):
         """
@@ -606,44 +606,44 @@ cdef class RawPy:
         cdef ushort raw_width = self.p.imgdata.sizes.raw_width
         return raw[(row+top_margin)*raw_width + column + left_margin]
         
-    property sizes:
+    @property
+    def sizes(self) -> ImageSizes:
         """
         Return a :class:`rawpy.ImageSizes` instance with size information of
         the RAW image and postprocessed image.        
         """
-        def __get__(self):
-            cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
+        cdef libraw_image_sizes_t* s = &self.p.imgdata.sizes
 
-            # LibRaw returns 65535 for cleft and ctop in some files - probably those that do not specify them
-            cdef bint has_cleft = s.raw_inset_crops[0].cleft != USHRT_MAX
-            cdef bint has_ctop = s.raw_inset_crops[0].ctop != USHRT_MAX
+        # LibRaw returns 65535 for cleft and ctop in some files - probably those that do not specify them
+        cdef bint has_cleft = s.raw_inset_crops[0].cleft != USHRT_MAX
+        cdef bint has_ctop = s.raw_inset_crops[0].ctop != USHRT_MAX
 
-            return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
-                              height=s.height, width=s.width,
-                              top_margin=s.top_margin, left_margin=s.left_margin,
-                              iheight=s.iheight, iwidth=s.iwidth,
-                              pixel_aspect=s.pixel_aspect, flip=s.flip,
-                              crop_left_margin=s.raw_inset_crops[0].cleft if has_cleft else 0,
-                              crop_top_margin=s.raw_inset_crops[0].ctop if has_ctop else 0,
-                              crop_width=s.raw_inset_crops[0].cwidth, crop_height=s.raw_inset_crops[0].cheight)
+        return ImageSizes(raw_height=s.raw_height, raw_width=s.raw_width,
+                          height=s.height, width=s.width,
+                          top_margin=s.top_margin, left_margin=s.left_margin,
+                          iheight=s.iheight, iwidth=s.iwidth,
+                          pixel_aspect=s.pixel_aspect, flip=s.flip,
+                          crop_left_margin=s.raw_inset_crops[0].cleft if has_cleft else 0,
+                          crop_top_margin=s.raw_inset_crops[0].ctop if has_ctop else 0,
+                          crop_width=s.raw_inset_crops[0].cwidth, crop_height=s.raw_inset_crops[0].cheight)
     
-    property num_colors:
+    @property
+    def num_colors(self) -> int:
         """
         Number of colors.
         Note that e.g. for RGBG this can be 3 or 4, depending on the camera model,
         as some use two different greens. 
         """
-        def __get__(self):
-            return self.p.imgdata.idata.colors
+        return self.p.imgdata.idata.colors
     
-    property color_desc:
+    @property
+    def color_desc(self) -> bytes:
         """
         String description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).
         Note that same letters may not refer strictly to the same color.
         There are cameras with two different greens for example.
         """
-        def __get__(self):
-            return self.p.imgdata.idata.cdesc
+        return self.p.imgdata.idata.cdesc
     
     cpdef int raw_color(self, int row, int column):
         """
@@ -658,7 +658,8 @@ cdef class RawPy:
         # COLOR's coordinates are relative to visible image size.
         return self.p.COLOR(row - top_margin, column - left_margin)
     
-    property raw_colors:
+    @property
+    def raw_colors(self) -> np.ndarray:
         """
         An array of color indices for each pixel in the RAW image.
         Equivalent to calling raw_color(y,x) for each pixel.
@@ -666,79 +667,79 @@ cdef class RawPy:
         
         :rtype: ndarray of shape (h,w)
         """
-        def __get__(self):
-            self.ensure_unpack()
-            if self.p.imgdata.rawdata.raw_image == NULL:
-                raise RuntimeError('RAW image is not flat')
-            cdef np.ndarray pattern = self.raw_pattern
-            cdef int n = pattern.shape[0]
-            cdef int height = self.p.imgdata.sizes.raw_height
-            cdef int width = self.p.imgdata.sizes.raw_width
-            return np.pad(pattern, ((0, height - n), (0, width - n)), mode='wrap')
+        self.ensure_unpack()
+        if self.p.imgdata.rawdata.raw_image == NULL:
+            raise RuntimeError('RAW image is not flat')
+        cdef np.ndarray pattern = self.raw_pattern
+        cdef int n = pattern.shape[0]
+        cdef int height = self.p.imgdata.sizes.raw_height
+        cdef int width = self.p.imgdata.sizes.raw_width
+        return np.pad(pattern, ((0, height - n), (0, width - n)), mode='wrap')
     
-    property raw_colors_visible:
+    @property
+    def raw_colors_visible(self) -> np.ndarray:
         """
         Like raw_colors but without margin.
         
         :rtype: ndarray of shape (hv,wv)
         """
-        def __get__(self):
-            s = self.sizes
-            return self.raw_colors[s.top_margin:s.top_margin+s.height,
-                                   s.left_margin:s.left_margin+s.width]
+        s = self.sizes
+        return self.raw_colors[s.top_margin:s.top_margin+s.height,
+                               s.left_margin:s.left_margin+s.width]
     
-    property raw_pattern:
+    @property
+    def raw_pattern(self) -> Optional[np.ndarray]:
         """
         The smallest possible Bayer pattern of this image.
         
         :rtype: ndarray, or None if not a flat RAW image
         """
-        def __get__(self):
-            self.ensure_unpack()
-            if self.p.imgdata.rawdata.raw_image == NULL:
-                return None
-            cdef np.ndarray pattern
-            cdef int n
-            if self.p.imgdata.idata.filters < 1000:
-                if self.p.imgdata.idata.filters == 0:
-                    # black and white
-                    n = 1
-                elif self.p.imgdata.idata.filters == 1:
-                    # Leaf Catchlight
-                    n = 16
-                elif self.p.imgdata.idata.filters == LIBRAW_XTRANS:
-                    n = 6
-                else:
-                    raise NotImplementedError('filters: {}'.format(self.p.imgdata.idata.filters))
+        self.ensure_unpack()
+        if self.p.imgdata.rawdata.raw_image == NULL:
+            return None
+        cdef np.ndarray pattern
+        cdef int n
+        if self.p.imgdata.idata.filters < 1000:
+            if self.p.imgdata.idata.filters == 0:
+                # black and white
+                n = 1
+            elif self.p.imgdata.idata.filters == 1:
+                # Leaf Catchlight
+                n = 16
+            elif self.p.imgdata.idata.filters == LIBRAW_XTRANS:
+                n = 6
             else:
-                n = 4
-            
-            pattern = np.empty((n, n), dtype=np.uint8)
-            cdef int y, x
-            for y in range(n):
-                for x in range(n):
-                    pattern[y,x] = self.raw_color(y, x)
-            if n == 4:
-                if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
-                   np.all(pattern[:2,:2] == pattern[2:,2:]) and \
-                   np.all(pattern[:2,:2] == pattern[2:,:2]):
-                    pattern = pattern[:2,:2]
-            return pattern
+                raise NotImplementedError('filters: {}'.format(self.p.imgdata.idata.filters))
+        else:
+            n = 4
+        
+        pattern = np.empty((n, n), dtype=np.uint8)
+        cdef int y, x
+        for y in range(n):
+            for x in range(n):
+                pattern[y,x] = self.raw_color(y, x)
+        if n == 4:
+            if np.all(pattern[:2,:2] == pattern[:2,2:]) and \
+               np.all(pattern[:2,:2] == pattern[2:,2:]) and \
+               np.all(pattern[:2,:2] == pattern[2:,:2]):
+                pattern = pattern[:2,:2]
+        return pattern
        
-    property camera_whitebalance:
+    @property
+    def camera_whitebalance(self) -> List[float]:
         """
         White balance coefficients (as shot). Either read from file or calculated.
         
         :rtype: list of length 4
         """
-        def __get__(self):
-            self.ensure_unpack()
-            return [self.p.imgdata.rawdata.color.cam_mul[0],
-                    self.p.imgdata.rawdata.color.cam_mul[1],
-                    self.p.imgdata.rawdata.color.cam_mul[2],
-                    self.p.imgdata.rawdata.color.cam_mul[3]]
+        self.ensure_unpack()
+        return [self.p.imgdata.rawdata.color.cam_mul[0],
+                self.p.imgdata.rawdata.color.cam_mul[1],
+                self.p.imgdata.rawdata.color.cam_mul[2],
+                self.p.imgdata.rawdata.color.cam_mul[3]]
         
-    property daylight_whitebalance:
+    @property
+    def daylight_whitebalance(self) -> List[float]:
         """
         White balance coefficients for daylight (daylight balance). 
         Either read from file, or calculated on the basis of file data, 
@@ -746,14 +747,14 @@ cdef class RawPy:
         
         :rtype: list of length 4
         """
-        def __get__(self):
-            self.ensure_unpack()
-            return [self.p.imgdata.rawdata.color.pre_mul[0],
-                    self.p.imgdata.rawdata.color.pre_mul[1],
-                    self.p.imgdata.rawdata.color.pre_mul[2],
-                    self.p.imgdata.rawdata.color.pre_mul[3]]
+        self.ensure_unpack()
+        return [self.p.imgdata.rawdata.color.pre_mul[0],
+                self.p.imgdata.rawdata.color.pre_mul[1],
+                self.p.imgdata.rawdata.color.pre_mul[2],
+                self.p.imgdata.rawdata.color.pre_mul[3]]
     
-    property auto_whitebalance:
+    @property
+    def auto_whitebalance(self) -> Optional[List[float]]:
         """
         White balance coefficients used during postprocessing.
         
@@ -771,69 +772,69 @@ cdef class RawPy:
         
         :rtype: list of length 4, or None if postprocessing hasn't been called yet
         """
-        def __get__(self):
-            self.ensure_unpack()
-            if not self.dcraw_process_called:
-                return None
-            return [self.p.imgdata.color.pre_mul[0],
-                    self.p.imgdata.color.pre_mul[1],
-                    self.p.imgdata.color.pre_mul[2],
-                    self.p.imgdata.color.pre_mul[3]]
+        self.ensure_unpack()
+        if not self.dcraw_process_called:
+            return None
+        return [self.p.imgdata.color.pre_mul[0],
+                self.p.imgdata.color.pre_mul[1],
+                self.p.imgdata.color.pre_mul[2],
+                self.p.imgdata.color.pre_mul[3]]
     
-    property black_level_per_channel:
+    @property
+    def black_level_per_channel(self) -> List[int]:
         """
         Per-channel black level correction.
         
         :rtype: list of length 4
         """
-        def __get__(self):
-            self.ensure_unpack()
-            cdef libraw_colordata_black_level_t bl = adjust_bl_(self.p)
-            return [bl.cblack[0],
-                    bl.cblack[1],
-                    bl.cblack[2],
-                    bl.cblack[3]]
+        self.ensure_unpack()
+        cdef libraw_colordata_black_level_t bl = adjust_bl_(self.p)
+        return [bl.cblack[0],
+                bl.cblack[1],
+                bl.cblack[2],
+                bl.cblack[3]]
 
-    property white_level:
+    @property
+    def white_level(self) -> int:
         """
         Level at which the raw pixel value is considered to be saturated.
         """
-        def __get__(self):
-            self.ensure_unpack()
-            return self.p.imgdata.rawdata.color.maximum
+        self.ensure_unpack()
+        return self.p.imgdata.rawdata.color.maximum
 
-    property camera_white_level_per_channel:
+    @property
+    def camera_white_level_per_channel(self) -> Optional[List[int]]:
         """
         Per-channel saturation levels read from raw file metadata, if it exists. Otherwise None.
 
         :rtype: list of length 4, or None if metadata missing
         """
-        def __get__(self):
-            self.ensure_unpack()
-            levels = [self.p.imgdata.rawdata.color.linear_max[0],
-                      self.p.imgdata.rawdata.color.linear_max[1],
-                      self.p.imgdata.rawdata.color.linear_max[2],
-                      self.p.imgdata.rawdata.color.linear_max[3]]
-            if all(l > 0 for l in levels):
-                return levels
-            else:
-                return None
+        self.ensure_unpack()
+        levels = [self.p.imgdata.rawdata.color.linear_max[0],
+                  self.p.imgdata.rawdata.color.linear_max[1],
+                  self.p.imgdata.rawdata.color.linear_max[2],
+                  self.p.imgdata.rawdata.color.linear_max[3]]
+        if all(l > 0 for l in levels):
+            return levels
+        else:
+            return None
 
-    property color_matrix:
+    @property
+    def color_matrix(self) -> np.ndarray:
         """
         Color matrix, read from file for some cameras, calculated for others. 
         
         :rtype: ndarray of shape (3,4)
         """
-        def __get__(self):
-            self.ensure_unpack()
-            cdef np.ndarray matrix = np.empty((3, 4), dtype=np.float32)
-            for i in range(3):
-                for j in range(4):
-                    matrix[i,j] = self.p.imgdata.rawdata.color.cmatrix[i][j]
-            return matrix
+        self.ensure_unpack()
+        cdef np.ndarray matrix = np.empty((3, 4), dtype=np.float32)
+        for i in range(3):
+            for j in range(4):
+                matrix[i,j] = self.p.imgdata.rawdata.color.cmatrix[i][j]
+        return matrix
         
-    property rgb_xyz_matrix:
+    @property
+    def rgb_xyz_matrix(self) -> np.ndarray:
         """
         Camera RGB - XYZ conversion matrix.
         This matrix is constant (different for different models).
@@ -841,26 +842,25 @@ cdef class RawPy:
         
         :rtype: ndarray of shape (4,3)
         """
-        def __get__(self):
-            self.ensure_unpack()
-            cdef np.ndarray matrix = np.empty((4, 3), dtype=np.float32)
-            for i in range(4):
-                for j in range(3):
-                    matrix[i,j] = self.p.imgdata.rawdata.color.cam_xyz[i][j]
-            return matrix
+        self.ensure_unpack()
+        cdef np.ndarray matrix = np.empty((4, 3), dtype=np.float32)
+        for i in range(4):
+            for j in range(3):
+                matrix[i,j] = self.p.imgdata.rawdata.color.cam_xyz[i][j]
+        return matrix
     
-    property tone_curve:
+    @property
+    def tone_curve(self) -> np.ndarray:
         """
         Camera tone curve, read from file for Nikon, Sony and some other cameras.
         
         :rtype: ndarray of length 65536
         """
-        def __get__(self):
-            self.ensure_unpack()
-            cdef np.npy_intp shape[1]
-            shape[0] = <np.npy_intp> 65536
-            return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT,
-                                                &self.p.imgdata.rawdata.color.curve)
+        self.ensure_unpack()
+        cdef np.npy_intp shape[1]
+        shape[0] = <np.npy_intp> 65536
+        return np.PyArray_SimpleNewFromData(1, shape, np.NPY_USHORT,
+                                            &self.p.imgdata.rawdata.color.curve)
 
     def dcraw_process(self, params: Optional[Params] = None, **kw) -> None:
         """
