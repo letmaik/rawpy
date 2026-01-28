@@ -41,13 +41,16 @@ if TYPE_CHECKING:
         NotSupportedError,
     )
 
-def imread(pathOrFile: Union[str, BinaryIO]) -> RawPy:
+def imread(pathOrFile: Union[str, BinaryIO], shot_select: int = 0) -> RawPy:
     """
     Convenience function that creates a :class:`rawpy.RawPy` instance, opens the given file,
     and returns the :class:`rawpy.RawPy` instance for further processing.
     
     :param pathOrFile: path or file object of RAW image that will be read
     :type pathOrFile: str or file-like object
+    :param shot_select: select which image to extract from RAW files that contain multiple images
+                        (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
+    :type shot_select: int
     :return: RawPy instance with the opened RAW image
     :rtype: rawpy.RawPy
     """
@@ -56,4 +59,5 @@ def imread(pathOrFile: Union[str, BinaryIO]) -> RawPy:
         d.open_buffer(pathOrFile)
     else:
         d.open_file(pathOrFile)
+    d.set_unpack_params(shot_select=shot_select)
     return d
