@@ -102,7 +102,6 @@ cdef extern from "libraw.h":
         double      aber[4]        # -C 
         double      gamm[6]        # -g 
         float       user_mul[4]    # -r mul0 mul1 mul2 mul3 
-        unsigned    shot_select    # -s 
         float       bright         # -b 
         float       threshold      #  -n 
         int         half_size      # -h 
@@ -165,6 +164,18 @@ cdef extern from "libraw.h":
         # Force use x3f data decoding either if demosaic pack GPL2 enabled 
         int force_foveon_x3f
 
+    ctypedef struct libraw_raw_unpack_params_t:
+        int use_rawspeed
+        int use_dngsdk
+        unsigned options
+        unsigned shot_select
+        unsigned specials
+        unsigned max_raw_memory_mb
+        int sony_arw2_posterization_thr
+        float coolscan_nef_gamma
+        char p4shot_order[5]
+        char **custom_camera_strings
+
     ctypedef struct libraw_iparams_t:
         char        make[64]
         char        model[64]
@@ -183,6 +194,7 @@ cdef extern from "libraw.h":
         libraw_image_sizes_t        sizes
         libraw_iparams_t            idata
         libraw_output_params_t        params
+        libraw_raw_unpack_params_t  rawparams
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
         libraw_colordata_t          color
@@ -368,11 +380,13 @@ cdef class RawPy:
     cdef LibRaw* p
     cdef bint unpack_called
     cdef bint unpack_thumb_called
+    cdef bint dcraw_process_called
     cdef object bytes
         
     def __cinit__(self):
         self.unpack_called = False
         self.unpack_thumb_called = False
+        self.dcraw_process_called = False
         self.p = new LibRaw()
         
     def __dealloc__(self):
@@ -411,6 +425,7 @@ cdef class RawPy:
         cdef Py_ssize_t wchars_len
         self.unpack_called = False
         self.unpack_thumb_called = False
+        self.dcraw_process_called = False
         IF UNAME_SYSNAME == "Windows":
             wchars = PyUnicode_AsWideCharString(path, &wchars_len)
             if wchars == NULL:
@@ -432,6 +447,7 @@ cdef class RawPy:
         """
         self.unpack_called = False
         self.unpack_thumb_called = False
+        self.dcraw_process_called = False
         # we keep a reference to the byte buffer to avoid garbage collection
         self.bytes = fileobj.read()
         cdef char *buf = self.bytes
@@ -439,6 +455,21 @@ cdef class RawPy:
         with nogil:
             e = self.p.open_buffer(buf, buf_len)
         self.handle_error(e)
+    
+    def set_unpack_params(self, shot_select=0):
+        """
+        Set parameters that affect RAW image unpacking.
+        
+        This should be called after opening a file and before unpacking.
+        
+        .. NOTE:: This is a low-level method. When using :func:`rawpy.imread`,
+                  unpack parameters can be provided directly.
+        
+        :param int shot_select: select which image to extract from RAW files that contain multiple images
+                                (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
+        """
+        cdef libraw_raw_unpack_params_t* rp = &self.p.imgdata.rawparams
+        rp.shot_select = shot_select
     
     def unpack(self):
         """
@@ -717,6 +748,33 @@ cdef class RawPy:
                     self.p.imgdata.rawdata.color.pre_mul[2],
                     self.p.imgdata.rawdata.color.pre_mul[3]]
     
+    property auto_whitebalance:
+        """
+        White balance coefficients used during postprocessing.
+        
+        This property returns the actual white balance multipliers that were used
+        during postprocessing, regardless of the white balance mode:
+        whether from camera settings, auto white balance calculation, user-specified
+        values, or daylight balance.
+        
+        This property must be accessed after calling :meth:`~rawpy.RawPy.postprocess`
+        or :meth:`~rawpy.RawPy.dcraw_process` to get the coefficients that were
+        actually applied. If accessed before postprocessing, it returns None.
+        
+        This corresponds to LibRaw's ``imgdata.color.pre_mul[]`` array after processing,
+        which contains the white balance multipliers applied to the raw sensor data.
+        
+        :rtype: list of length 4, or None if postprocessing hasn't been called yet
+        """
+        def __get__(self):
+            self.ensure_unpack()
+            if not self.dcraw_process_called:
+                return None
+            return [self.p.imgdata.color.pre_mul[0],
+                    self.p.imgdata.color.pre_mul[1],
+                    self.p.imgdata.color.pre_mul[2],
+                    self.p.imgdata.color.pre_mul[3]]
+    
     property black_level_per_channel:
         """
         Per-channel black level correction.
@@ -821,6 +879,7 @@ cdef class RawPy:
         with nogil:
             e = self.p.dcraw_process()
         self.handle_error(e)
+        self.dcraw_process_called = True
         
     def dcraw_make_mem_image(self):
         """
@@ -941,6 +1000,9 @@ cdef class RawPy:
         p.output_bps = params.output_bps
         p.user_flip = params.user_flip
         p.user_black = params.user_black
+        if params.user_cblack:
+            for i in range(4):
+                p.user_cblack[i] = params.user_cblack[i]
         p.user_sat = params.user_sat
         p.no_auto_bright = params.no_auto_bright
         p.no_auto_scale = params.no_auto_scale
@@ -1101,7 +1163,7 @@ class Params(object):
                  noise_thr=None, median_filter_passes=0,
                  use_camera_wb=False, use_auto_wb=False, user_wb=None,
                  output_color=ColorSpace.sRGB, output_bps=8, 
-                 user_flip=None, user_black=None, user_sat=None,
+                 user_flip=None, user_black=None, user_cblack=None, user_sat=None,
                  no_auto_bright=False, auto_bright_thr=None, adjust_maximum_thr=0.75,
                  bright=1.0, highlight_mode=HighlightMode.Clip,
                  exp_shift=None, exp_preserve_highlights=0.0, no_auto_scale=False,
@@ -1130,6 +1192,8 @@ class Params(object):
         :param int user_flip: 0=none, 3=180, 5=90CCW, 6=90CW,
                               default is to use image orientation from the RAW image if available
         :param int user_black: custom black level
+        :param list user_cblack: list of length 4 with per-channel corrections to user_black.
+                                 These are offsets applied on top of user_black for [R, G, B, G2] channels.
         :param int user_sat: saturation adjustment (custom white level)
         :param bool no_auto_scale: Whether to disable pixel value scaling
         :param bool no_auto_bright: whether to disable automatic increase of brightness
@@ -1174,6 +1238,11 @@ class Params(object):
         self.output_bps = output_bps
         self.user_flip = user_flip if user_flip is not None else -1
         self.user_black = user_black if user_black is not None else -1
+        if user_cblack is not None:
+            assert len(user_cblack) == 4
+            self.user_cblack = user_cblack
+        else:
+            self.user_cblack = [0, 0, 0, 0]
         self.user_sat = user_sat if user_sat is not None else -1
         self.no_auto_bright = no_auto_bright
         self.no_auto_scale = no_auto_scale
@@ -1208,7 +1277,7 @@ class Params(object):
             self.aber = (chromatic_aberration[0], chromatic_aberration[1])
         else:
             self.aber = (1, 1)
-        self.bad_pixels = bad_pixels_path            
+        self.bad_pixels = bad_pixels_path
     
 cdef class processed_image_wrapper:
     cdef RawPy raw
