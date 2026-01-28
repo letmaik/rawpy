@@ -380,11 +380,13 @@ cdef class RawPy:
     cdef LibRaw* p
     cdef bint unpack_called
     cdef bint unpack_thumb_called
+    cdef bint dcraw_process_called
     cdef object bytes
         
     def __cinit__(self):
         self.unpack_called = False
         self.unpack_thumb_called = False
+        self.dcraw_process_called = False
         self.p = new LibRaw()
         
     def __dealloc__(self):
@@ -423,6 +425,7 @@ cdef class RawPy:
         cdef Py_ssize_t wchars_len
         self.unpack_called = False
         self.unpack_thumb_called = False
+        self.dcraw_process_called = False
         IF UNAME_SYSNAME == "Windows":
             wchars = PyUnicode_AsWideCharString(path, &wchars_len)
             if wchars == NULL:
@@ -444,6 +447,7 @@ cdef class RawPy:
         """
         self.unpack_called = False
         self.unpack_thumb_called = False
+        self.dcraw_process_called = False
         # we keep a reference to the byte buffer to avoid garbage collection
         self.bytes = fileobj.read()
         cdef char *buf = self.bytes
@@ -744,6 +748,33 @@ cdef class RawPy:
                     self.p.imgdata.rawdata.color.pre_mul[2],
                     self.p.imgdata.rawdata.color.pre_mul[3]]
     
+    property auto_whitebalance:
+        """
+        White balance coefficients used during postprocessing.
+        
+        This property returns the actual white balance multipliers that were used
+        during postprocessing, regardless of the white balance mode:
+        whether from camera settings, auto white balance calculation, user-specified
+        values, or daylight balance.
+        
+        This property must be accessed after calling :meth:`~rawpy.RawPy.postprocess`
+        or :meth:`~rawpy.RawPy.dcraw_process` to get the coefficients that were
+        actually applied. If accessed before postprocessing, it returns None.
+        
+        This corresponds to LibRaw's ``imgdata.color.pre_mul[]`` array after processing,
+        which contains the white balance multipliers applied to the raw sensor data.
+        
+        :rtype: list of length 4, or None if postprocessing hasn't been called yet
+        """
+        def __get__(self):
+            self.ensure_unpack()
+            if not self.dcraw_process_called:
+                return None
+            return [self.p.imgdata.color.pre_mul[0],
+                    self.p.imgdata.color.pre_mul[1],
+                    self.p.imgdata.color.pre_mul[2],
+                    self.p.imgdata.color.pre_mul[3]]
+    
     property black_level_per_channel:
         """
         Per-channel black level correction.
@@ -848,6 +879,7 @@ cdef class RawPy:
         with nogil:
             e = self.p.dcraw_process()
         self.handle_error(e)
+        self.dcraw_process_called = True
         
     def dcraw_make_mem_image(self):
         """
