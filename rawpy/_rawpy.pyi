@@ -1,7 +1,7 @@
 """Type stubs for rawpy._rawpy Cython module"""
 from __future__ import annotations
 
-from enum import IntEnum
+from enum import Enum
 from typing import Any, Optional, Tuple, List, Union, NamedTuple
 import numpy as np
 from numpy.typing import NDArray
@@ -32,7 +32,7 @@ class Thumbnail(NamedTuple):
     data: Union[bytes, NDArray[np.uint8]]
 
 # Enums
-class RawType(IntEnum):
+class RawType(Enum):
     """
     RAW image type.
     """
@@ -41,7 +41,7 @@ class RawType(IntEnum):
     Stack = 1
     """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
 
-class ThumbFormat(IntEnum):
+class ThumbFormat(Enum):
     """
     Thumbnail/preview image type.
     """
@@ -50,7 +50,7 @@ class ThumbFormat(IntEnum):
     BITMAP = 2
     """ RGB image as ndarray object. """
 
-class DemosaicAlgorithm(IntEnum):
+class DemosaicAlgorithm(Enum):
     """
     Identifiers for demosaic algorithms.
     """
@@ -89,7 +89,7 @@ class DemosaicAlgorithm(IntEnum):
         """
         ...
 
-class FBDDNoiseReductionMode(IntEnum):
+class FBDDNoiseReductionMode(Enum):
     """
     FBDD noise reduction modes.
     """
@@ -97,7 +97,7 @@ class FBDDNoiseReductionMode(IntEnum):
     Light = 1
     Full = 2
 
-class ColorSpace(IntEnum):
+class ColorSpace(Enum):
     """
     Color spaces.
     """
@@ -111,7 +111,7 @@ class ColorSpace(IntEnum):
     P3D65 = 7
     Rec2020 = 8
 
-class HighlightMode(IntEnum):
+class HighlightMode(Enum):
     """
     Highlight modes.
     """
