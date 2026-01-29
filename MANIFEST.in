@@ -1,3 +1,4 @@
 include README.rst
 include rawpy/def_helper.h
 include rawpy/py.typed
+include rawpy/_rawpy.pyi
