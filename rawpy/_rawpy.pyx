@@ -4,10 +4,7 @@
 
 from __future__ import print_function
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing import Optional, Union, Tuple, List, Any
+from typing import Optional, Union, Tuple, List, Any
 
 from cpython.ref cimport PyObject, Py_INCREF
 from cpython.bytes cimport PyBytes_FromStringAndSize
