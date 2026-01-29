@@ -1,6 +1,6 @@
 from __future__ import absolute_import, annotations
 
-from typing import TYPE_CHECKING, Union, BinaryIO
+from typing import Union, BinaryIO
 
 from ._version import __version__
 
