@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 from typing import Optional, Union, Tuple, List, Any
+from numpy.typing import NDArray
 
 from cpython.ref cimport PyObject, Py_INCREF
 from cpython.bytes cimport PyBytes_FromStringAndSize
@@ -518,7 +519,7 @@ cdef class RawPy:
             return RawType.Stack
     
     @property
-    def raw_image(self) -> np.ndarray:
+    def raw_image(self) -> NDArray[np.uint16]:
         """
         View of RAW image. Includes margin.
 
@@ -566,7 +567,7 @@ cdef class RawPy:
         return ndarr
     
     @property
-    def raw_image_visible(self) -> np.ndarray:
+    def raw_image_visible(self) -> NDArray[np.uint16]:
         """
         Like raw_image but without margin.
         
@@ -656,7 +657,7 @@ cdef class RawPy:
         return self.p.COLOR(row - top_margin, column - left_margin)
     
     @property
-    def raw_colors(self) -> np.ndarray:
+    def raw_colors(self) -> NDArray[np.uint8]:
         """
         An array of color indices for each pixel in the RAW image.
         Equivalent to calling raw_color(y,x) for each pixel.
@@ -674,7 +675,7 @@ cdef class RawPy:
         return np.pad(pattern, ((0, height - n), (0, width - n)), mode='wrap')
     
     @property
-    def raw_colors_visible(self) -> np.ndarray:
+    def raw_colors_visible(self) -> NDArray[np.uint8]:
         """
         Like raw_colors but without margin.
         
@@ -685,7 +686,7 @@ cdef class RawPy:
                                s.left_margin:s.left_margin+s.width]
     
     @property
-    def raw_pattern(self) -> Optional[np.ndarray]:
+    def raw_pattern(self) -> Optional[NDArray[np.uint8]]:
         """
         The smallest possible Bayer pattern of this image.
         
@@ -817,7 +818,7 @@ cdef class RawPy:
             return None
 
     @property
-    def color_matrix(self) -> np.ndarray:
+    def color_matrix(self) -> NDArray[np.float32]:
         """
         Color matrix, read from file for some cameras, calculated for others. 
         
@@ -831,7 +832,7 @@ cdef class RawPy:
         return matrix
         
     @property
-    def rgb_xyz_matrix(self) -> np.ndarray:
+    def rgb_xyz_matrix(self) -> NDArray[np.float32]:
         """
         Camera RGB - XYZ conversion matrix.
         This matrix is constant (different for different models).
@@ -847,7 +848,7 @@ cdef class RawPy:
         return matrix
     
     @property
-    def tone_curve(self) -> np.ndarray:
+    def tone_curve(self) -> NDArray[np.uint16]:
         """
         Camera tone curve, read from file for Nikon, Sony and some other cameras.
         
@@ -965,7 +966,7 @@ cdef class RawPy:
         thumb = self.dcraw_make_mem_thumb()
         return thumb
     
-    def postprocess(self, params: Optional[Params] = None, **kw) -> np.ndarray:
+    def postprocess(self, params: Optional[Params] = None, **kw) -> NDArray[np.uint8]:
         """
         Postprocess the currently loaded RAW image and return the
         new resulting image as numpy array.
