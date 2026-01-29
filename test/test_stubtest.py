@@ -4,12 +4,6 @@ Test that the .pyi stub file matches the runtime signatures of the _rawpy module
 This test uses mypy's stubtest tool, which is the industry standard for validating
 that stub files accurately reflect runtime module signatures.
 
-To run this test manually:
-    python -m mypy.stubtest rawpy._rawpy
-
-Or through pytest:
-    pytest test/test_stubtest.py
-
 Note: This test requires the rawpy module to be built and installed/importable.
 """
 
