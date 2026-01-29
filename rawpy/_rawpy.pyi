@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Optional, Tuple, List, Union, NamedTuple
+from typing import Any, Optional, Tuple, List, Union, NamedTuple, BinaryIO
 import numpy as np
 from numpy.typing import NDArray
 
@@ -268,7 +268,7 @@ class RawPy:
         """
         ...
     
-    def open_buffer(self, fileobj: Any) -> None:
+    def open_buffer(self, fileobj: BinaryIO) -> None:
         """
         Opens the given RAW image file-like object. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         

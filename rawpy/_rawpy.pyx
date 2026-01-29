@@ -4,7 +4,7 @@
 
 from __future__ import print_function
 
-from typing import Optional, Union, Tuple, List, Any
+from typing import Optional, Union, Tuple, List, Any, BinaryIO
 from numpy.typing import NDArray
 
 from cpython.ref cimport PyObject, Py_INCREF
@@ -440,7 +440,7 @@ cdef class RawPy:
             res = self.p.open_file(path.encode('UTF-8'))
         self.handle_error(res)
     
-    def open_buffer(self, fileobj: Any) -> None:
+    def open_buffer(self, fileobj: BinaryIO) -> None:
         """
         Opens the given RAW image file-like object. Should be followed by a call to :meth:`~rawpy.RawPy.unpack`.
         
