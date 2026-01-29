@@ -31,11 +31,8 @@ def test_stub_matches_runtime():
     This is the recommended approach from the Python typing community and is used
     by typeshed to validate all their stubs.
     """
-    try:
-        # Try to import the module first to ensure it's built
-        import rawpy._rawpy
-    except ImportError as e:
-        pytest.skip(f"rawpy._rawpy not built/available: {e}")
+    # Import the module - this will fail if not built
+    import rawpy._rawpy
     
     # Run stubtest on the _rawpy module
     # The stub file rawpy/_rawpy.pyi will be automatically found by mypy
@@ -46,8 +43,8 @@ def test_stub_matches_runtime():
     )
     
     # Check if stubtest command exists
-    if "No module named mypy.stubtest" in result.stderr:
-        pytest.skip("mypy stubtest not available (install with: pip install mypy)")
+    if "No module named mypy.stubtest" in result.stderr or "No module named mypy" in result.stderr:
+        pytest.fail("mypy is not installed. Install with: pip install mypy")
     
     # If there are mismatches, stubtest will return non-zero and output details
     if result.returncode != 0:
