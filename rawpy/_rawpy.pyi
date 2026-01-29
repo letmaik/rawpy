@@ -534,6 +534,30 @@ class RawPy:
         """
         ...
     
+    def dcraw_make_mem_image(self) -> NDArray[np.uint8]:
+        """
+        Return the postprocessed image (see :meth:`~rawpy.RawPy.dcraw_process`) as numpy array.
+        
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.postprocess` instead.
+        
+        :rtype: ndarray of shape (h,w,c)
+        """
+        ...
+    
+    def dcraw_make_mem_thumb(self) -> Thumbnail:
+        """
+        Return the thumbnail/preview image (see :meth:`~rawpy.RawPy.unpack_thumb`)
+        as :class:`rawpy.Thumbnail` object.
+        For JPEG thumbnails, data is a bytes object and can be written as-is to file.
+        For bitmap thumbnails, data is an ndarray of shape (h,w,c).
+        If no image exists or the format is unsupported, an exception is raised.
+        
+        .. NOTE:: This is a low-level method, consider using :meth:`~rawpy.RawPy.extract_thumb` instead.
+        
+        :rtype: :class:`rawpy.Thumbnail`
+        """
+        ...
+    
     def postprocess(self, params: Optional[Params] = None, **kw: Any) -> NDArray[np.uint8]:
         """
         Postprocess the currently loaded RAW image and return the

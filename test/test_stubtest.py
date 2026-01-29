@@ -15,6 +15,7 @@ Note: This test requires the rawpy module to be built and installed/importable.
 
 import subprocess
 import sys
+import os
 import pytest
 
 
@@ -30,14 +31,25 @@ def test_stub_matches_runtime():
     
     This is the recommended approach from the Python typing community and is used
     by typeshed to validate all their stubs.
+    
+    Internal implementation details (Cython-generated methods, internal classes)
+    are excluded via the stubtest_allowlist.txt file.
     """
     # Import the module - this will fail if not built
     import rawpy._rawpy
     
-    # Run stubtest on the _rawpy module
+    # Get path to allowlist file
+    test_dir = os.path.dirname(__file__)
+    allowlist_path = os.path.join(test_dir, 'stubtest_allowlist.txt')
+    
+    # Run stubtest on the _rawpy module with allowlist
     # The stub file rawpy/_rawpy.pyi will be automatically found by mypy
+    # Use --ignore-disjoint-bases to suppress disjoint base warnings for Cython classes
+    # (these are internal implementation details not relevant for type checking)
     result = subprocess.run(
-        [sys.executable, "-m", "mypy.stubtest", "rawpy._rawpy"],
+        [sys.executable, "-m", "mypy.stubtest", "rawpy._rawpy", 
+         "--allowlist", allowlist_path,
+         "--ignore-disjoint-bases"],
         capture_output=True,
         text=True
     )
