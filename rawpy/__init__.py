@@ -7,40 +7,6 @@ from ._version import __version__
 import rawpy._rawpy
 globals().update({k:v for k,v in rawpy._rawpy.__dict__.items() if not k.startswith('_')})
 
-if TYPE_CHECKING:
-    # Import types for type checking only (no runtime overhead)
-    from rawpy._rawpy import (
-        RawPy,
-        RawType,
-        ThumbFormat,
-        DemosaicAlgorithm,
-        FBDDNoiseReductionMode,
-        ColorSpace,
-        HighlightMode,
-        Params,
-        ImageSizes,
-        Thumbnail,
-        LibRawError,
-        LibRawFatalError,
-        LibRawNonFatalError,
-        LibRawUnspecifiedError,
-        LibRawFileUnsupportedError,
-        LibRawRequestForNonexistentImageError,
-        LibRawOutOfOrderCallError,
-        LibRawNoThumbnailError,
-        LibRawUnsupportedThumbnailError,
-        LibRawInputClosedError,
-        LibRawNotImplementedError,
-        LibRawUnsufficientMemoryError,
-        LibRawDataError,
-        LibRawIOError,
-        LibRawCancelledByCallbackError,
-        LibRawBadCropError,
-        LibRawTooBigError,
-        LibRawMemPoolOverflowError,
-        NotSupportedError,
-    )
-
 import os
 import sys
 import warnings
