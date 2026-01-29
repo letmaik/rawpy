@@ -12,55 +12,13 @@ import sys
 import os
 
 
-def test_mypy_rawpy_package():
+def test_mypy_all():
     """
-    Run mypy on the rawpy package to validate type annotations.
+    Run mypy on both rawpy/ package and test/ directory to validate type annotations.
     
-    This ensures that all type annotations in the package are correct
-    and internally consistent.
-    """
-    # Check if mypy is installed
-    result = subprocess.run(
-        [sys.executable, "-m", "mypy", "--version"],
-        capture_output=True,
-        text=True
-    )
-    
-    if result.returncode != 0:
-        raise RuntimeError("mypy is not installed. Install with: pip install mypy")
-    
-    # Run mypy on rawpy package
-    result = subprocess.run(
-        [sys.executable, "-m", "mypy", "rawpy/"],
-        capture_output=True,
-        text=True,
-        cwd=os.path.dirname(os.path.dirname(__file__))
-    )
-    
-    if result.returncode != 0:
-        error_msg = f"""
-mypy found type errors in rawpy/ package!
-
-STDOUT:
-{result.stdout}
-
-STDERR:
-{result.stderr}
-
-To fix this, address the type errors shown above.
-To run mypy manually: python -m mypy rawpy/
-"""
-        raise AssertionError(error_msg)
-    
-    # Success
-    assert result.returncode == 0, "mypy should pass with no errors"
-
-
-def test_mypy_tests():
-    """
-    Run mypy on the test directory to validate test code uses types correctly.
-    
-    This ensures that test files properly use the type-annotated rawpy API.
+    This ensures that:
+    - All type annotations in the package are correct and internally consistent
+    - Test files properly use the type-annotated rawpy API
     """
     # Check if mypy is installed
     result = subprocess.run(
@@ -72,9 +30,9 @@ def test_mypy_tests():
     if result.returncode != 0:
         raise RuntimeError("mypy is not installed. Install with: pip install mypy")
     
-    # Run mypy on test directory
+    # Run mypy on both rawpy package and test directory at once
     result = subprocess.run(
-        [sys.executable, "-m", "mypy", "test/"],
+        [sys.executable, "-m", "mypy", "rawpy/", "test/"],
         capture_output=True,
         text=True,
         cwd=os.path.dirname(os.path.dirname(__file__))
@@ -82,7 +40,7 @@ def test_mypy_tests():
     
     if result.returncode != 0:
         error_msg = f"""
-mypy found type errors in test/ directory!
+mypy found type errors!
 
 STDOUT:
 {result.stdout}
@@ -91,7 +49,7 @@ STDERR:
 {result.stderr}
 
 To fix this, address the type errors shown above.
-To run mypy manually: python -m mypy test/
+To run mypy manually: python -m mypy rawpy/ test/
 """
         raise AssertionError(error_msg)
     
@@ -100,13 +58,8 @@ To run mypy manually: python -m mypy test/
 
 
 if __name__ == "__main__":
-    # Allow running the tests directly for debugging
-    print("Running mypy on rawpy/ package...")
-    test_mypy_rawpy_package()
-    print("✓ mypy passed on rawpy/ package")
-    
-    print("\nRunning mypy on test/ directory...")
-    test_mypy_tests()
-    print("✓ mypy passed on test/ directory")
-    
-    print("\n✓ All mypy checks passed!")
+    # Allow running the test directly for debugging
+    print("Running mypy on rawpy/ and test/ ...")
+    test_mypy_all()
+    print("✓ mypy passed on all checked directories!")
+
