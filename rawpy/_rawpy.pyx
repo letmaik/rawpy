@@ -20,7 +20,7 @@ np.import_array()
 import os
 import sys
 import warnings
-from enum import Enum
+from enum import Enum, IntEnum
 
 cdef extern from "limits.h":
     cdef unsigned short USHRT_MAX
@@ -275,7 +275,7 @@ ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width',
                                        'crop_left_margin', 'crop_top_margin', 'crop_width', 'crop_height'
                                        ])
 
-class RawType(Enum):
+class RawType(IntEnum):
     """
     RAW image type.
     """
@@ -287,7 +287,7 @@ class RawType(Enum):
     """ Foveon type or sRAW/mRAW files or RawSpeed decoding """
 
 # LibRaw_thumbnail_formats
-class ThumbFormat(Enum):
+class ThumbFormat(IntEnum):
     """
     Thumbnail/preview image type.
     """
@@ -1042,7 +1042,7 @@ cdef class RawPy:
         if error_count > 0:
             raise LibRawDataError("Data error or unsupported file format")
 
-class DemosaicAlgorithm(Enum):
+class DemosaicAlgorithm(IntEnum):
     """
     Identifiers for demosaic algorithms.
     """
@@ -1106,7 +1106,7 @@ class DemosaicAlgorithm(Enum):
             raise NotSupportedError('Demosaic algorithm ' + self.name, min_version_dht_aahd)
         return True
 
-class FBDDNoiseReductionMode(Enum):
+class FBDDNoiseReductionMode(IntEnum):
     """
     FBDD noise reduction modes.
     """
@@ -1114,7 +1114,7 @@ class FBDDNoiseReductionMode(Enum):
     Light=1
     Full=2
 
-class ColorSpace(Enum):
+class ColorSpace(IntEnum):
     """
     Color spaces.
     """
@@ -1128,7 +1128,7 @@ class ColorSpace(Enum):
     P3D65=7
     Rec2020=8
     
-class HighlightMode(Enum):
+class HighlightMode(IntEnum):
     """
     Highlight modes.
     """
