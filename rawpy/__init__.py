@@ -3,7 +3,41 @@ from __future__ import absolute_import, annotations
 from typing import Union, BinaryIO, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from rawpy._rawpy import RawPy
+    from rawpy._rawpy import (
+        # Main classes
+        RawPy,
+        Params,
+        # Named tuples
+        ImageSizes,
+        Thumbnail,
+        # Enums
+        RawType,
+        ThumbFormat,
+        DemosaicAlgorithm,
+        FBDDNoiseReductionMode,
+        ColorSpace,
+        HighlightMode,
+        # Exceptions
+        LibRawError,
+        LibRawFatalError,
+        LibRawNonFatalError,
+        LibRawUnspecifiedError,
+        LibRawFileUnsupportedError,
+        LibRawRequestForNonexistentImageError,
+        LibRawOutOfOrderCallError,
+        LibRawNoThumbnailError,
+        LibRawUnsupportedThumbnailError,
+        LibRawInputClosedError,
+        LibRawNotImplementedError,
+        LibRawUnsufficientMemoryError,
+        LibRawDataError,
+        LibRawIOError,
+        LibRawCancelledByCallbackError,
+        LibRawBadCropError,
+        LibRawTooBigError,
+        LibRawMemPoolOverflowError,
+        NotSupportedError,
+    )
 
 from ._version import __version__
 
