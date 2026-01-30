@@ -33,8 +33,12 @@ def test_mypy_all():
     # Run mypy on both rawpy package and test directory at once
     # Use --install-types to automatically install missing type stubs
     # Use --non-interactive to avoid prompts in CI
+    # Use --ignore-missing-imports to skip optional dependencies (skimage, cv2)
     result = subprocess.run(
-        [sys.executable, "-m", "mypy", "--install-types", "--non-interactive", "rawpy/", "test/"],
+        [sys.executable, "-m", "mypy", 
+         "--install-types", "--non-interactive",
+         "--ignore-missing-imports",  # Skip optional deps
+         "rawpy/", "test/"],
         capture_output=True,
         text=True,
         cwd=os.path.dirname(os.path.dirname(__file__))

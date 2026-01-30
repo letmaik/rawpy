@@ -32,19 +32,19 @@ def test_type_checker_sees_types() -> None:
     are properly imported in the TYPE_CHECKING block.
     """
     # These type annotations should be recognized by mypy
-    sizes: rawpy.ImageSizes
-    thumb: rawpy.Thumbnail  
-    raw_type: rawpy.RawType
-    thumb_fmt: rawpy.ThumbFormat
-    algo: rawpy.DemosaicAlgorithm
-    color: rawpy.ColorSpace
-    highlight: rawpy.HighlightMode
-    noise: rawpy.FBDDNoiseReductionMode
-    params: rawpy.Params
-    error: rawpy.LibRawError
-    
-    # Use them to avoid unused variable warnings
-    _ = (sizes, thumb, raw_type, thumb_fmt, algo, color, highlight, noise, params, error)
+    # Wrapped in if False to avoid UnboundLocalError at runtime
+    # while still allowing mypy to validate the type annotations
+    if False:  # Never executed - only for type checking
+        sizes: rawpy.ImageSizes
+        thumb: rawpy.Thumbnail  
+        raw_type: rawpy.RawType
+        thumb_fmt: rawpy.ThumbFormat
+        algo: rawpy.DemosaicAlgorithm
+        color: rawpy.ColorSpace
+        highlight: rawpy.HighlightMode
+        noise: rawpy.FBDDNoiseReductionMode
+        params: rawpy.Params
+        error: rawpy.LibRawError
 
 if __name__ == "__main__":
     print("Testing runtime imports...")
