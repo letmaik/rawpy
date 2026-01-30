@@ -30,6 +30,12 @@ def test_mypy_all():
     if result.returncode != 0:
         raise RuntimeError("mypy is not installed. Install with: pip install mypy")
     
+    # Build absolute paths based on test file location
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(test_dir)
+    rawpy_dir = os.path.join(repo_root, "rawpy")
+    test_path = test_dir
+    
     # Run mypy on both rawpy package and test directory at once
     # Use --install-types to automatically install missing type stubs
     # Use --non-interactive to avoid prompts in CI
@@ -38,10 +44,9 @@ def test_mypy_all():
         [sys.executable, "-m", "mypy", 
          "--install-types", "--non-interactive",
          "--ignore-missing-imports",  # Skip optional deps
-         "rawpy/", "test/"],
+         rawpy_dir, test_path],
         capture_output=True,
-        text=True,
-        cwd=os.path.dirname(os.path.dirname(__file__))
+        text=True
     )
     
     if result.returncode != 0:
