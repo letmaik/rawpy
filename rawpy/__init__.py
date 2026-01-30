@@ -48,6 +48,10 @@ from ._version import __version__
 import rawpy._rawpy
 globals().update({k:v for k,v in rawpy._rawpy.__dict__.items() if not k.startswith('_')})
 
+# Re-export module-level attributes for type checkers
+flags = rawpy._rawpy.flags
+libraw_version = rawpy._rawpy.libraw_version
+
 import os
 import sys
 import warnings
