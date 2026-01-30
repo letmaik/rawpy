@@ -11,13 +11,13 @@ from functools import partial
 import numpy as np
 
 try:
-    from skimage.filters.rank import median
+    from skimage.filters.rank import median  # type: ignore[import-not-found]
 except ImportError:
     try:
-        from skimage.filter.rank import median
+        from skimage.filter.rank import median  # type: ignore[import-not-found,no-redef]
     except ImportError as e:
         warnings.warn('scikit-image not found, will use OpenCV (error: ' + str(e) + ')')
-        median = None
+        median = None  # type: ignore[assignment]
 try:
     import cv2
 except ImportError as e:
@@ -79,17 +79,17 @@ def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
         isCandidate = partial(_is_candidate, find_hot=find_hot, find_dead=find_dead, thresh=thresh)        
         coords.extend(_find_bad_pixel_candidates(raw, isCandidate))
     
-    coords = np.vstack(coords)
+    coords_array: np.ndarray = np.vstack(coords)
     
     if len(paths) == 1:
-        return coords
+        return coords_array
     
     # select candidates that appear on most input images
     # count how many times a coordinate appears
     
     # first we convert y,x to array offset such that we have an array of integers
-    offset = coords[:,0]*width
-    offset += coords[:,1]
+    offset = coords_array[:,0]*width  # type: ignore[index]
+    offset += coords_array[:,1]  # type: ignore[index]
     
     # now we count how many times each offset occurs
     counts = _groupcount(offset)

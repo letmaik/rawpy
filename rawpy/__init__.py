@@ -5,6 +5,9 @@ from typing import Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import BinaryIO
     from rawpy._rawpy import (
+        # Module-level attributes
+        flags,
+        libraw_version,
         # Main classes
         RawPy,
         Params,

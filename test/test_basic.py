@@ -39,8 +39,8 @@ raw6TestPath = os.path.join(thisDir, 'RAW_KODAK_DC50_é.KDC')
 raw7TestPath = os.path.join(thisDir, 'M0054341_01_00005.cr2')
 
 def testVersion():
-    print('using libraw', rawpy.libraw_version)
-    pprint(rawpy.flags)
+    print('using libraw', rawpy.libraw_version)  # type: ignore[attr-defined]
+    pprint(rawpy.flags)  # type: ignore[attr-defined]
     for d in rawpy.DemosaicAlgorithm:
         print(d.name, 'NOT' if d.isSupported is False 
                       else 'possibly' if d.isSupported is None else '', 'supported')
@@ -140,14 +140,14 @@ def testThumbExtractJPEG():
     with rawpy.imread(rawTestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.JPEG
-    img = iio.imread(thumb.data)
+    img = iio.imread(thumb.data)  # type: ignore[arg-type]
     assert_array_equal(img.shape, [2832, 4256, 3])
 
 def testThumbExtractBitmap():
     with rawpy.imread(raw4TestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.BITMAP
-    assert_array_equal(thumb.data.shape, [378, 567, 3])
+    assert_array_equal(thumb.data.shape, [378, 567, 3])  # type: ignore[union-attr]
 
 def testProperties():
     raw = rawpy.imread(rawTestPath)
@@ -160,7 +160,7 @@ def testProperties():
     assert_array_equal(raw.black_level_per_channel, [0,0,0,0])
     
     # older versions have zeros at the end, was probably a bug
-    if rawpy.libraw_version >= (0,16):
+    if rawpy.libraw_version >= (0,16):  # type: ignore[attr-defined]
         assert_array_equal(raw.tone_curve, np.arange(65536))
 
 def testBayerPattern():
@@ -169,11 +169,11 @@ def testBayerPattern():
     for path in [rawTestPath, raw2TestPath]:
         raw = rawpy.imread(path)
         assert_equal(raw.color_desc, expected_desc)
-        assert_array_equal(raw.raw_pattern, [[0,1],[3,2]])
+        assert_array_equal(raw.raw_pattern, [[0,1],[3,2]])  # type: ignore[arg-type]
 
     raw = rawpy.imread(raw3TestPath)
     assert_equal(raw.color_desc, expected_desc)
-    assert_array_equal(raw.raw_pattern, [[3,2],[0,1]])
+    assert_array_equal(raw.raw_pattern, [[3,2],[0,1]])  # type: ignore[arg-type]
 
 def testAutoWhiteBalance():
     # Test that auto_whitebalance returns None before postprocessing
@@ -214,7 +214,7 @@ def testBadPixelRepair():
         # 5x5 area around coordinate masked by color of coordinate
         raw_colors = raw.raw_colors_visible
         raw_color = raw_colors[y, x]
-        masked = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
+        masked: np.ma.MaskedArray = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)  # type: ignore[assignment]
         return masked[y-2:y+3,x-2:x+3].copy()
     
     bad_pixels = np.loadtxt(badPixelsTestPath, int)
@@ -312,7 +312,7 @@ def testFindBadPixelsNikonD4():
     find_bad_pixels([raw2TestPath])
 
 def testNikonD4Size():
-    if rawpy.libraw_version < (0,15):
+    if rawpy.libraw_version < (0,15):  # type: ignore[attr-defined]
         # older libraw/dcraw versions don't support D4 fully
         return
     raw = rawpy.imread(raw2TestPath)

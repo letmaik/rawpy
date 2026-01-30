@@ -73,7 +73,7 @@ def test_multiprocessing_warning_detection():
         pytest.skip("Test only relevant on Unix-like systems")
     
     # Only test if OpenMP is enabled
-    if not rawpy.flags or not rawpy.flags.get('OPENMP', False):
+    if not rawpy.flags or not rawpy.flags.get('OPENMP', False):  # type: ignore[attr-defined]
         pytest.skip("OpenMP not enabled, warning not expected")
     
     # Verify the warning function exists

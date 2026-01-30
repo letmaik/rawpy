@@ -232,6 +232,37 @@ class Params:
                                     for alternative repair algorithms, e.g. using the median.
         """
         ...
+    
+    # Instance attributes (accessible after __init__)
+    user_qual: int
+    half_size: bool
+    four_color_rgb: bool
+    dcb_iterations: int
+    dcb_enhance: bool
+    fbdd_noise_reduction: int
+    noise_thr: float
+    median_filter_passes: int
+    use_camera_wb: bool
+    use_auto_wb: bool
+    user_mul: List[float]
+    output_color: int
+    output_bps: int
+    user_flip: int
+    user_black: int
+    user_cblack: List[int]
+    user_sat: int
+    no_auto_bright: bool
+    auto_bright_thr: float
+    adjust_maximum_thr: float
+    bright: float
+    highlight_mode: int
+    exp_shift: float
+    exp_preserve_highlights: float
+    no_auto_scale: bool
+    gamm: Tuple[float, float]
+    aber: Tuple[float, float]
+    bad_pixels_path: Optional[str]
+
 
 # Main RawPy class
 class RawPy:
