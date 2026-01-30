@@ -30,12 +30,9 @@ def test_mypy_all():
     if result.returncode != 0:
         raise RuntimeError("mypy is not installed. Install with: pip install mypy")
     
-    # Build absolute paths based on test file location
+    # Get repo root from test file location
     test_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.dirname(test_dir)
-    rawpy_dir = os.path.join(repo_root, "rawpy")
-    test_path = test_dir
-    mypy_config = os.path.join(repo_root, "mypy.ini")
     
     # Run mypy on both rawpy package and test directory at once
     # Use --install-types to automatically install missing type stubs
@@ -44,10 +41,11 @@ def test_mypy_all():
     result = subprocess.run(
         [sys.executable, "-m", "mypy", 
          "--install-types", "--non-interactive",
-         "--config-file", mypy_config,
-         rawpy_dir, test_path],
+         "--config-file", "mypy.ini",
+         "rawpy/", "test/"],
         capture_output=True,
-        text=True
+        text=True,
+        cwd=repo_root
     )
     
     if result.returncode != 0:
