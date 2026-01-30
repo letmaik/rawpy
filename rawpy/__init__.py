@@ -1,6 +1,6 @@
 from __future__ import absolute_import, annotations
 
-from typing import Union, overload, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import BinaryIO
@@ -98,12 +98,6 @@ def _check_multiprocessing_fork():
     except ImportError:
         # multiprocessing not available
         pass
-
-@overload
-def imread(pathOrFile: str, shot_select: int = 0) -> RawPy: ...
-
-@overload  
-def imread(pathOrFile: BinaryIO, shot_select: int = 0) -> RawPy: ...
 
 def imread(pathOrFile: Union[str, BinaryIO], shot_select: int = 0) -> RawPy:
     """
