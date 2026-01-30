@@ -140,6 +140,7 @@ def testThumbExtractJPEG():
     with rawpy.imread(rawTestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.JPEG
+    assert isinstance(thumb.data, bytes)
     img = iio.imread(thumb.data)
     assert_array_equal(img.shape, [2832, 4256, 3])
 
@@ -147,6 +148,7 @@ def testThumbExtractBitmap():
     with rawpy.imread(raw4TestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.BITMAP
+    assert isinstance(thumb.data, np.ndarray)
     assert_array_equal(thumb.data.shape, [378, 567, 3])
 
 def testProperties():
@@ -169,11 +171,11 @@ def testBayerPattern():
     for path in [rawTestPath, raw2TestPath]:
         raw = rawpy.imread(path)
         assert_equal(raw.color_desc, expected_desc)
-        assert_array_equal(raw.raw_pattern, [[0,1],[3,2]])
+        assert_array_equal(raw.raw_pattern, np.array([[0,1],[3,2]], dtype=np.uint8))
 
     raw = rawpy.imread(raw3TestPath)
     assert_equal(raw.color_desc, expected_desc)
-    assert_array_equal(raw.raw_pattern, [[3,2],[0,1]])
+    assert_array_equal(raw.raw_pattern, np.array([[3,2],[0,1]], dtype=np.uint8))
 
 def testAutoWhiteBalance():
     # Test that auto_whitebalance returns None before postprocessing

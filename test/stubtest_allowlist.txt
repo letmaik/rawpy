@@ -1,0 +1,12 @@
+# Allowlist for mypy stubtest
+# These are internal implementation details that users shouldn't rely on
+
+# Cython-generated pickling support methods (module-level)
+rawpy\._rawpy\.__reduce_cython__
+rawpy\._rawpy\.__setstate_cython__
+
+# Internal wrapper class for LibRaw processed images
+rawpy\._rawpy\.processed_image_wrapper
+
+# Doctest dictionary (not part of public API)
+rawpy\._rawpy\.__test__
