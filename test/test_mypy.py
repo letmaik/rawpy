@@ -31,8 +31,10 @@ def test_mypy_all():
         raise RuntimeError("mypy is not installed. Install with: pip install mypy")
     
     # Run mypy on both rawpy package and test directory at once
+    # Use --install-types to automatically install missing type stubs
+    # Use --non-interactive to avoid prompts in CI
     result = subprocess.run(
-        [sys.executable, "-m", "mypy", "rawpy/", "test/"],
+        [sys.executable, "-m", "mypy", "--install-types", "--non-interactive", "rawpy/", "test/"],
         capture_output=True,
         text=True,
         cwd=os.path.dirname(os.path.dirname(__file__))
@@ -49,7 +51,7 @@ STDERR:
 {result.stderr}
 
 To fix this, address the type errors shown above.
-To run mypy manually: python -m mypy rawpy/ test/
+To run mypy manually: python -m mypy --install-types --non-interactive rawpy/ test/
 """
         raise AssertionError(error_msg)
     

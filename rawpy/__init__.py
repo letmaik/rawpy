@@ -1,6 +1,9 @@
 from __future__ import absolute_import, annotations
 
-from typing import Union, BinaryIO
+from typing import Union, BinaryIO, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rawpy._rawpy import RawPy
 
 from ._version import __version__
 
@@ -77,8 +80,9 @@ def imread(pathOrFile: Union[str, BinaryIO], shot_select: int = 0) -> RawPy:
     _check_multiprocessing_fork()
     d = RawPy()
     if hasattr(pathOrFile, 'read'):
-        d.open_buffer(pathOrFile)
+        # Type narrowing: pathOrFile must be BinaryIO here
+        d.open_buffer(pathOrFile)  # type: ignore[arg-type]
     else:
-        d.open_file(pathOrFile)
+        d.open_file(pathOrFile)  # type: ignore[arg-type]
     d.set_unpack_params(shot_select=shot_select)
     return d
