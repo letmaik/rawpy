@@ -90,6 +90,8 @@ def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
     # select candidates that appear on most input images
     # count how many times a coordinate appears
     
+    assert width is not None, "width must be set from at least one image"
+    
     # first we convert y,x to array offset such that we have an array of integers
     offset: NDArray[np.int_] = coords_array[:,0]*width
     offset += coords_array[:,1]
