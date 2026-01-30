@@ -1,8 +1,9 @@
 from __future__ import absolute_import, annotations
 
-from typing import Union, BinaryIO, TYPE_CHECKING
+from typing import Union, overload, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from typing import BinaryIO
     from rawpy._rawpy import (
         # Main classes
         RawPy,
@@ -98,6 +99,12 @@ def _check_multiprocessing_fork():
         # multiprocessing not available
         pass
 
+@overload
+def imread(pathOrFile: str, shot_select: int = 0) -> RawPy: ...
+
+@overload  
+def imread(pathOrFile: BinaryIO, shot_select: int = 0) -> RawPy: ...
+
 def imread(pathOrFile: Union[str, BinaryIO], shot_select: int = 0) -> RawPy:
     """
     Convenience function that creates a :class:`rawpy.RawPy` instance, opens the given file,
@@ -113,10 +120,11 @@ def imread(pathOrFile: Union[str, BinaryIO], shot_select: int = 0) -> RawPy:
     """
     _check_multiprocessing_fork()
     d = RawPy()
-    if hasattr(pathOrFile, 'read'):
-        # Type narrowing: pathOrFile must be BinaryIO here
-        d.open_buffer(pathOrFile)  # type: ignore[arg-type]
+    if isinstance(pathOrFile, str):
+        # pathOrFile is a string file path
+        d.open_file(pathOrFile)
     else:
-        d.open_file(pathOrFile)  # type: ignore[arg-type]
+        # pathOrFile is a file-like object with read() method
+        d.open_buffer(pathOrFile)
     d.set_unpack_params(shot_select=shot_select)
     return d
