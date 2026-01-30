@@ -13,7 +13,7 @@ scikit-image
 pytest
 imageio>=2.21  # for imageio.v3 / iio support
 setuptools
-mypy  # for stubtest validation
+mypy
 
 # documentation dependencies
 sphinx_rtd_theme
