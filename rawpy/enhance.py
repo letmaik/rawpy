@@ -17,10 +17,10 @@ try:
     from skimage.filters.rank import median as median_func
 except ImportError:
     try:
-        from skimage.filter.rank import median as median_func
+        from skimage.filter.rank import median as median_func # type: ignore
     except ImportError as e:
         warnings.warn('scikit-image not found, will use OpenCV (error: ' + str(e) + ')')
-        median_func = cast(Optional[Callable[..., Any]], None)
+        median_func = cast(Optional[Callable[..., Any]], None) # type: ignore
 try:
     import cv2
 except ImportError as e:

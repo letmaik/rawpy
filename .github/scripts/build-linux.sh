@@ -63,23 +63,6 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
 make install -j$(nproc)
 popd
 
-# Install libraw
-libraw_dir=$(pwd)/external/LibRaw
-pushd external/LibRaw-cmake
-mkdir build
-cd build
-cmake .. \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DLIBRAW_PATH=$libraw_dir \
-    -DENABLE_X3FTOOLS=ON \
-    -DENABLE_6BY9RPI=ON \
-    -DENABLE_EXAMPLES=OFF \
-    -DENABLE_RAWSPEED=OFF \
-    -DCMAKE_BUILD_TYPE=Release
-make
-make install -j$(nproc)
-popd
-
 # Install matplotlib (a scikit-image dependency) dependencies
 retry dnf install -y libpng-devel freetype-devel
 
@@ -90,15 +73,13 @@ retry dnf install -y lapack-devel blas-devel
 ${PYBIN}/python -m pip install --upgrade pip
 export PIP_PREFER_BINARY=1
 
-# install compile-time dependencies
-retry ${PYBIN}/pip install numpy==${NUMPY_VERSION} cython setuptools
-
 # List installed packages
 ${PYBIN}/pip freeze
 
 # Build rawpy wheel
+# Relies on pyproject.toml to create an isolated build env with the correct numpy version
 export LDFLAGS="-Wl,--strip-debug"
-${PYBIN}/python setup.py bdist_wheel --dist-dir dist-tmp
+${PYBIN}/pip wheel . --wheel-dir dist-tmp --no-deps
 
 # Bundle external shared libraries into wheel and fix the wheel tags
 mkdir dist

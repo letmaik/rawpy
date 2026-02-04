@@ -13,52 +13,6 @@ function exec {
     }
 }
 
-function Initialize-Python {
-    if ($env:USE_CONDA -eq 1) {
-        $env:CONDA_ROOT = $pwd.Path + "\external\miniconda_$env:PYTHON_ARCH"
-        & .\.github\scripts\install-miniconda.ps1
-        & $env:CONDA_ROOT\shell\condabin\conda-hook.ps1
-        exec { conda update --yes -n base -c defaults conda }
-    }
-    # Check Python version
-    exec { python -c "import platform; assert platform.python_version().startswith('$env:PYTHON_VERSION')" }
-}
-
-function Create-VEnv {
-    [CmdletBinding()]
-    param([Parameter(Position=0,Mandatory=1)][string]$name)
-    if ($env:USE_CONDA -eq 1) {
-        exec { conda create --yes --name $name -c defaults --strict-channel-priority python=$env:PYTHON_VERSION --force }
-    } else {
-        exec { python -m venv env\$name }
-    }
-}
-
-function Enter-VEnv {
-    [CmdletBinding()]
-    param([Parameter(Position=0,Mandatory=1)][string]$name)
-    if ($env:USE_CONDA -eq 1) {
-        conda activate $name
-    } else {
-        & .\env\$name\scripts\activate
-    }
-}
-
-function Create-And-Enter-VEnv {
-    [CmdletBinding()]
-    param([Parameter(Position=0,Mandatory=1)][string]$name)
-    Create-VEnv $name
-    Enter-VEnv $name
-}
-
-function Exit-VEnv {
-    if ($env:USE_CONDA -eq 1) {
-        conda deactivate
-    } else {
-        deactivate
-    }
-}
-
 function Initialize-VS {
     # https://wiki.python.org/moin/WindowsCompilers
     # setuptools automatically selects the right compiler for building
@@ -113,12 +67,11 @@ if (!$env:PYTHON_VERSION) {
 if ($env:PYTHON_ARCH -ne 'x86' -and $env:PYTHON_ARCH -ne 'x86_64') {
     throw "PYTHON_ARCH env var must be x86 or x86_64"
 }
-if (!$env:NUMPY_VERSION) {
-    throw "NUMPY_VERSION env var missing"
-}
 
 Initialize-VS
-Initialize-Python
+
+# Check Python version
+exec { python -c "import platform; assert platform.python_version().startswith('$env:PYTHON_VERSION')" }
 
 # Prefer binary packages over building from source
 $env:PIP_PREFER_BINARY = 1
@@ -133,10 +86,9 @@ if (!(Test-Path ./vcpkg)) {
 exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=x64-windows-static --recurse }
 $env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\x64-windows-static"
 
-
-# Build the wheel.
-Create-And-Enter-VEnv build
+# Build the wheel in a virtual environment
+exec { python -m venv env\build }
+& .\env\build\scripts\activate
 exec { python -m pip install --upgrade pip wheel setuptools }
-exec { python -m pip install --only-binary :all: numpy==$env:NUMPY_VERSION cython }
-exec { python -u setup.py bdist_wheel }
-Exit-VEnv
+exec { python -m pip wheel . --wheel-dir dist --no-deps }
+deactivate

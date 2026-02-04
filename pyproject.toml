@@ -1,0 +1,73 @@
+[build-system]
+requires = [
+    "setuptools>=65.0.0",
+    "wheel",
+    "Cython>=0.29.32",
+    # NumPy build constraints for ABI compatibility:
+    # - Python <3.13: Build against NumPy 1.26 (last 1.x). Wheels are forward-compatible
+    #   with NumPy 2.x at runtime due to NumPy's ABI stability guarantees.
+    # - Python >=3.13: Requires NumPy 2.1+ (no NumPy 1.x support for Python 3.13+).
+    "numpy>=1.26.0,<2.0; python_version < '3.13'",
+    "numpy>=2.1.0; python_version >= '3.13'",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rawpy"
+dynamic = ["version"]
+description = "RAW image processing for Python, a wrapper for libraw"
+readme = "README.md"
+authors = [
+  {name = "Maik Riechert"}
+]
+license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Software Development :: Libraries",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.26.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/letmaik/rawpy"
+
+[tool.setuptools.packages.find]
+include = ["rawpy*"]
+
+[tool.mypy]
+# Global mypy configuration for rawpy project
+warn_unused_configs = true
+check_untyped_defs = true
+
+# Selectively ignore missing imports for optional dependencies
+[[tool.mypy.overrides]]
+module = [
+    "skimage.*",
+    "cv2",
+    "scipy.*",
+    "imageio",
+    "imageio.*",
+    "imageio.v3"
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["test"]

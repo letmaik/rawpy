@@ -6,6 +6,7 @@ __pycache__/
 
 # C extensions
 *.so
+*.so.*
 
 # Distribution / packaging
 .Python
@@ -74,3 +75,4 @@ Miniconda*.exe
 /vcpkg
 
 !/logo/logo.png
+.venv/

@@ -1,4 +1,27 @@
-include README.rst
+# Include documentation and license files
+include README.md
+include LICENSE
+include LICENSE.LibRaw
+# Note: AGENTS.md is excluded - it's for development only, not end users
+
+# Include Cython source and helper headers
+include rawpy/_rawpy.pyx
 include rawpy/def_helper.h
+include rawpy/data_helper.h
+
+# Include type stub and marker
 include rawpy/py.typed
 include rawpy/_rawpy.pyi
+
+# Include external LibRaw source code (required for building from source)
+recursive-include external/LibRaw *.h *.c *.cpp *.txt *.md
+include external/LibRaw-cmake/CMakeLists.txt
+include external/LibRaw-cmake/README.md
+recursive-include external/LibRaw-cmake/cmake *.cmake *.txt
+
+# Include demosaic packs (optional GPL code)
+recursive-include external/LibRaw-demosaic-pack-GPL2 *
+recursive-include external/LibRaw-demosaic-pack-GPL3 *
+
+# Exclude build artifacts
+prune external/LibRaw-cmake/build
