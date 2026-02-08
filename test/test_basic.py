@@ -171,10 +171,12 @@ def testBayerPattern():
     for path in [rawTestPath, raw2TestPath]:
         raw = rawpy.imread(path)
         assert_equal(raw.color_desc, expected_desc)
+        assert raw.raw_pattern is not None
         assert_array_equal(raw.raw_pattern, np.array([[0,1],[3,2]], dtype=np.uint8))
 
     raw = rawpy.imread(raw3TestPath)
     assert_equal(raw.color_desc, expected_desc)
+    assert raw.raw_pattern is not None
     assert_array_equal(raw.raw_pattern, np.array([[3,2],[0,1]], dtype=np.uint8))
 
 def testAutoWhiteBalance():
