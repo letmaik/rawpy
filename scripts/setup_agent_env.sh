@@ -5,8 +5,18 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 VENV_DIR="$PROJECT_ROOT/.venv"
 
+# Optional: specify a Python version (e.g. 3.12)
+PYTHON_VERSION="${1:-}"
+
 echo "=== Agent Environment Setup ==="
 echo ""
+
+# If a specific Python version was requested, install it first
+if [ -n "$PYTHON_VERSION" ]; then
+    echo "Requested Python $PYTHON_VERSION"
+    bash "$SCRIPT_DIR/setup_python.sh" "$PYTHON_VERSION"
+    echo ""
+fi
 
 # Check system dependencies first
 echo "Checking system dependencies..."

@@ -25,12 +25,14 @@ Changes to `rawpy/_rawpy.pyx` or C++ files **will not take effect** until you re
 | Task | Command |
 |------|---------|
 | First-time setup | `bash scripts/setup_agent_env.sh` |
+| Setup with specific Python | `bash scripts/setup_agent_env.sh 3.12` |
 | Activate environment | `source .venv/bin/activate` |
 | Rebuild after .pyx/C++ changes | `bash scripts/rebuild.sh` |
 | Quick sanity check | `bash scripts/agent_check.sh` |
 | Run single test | `pytest test/test_basic.py::testName -v` |
 | Run all tests | `pytest test/` |
 | Type check | `mypy rawpy` |
+| Switch numpy version | `bash scripts/setup_numpy.sh 2.0.2` |
 
 ## Environment Setup
 
@@ -45,6 +47,15 @@ This will:
 3. Initialize git submodules (LibRaw source)
 4. Install Python dependencies
 5. Build and install rawpy in editable mode
+
+**With a specific Python version (Ubuntu only):**
+```bash
+bash scripts/setup_agent_env.sh 3.12
+```
+
+This installs the requested Python via the deadsnakes PPA, creates a `.venv`
+with it, then runs the full setup. You can also use `scripts/setup_python.sh`
+directly if you only need to switch the Python version without rebuilding.
 
 **For subsequent sessions:**
 ```bash
@@ -168,6 +179,41 @@ pip install --no-build-isolation -e .
 Note: `pip wheel .` uses build isolation and creates a fresh environment from
 `pyproject.toml`'s `build-system.requires`. This is different from the local dev
 workflow (`--no-build-isolation`) which reuses the current venv.
+
+### Reproducing CI test failures locally
+
+CI tests run across multiple Python and NumPy versions. Type checking (mypy)
+is particularly sensitive to the NumPy stubs version bundled with each NumPy
+release.
+
+**Test with a specific NumPy version:**
+```bash
+# Switch to numpy 2.0.x, then use normal commands
+bash scripts/setup_numpy.sh 2.0.2
+source .venv/bin/activate
+pytest test/test_mypy.py -v
+
+# Switch back when done
+bash scripts/setup_numpy.sh 2.2.6
+```
+
+**Test with a specific Python version (Ubuntu):**
+```bash
+# Install Python 3.12 and rebuild everything
+bash scripts/setup_agent_env.sh 3.12
+
+# Then run tests
+source .venv/bin/activate
+pytest test/ -v
+```
+
+**Reference CI NumPy versions** (check `.github/workflows/ci.yml` test matrix):
+
+| Python | NumPy |
+|--------|-------|
+| 3.9–3.12 | 2.0.* |
+| 3.13 | 2.1.* |
+| 3.14 | 2.4.* |
 
 ## Platform-Specific Notes
 
