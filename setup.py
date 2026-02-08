@@ -252,6 +252,7 @@ def unix_libraw_compile():
         "-DENABLE_EXAMPLES=OFF",
         "-DENABLE_RAWSPEED=OFF",
         "-DCMAKE_INSTALL_PREFIX=install",
+        "-DCMAKE_INSTALL_LIBDIR=lib",
         "-DCMAKE_INSTALL_NAME_DIR=" + install_name_dir,
     ]
 
