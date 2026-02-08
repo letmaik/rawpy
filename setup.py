@@ -330,6 +330,7 @@ needsCompile = (
 if needsCompile:
     if isWindows:
         windows_libraw_compile()
+        package_data["rawpy"].append("*.dll")
     elif isMac or isLinux:
         unix_libraw_compile()
         if isLinux:
