@@ -3,12 +3,9 @@ requires = [
     "setuptools>=69.0.0",
     "wheel",
     "Cython>=0.29.32",
-    # NumPy build constraints for ABI compatibility:
-    # - Python <3.13: Build against NumPy 1.26 (last 1.x). Wheels are forward-compatible
-    #   with NumPy 2.x at runtime due to NumPy's ABI stability guarantees.
-    # - Python >=3.13: Requires NumPy 2.1+ (no NumPy 1.x support for Python 3.13+).
-    "numpy>=1.26.0,<2.0; python_version < '3.13'",
-    "numpy>=2.1.0; python_version >= '3.13'",
+    # Build against NumPy 2.x headers. Extensions compiled with NumPy 2.0+
+    # are backward-compatible with NumPy >= 1.19 at runtime.
+    "numpy>=2.0.0",
 ]
 build-backend = "setuptools.build_meta"
 
