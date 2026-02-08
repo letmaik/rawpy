@@ -37,11 +37,10 @@ def test_mypy_all():
     # Run mypy on both rawpy package and test directory at once
     # Use --install-types to automatically install missing type stubs
     # Use --non-interactive to avoid prompts in CI
-    # Config file selectively ignores optional dependencies (skimage, cv2)
+    # Config is in pyproject.toml [tool.mypy], auto-discovered via cwd
     result = subprocess.run(
         [sys.executable, "-m", "mypy", 
          "--install-types", "--non-interactive",
-         "--config-file", "mypy.ini",
          "rawpy/", "test/"],
         capture_output=True,
         text=True,
@@ -59,7 +58,7 @@ STDERR:
 {result.stderr}
 
 To fix this, address the type errors shown above.
-To run mypy manually: python -m mypy --install-types --non-interactive --config-file mypy.ini rawpy/ test/
+To run mypy manually: python -m mypy --install-types --non-interactive rawpy/ test/
 """
         raise AssertionError(error_msg)
     

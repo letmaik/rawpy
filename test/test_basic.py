@@ -216,7 +216,7 @@ def testBadPixelRepair():
         # 5x5 area around coordinate masked by color of coordinate
         raw_colors = raw.raw_colors_visible
         raw_color = raw_colors[y, x]
-        masked = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
+        masked: ma.MaskedArray = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
         return masked[y-2:y+3,x-2:x+3].copy()
     
     bad_pixels = np.loadtxt(badPixelsTestPath, int)
