@@ -57,9 +57,12 @@ cd "$PROJECT_ROOT"
 git submodule update --init --recursive
 
 echo "Installing Python dependencies..."
+# This includes setuptools since --no-build-isolation skips build-system.requires.
 pip install -r "$PROJECT_ROOT/dev-requirements.txt" -q
 
 echo "Building and installing rawpy (this may take a minute)..."
+# Delete stale _rawpy.cpp so cythonize() regenerates it (see AGENTS.md)
+rm -f rawpy/_rawpy.cpp
 pip install -e "$PROJECT_ROOT" --no-build-isolation -q
 
 # Verify the installation

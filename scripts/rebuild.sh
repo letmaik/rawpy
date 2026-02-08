@@ -18,6 +18,9 @@ fi
 source "$VENV_DIR/bin/activate"
 cd "$PROJECT_ROOT"
 
+# Delete stale _rawpy.cpp so cythonize() regenerates it (see AGENTS.md)
+rm -f rawpy/_rawpy.cpp
+
 echo "Rebuilding rawpy..."
 # --no-build-isolation: reuses current env's numpy/cython (faster)
 # -e: editable install (.py changes apply immediately)

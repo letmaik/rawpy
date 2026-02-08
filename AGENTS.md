@@ -56,11 +56,16 @@ source .venv/bin/activate
 | Path | Purpose |
 |------|---------|
 | `rawpy/_rawpy.pyx` | Main Cython implementation (RawPy class, C++ bindings) |
+| `rawpy/_rawpy.cpp` | **Generated** C++ from `.pyx` — do not edit manually. `setup.py` calls `cythonize()` which regenerates this, but only when the `.pyx` has a newer timestamp than the `.cpp`. A stale `.cpp` from a previous build can cause failures if the NumPy ABI has changed. `scripts/rebuild.sh` deletes it to force regeneration. |
 | `rawpy/_rawpy.pyi` | Type stubs (update when changing API) |
 | `rawpy/__init__.py` | Python entry point |
 | `rawpy/enhance.py` | Pure Python utilities (bad pixel repair, etc.) |
 | `external/LibRaw/` | LibRaw C++ library (git submodule) |
 | `external/LibRaw/libraw/*.h` | LibRaw headers (check these for C++ signatures) |
+| `external/LibRaw-cmake/` | CMake build system for LibRaw (git submodule) |
+| `setup.py` | Build configuration (compiles LibRaw from source, links Cython extension) |
+| `.github/workflows/ci.yml` | CI workflow (build matrix for Linux/macOS/Windows × Python versions) |
+| `.github/scripts/` | Platform-specific CI build/test scripts |
 
 ## Common Tasks
 
@@ -94,6 +99,15 @@ The Cython extension isn't built. Run:
 bash scripts/rebuild.sh
 ```
 
+### "PyArray_Descr has no member named 'subarray'" or similar NumPy ABI errors
+The generated `_rawpy.cpp` is stale (compiled against a different NumPy version).
+`scripts/rebuild.sh` already handles this by deleting the `.cpp` so `cythonize()`
+regenerates it. Just re-run `bash scripts/rebuild.sh`. To fix manually:
+```bash
+rm rawpy/_rawpy.cpp
+pip install --no-build-isolation -e .
+```
+
 ### "cmake: command not found"
 Install cmake via your system package manager:
 ```bash
@@ -125,6 +139,46 @@ xcode-select --install
 
 ### Mypy errors about missing stubs
 If you added new API, update `rawpy/_rawpy.pyi` to match.
+
+## CI Architecture
+
+The CI workflow is in `.github/workflows/ci.yml`. It builds wheels across a matrix:
+
+| Platform | Runner | Container | Architectures |
+|----------|--------|-----------|---------------|
+| Linux | `ubuntu-latest` | `manylinux_2_28` (RHEL-based) | x86_64, aarch64 (via QEMU) |
+| macOS | `macos-15` | native | arm64 |
+| Windows | `windows-2022` | native | x86_64 |
+
+Build scripts in `.github/scripts/`:
+- `build-linux.sh` — runs inside Docker; installs deps, builds wheel, runs `auditwheel`
+- `build-macos.sh` — installs deps from source (respects `MACOSX_DEPLOYMENT_TARGET`), uses `delocate`
+- `build-windows.ps1` — uses vcpkg for deps, VS build tools
+
+### Reproducing CI builds locally
+
+```bash
+# Build an isolated wheel (what CI does):
+pip wheel . --wheel-dir dist --no-deps
+
+# Build without isolation (faster, for local dev):
+pip install --no-build-isolation -e .
+```
+
+Note: `pip wheel .` uses build isolation and creates a fresh environment from
+`pyproject.toml`'s `build-system.requires`. This is different from the local dev
+workflow (`--no-build-isolation`) which reuses the current venv.
+
+## Platform-Specific Notes
+
+- **Linux (RHEL/manylinux):** CMake's `GNUInstallDirs` installs libraries to
+  `lib64/` instead of `lib/` on 64-bit RHEL-based systems. The `setup.py`
+  handles this by passing `-DCMAKE_INSTALL_LIBDIR=lib` to cmake. If you modify
+  cmake arguments in `setup.py`, always keep this flag.
+- **macOS:** `-DCMAKE_INSTALL_NAME_DIR` is required for dylib resolution.
+  Build scripts install dependencies from source to control `MACOSX_DEPLOYMENT_TARGET`.
+- **Windows:** Uses a separate `windows_libraw_compile()` code path with
+  NMake Makefiles generator and vcpkg for native dependencies.
 
 ## Examples
 

@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=65.0.0",
+    "setuptools>=69.0.0",
     "wheel",
     "Cython>=0.29.32",
     # NumPy build constraints for ABI compatibility:
@@ -20,7 +20,7 @@ readme = "README.md"
 authors = [
   {name = "Maik Riechert"}
 ]
-license = {text = "MIT"}
+license = "MIT"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
