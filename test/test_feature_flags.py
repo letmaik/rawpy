@@ -71,11 +71,16 @@ def test_wheel_feature_flags():
     required_true = {
         "DNGDEFLATECODEC",  # zlib
         "DNGLOSSYCODEC",    # libjpeg-turbo (jpeg8)
-        "REDCINECODEC",     # libjasper
         "LCMS",             # lcms2
         "X3FTOOLS",         # always enabled in setup.py
         "6BY9RPI",          # always enabled in setup.py
     }
+
+    # REDCINECODEC requires libjasper which is not available on all CI
+    # platforms (e.g. Ubuntu 24.04 has no libjasper-dev package).
+    # Only require it when RAWPY_CI_NO_JASPER is not set.
+    if not os.environ.get("RAWPY_CI_NO_JASPER"):
+        required_true.add("REDCINECODEC")
 
     # Flags that must be False (not enabled / not bundled).
     required_false = {

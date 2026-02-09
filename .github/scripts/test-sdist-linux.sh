@@ -9,12 +9,11 @@ set -e -x
 
 PYTHON_BIN="python${PYTHON_VERSION}"
 
-# Install system build dependencies (C++ compiler is already available)
+# Install system build dependencies
 sudo apt-get update -q
-sudo apt-get install -y -q g++ \
+sudo apt-get install -y -q \
     liblcms2-dev \
-    libjpeg-dev \
-    libjasper-dev
+    libjpeg-dev
 
 # Create a clean venv
 ${PYTHON_BIN} -m venv sdist-test-env

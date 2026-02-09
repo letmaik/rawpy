@@ -497,6 +497,7 @@ jobs:
       run: .github/scripts/test-sdist-linux.sh
       env:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
+        RAWPY_CI_NO_JASPER: '1'
 
     - name: Test sdist (macOS)
       if: matrix.config.os-name == 'mac'
@@ -543,6 +544,7 @@ jobs:
       env:
         PYTHON_VERSION: '3.12'
         RAWPY_USE_SYSTEM_LIBRAW: '1'
+        RAWPY_CI_NO_JASPER: '1'
 
   docs:
     runs-on: ubuntu-latest
