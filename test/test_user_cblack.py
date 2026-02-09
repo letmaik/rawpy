@@ -1,10 +1,7 @@
 """Tests for per-channel black level corrections (user_cblack parameter)."""
-from __future__ import division, print_function, absolute_import
-
 import os
 import pytest
 import numpy as np
-from numpy.testing import assert_array_equal
 
 import rawpy
 
@@ -20,7 +17,7 @@ def test_user_cblack_parameter_acceptance():
     
     # Test with None (default)
     params = rawpy.Params()
-    assert params.user_cblack == [0, 0, 0, 0]
+    assert params.user_cblack is None
 
 
 def test_user_cblack_parameter_validation():

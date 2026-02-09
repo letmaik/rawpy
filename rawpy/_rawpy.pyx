@@ -1262,7 +1262,7 @@ class Params(object):
             assert len(user_cblack) == 4
             self.user_cblack = user_cblack
         else:
-            self.user_cblack = [0, 0, 0, 0]
+            self.user_cblack = None
         self.user_sat = user_sat if user_sat is not None else -1
         self.no_auto_bright = no_auto_bright
         self.no_auto_scale = no_auto_scale
