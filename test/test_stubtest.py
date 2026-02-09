@@ -11,8 +11,16 @@ import subprocess
 import sys
 import os
 import pytest
+import rawpy
+
+# stubtest validates that the .pyi stub matches the runtime module.
+# When rawpy is installed from an artifact (site-packages), skip — the
+# allowlist and stub source are tied to the editable/source-tree workflow.
+_repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_is_editable = os.path.abspath(rawpy.__file__).startswith(os.path.abspath(_repo_root))
 
 
+@pytest.mark.skipif(not _is_editable, reason="requires editable install")
 def test_stub_matches_runtime():
     """
     Use mypy stubtest to verify that rawpy/_rawpy.pyi matches the runtime signatures.

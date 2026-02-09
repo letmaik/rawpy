@@ -10,8 +10,17 @@ This validates that:
 import subprocess
 import sys
 import os
+import pytest
+import rawpy
+
+# These tests type-check the source tree (rawpy/ and test/ at repo root).
+# When rawpy is installed from an artifact (site-packages), skip — the source
+# tree's rawpy/ would shadow or conflict with the installed package.
+_repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_is_editable = os.path.abspath(rawpy.__file__).startswith(os.path.abspath(_repo_root))
 
 
+@pytest.mark.skipif(not _is_editable, reason="requires editable install")
 def test_mypy_all():
     """
     Run mypy on both rawpy/ package and test/ directory to validate type annotations.
@@ -31,8 +40,7 @@ def test_mypy_all():
         raise RuntimeError("mypy is not installed. Install with: pip install mypy")
     
     # Get repo root from test file location
-    test_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(test_dir)
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     # Run mypy on both rawpy package and test directory at once
     # Use --install-types to automatically install missing type stubs

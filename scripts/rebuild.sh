@@ -11,7 +11,7 @@ VENV_DIR="$PROJECT_ROOT/.venv"
 # Require venv
 if [ ! -d "$VENV_DIR" ]; then
     echo "ERROR: .venv not found."
-    echo "Run 'bash scripts/setup_agent_env.sh' first."
+    echo "Run 'bash scripts/setup_dev_env.sh' first."
     exit 1
 fi
 

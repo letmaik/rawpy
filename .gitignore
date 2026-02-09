@@ -76,3 +76,5 @@ Miniconda*.exe
 
 !/logo/logo.png
 .venv/
+.venv-test/
+tmp/

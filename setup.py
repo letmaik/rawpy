@@ -4,9 +4,7 @@ import errno
 import os
 import shutil
 import sys
-import zipfile
 import glob
-from urllib.request import urlretrieve
 
 import numpy
 
@@ -70,6 +68,9 @@ def _ask_pkg_config(resultlist, option, result_prefix="", sysroot=False):
 
 
 def use_pkg_config():
+    pkg_config = os.environ.get("PKG_CONFIG", "pkg-config")
+    if subprocess.call([pkg_config, "--atleast-version=0.21", "libraw_r"]) != 0:
+        raise SystemExit("ERROR: System LibRaw is too old or not found. rawpy requires LibRaw >= 0.21.")
     _ask_pkg_config(include_dirs, "--cflags-only-I", "-I", sysroot=True)
     _ask_pkg_config(extra_compile_args, "--cflags-only-other")
     _ask_pkg_config(library_dirs, "--libs-only-L", "-L", sysroot=True)
@@ -78,7 +79,7 @@ def use_pkg_config():
 
 
 def clone_submodules():
-    if not os.path.exists("external/LibRaw/README.md"):
+    if not os.path.exists("external/LibRaw/libraw/libraw.h"):
         print(
             'LibRaw git submodule is not cloned yet, will invoke "git submodule update --init" now'
         )
@@ -98,30 +99,7 @@ def get_install_dir():
 def windows_libraw_compile():
     clone_submodules()
 
-    # download cmake to compile libraw
-    # the cmake zip contains a cmake-3.12.4-win32-x86 folder when extracted
-    cmake_url = "https://cmake.org/files/v3.12/cmake-3.12.4-win32-x86.zip"
-    cmake = os.path.abspath("external/cmake-3.12.4-win32-x86/bin/cmake.exe")
-
-    files = [(cmake_url, "external", cmake)]
-
-    for url, extractdir, extractcheck in files:
-        if not os.path.exists(extractcheck):
-            path = "external/" + os.path.basename(url)
-            if not os.path.exists(path):
-                print("Downloading", url)
-                try:
-                    urlretrieve(url, path)
-                except:
-                    # repeat once in case of network issues
-                    urlretrieve(url, path)
-
-            with zipfile.ZipFile(path) as z:
-                print("Extracting", path, "into", extractdir)
-                z.extractall(extractdir)
-
-            if not os.path.exists(path):
-                raise RuntimeError(path + " not found!")
+    cmake = "cmake"
 
     # openmp dll
     # VS 2017 and higher
@@ -313,6 +291,10 @@ else:
         if "libraw_config.h" in os.listdir(include_dir):
             libraw_config_found = True
             break
+
+# Ensure numpy headers are always included (use_pkg_config replaces the list)
+if numpy.get_include() not in include_dirs:
+    include_dirs.insert(0, numpy.get_include())
 
 define_macros.append(("_HAS_LIBRAW_CONFIG_H", "1" if libraw_config_found else "0"))
 

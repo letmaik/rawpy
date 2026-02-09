@@ -6,7 +6,6 @@ This repository wraps the C++ `LibRaw` library using Cython.
 
 Before starting, ensure you have:
 - **Python 3.9+**
-- **cmake** - `apt install cmake` (Ubuntu) / `brew install cmake` (macOS)
 - **C++ compiler** - `apt install g++` (Ubuntu) / Xcode Command Line Tools (macOS)
 
 ## Critical: Compilation Required
@@ -19,26 +18,41 @@ Changes to `rawpy/_rawpy.pyx` or C++ files **will not take effect** until you re
 | `.py` files | Changes apply immediately (editable install) |
 | `.pyx` files | Must run `bash scripts/rebuild.sh` |
 | C++ files in `external/` | Must run `bash scripts/rebuild.sh` |
+| `MANIFEST.in` | Rebuild: `bash scripts/build_dist.sh` |
 
 ## Quick Commands
 
 | Task | Command |
 |------|---------|
-| First-time setup | `bash scripts/setup_agent_env.sh` |
-| Setup with specific Python | `bash scripts/setup_agent_env.sh 3.12` |
+| First-time setup | `bash scripts/setup_dev_env.sh` |
+| Setup with specific Python | `bash scripts/setup_dev_env.sh 3.12` |
 | Activate environment | `source .venv/bin/activate` |
 | Rebuild after .pyx/C++ changes | `bash scripts/rebuild.sh` |
-| Quick sanity check | `bash scripts/agent_check.sh` |
+| Quick sanity check | `bash scripts/dev_check.sh` |
+| Build sdist + wheel | `bash scripts/build_dist.sh` |
+| Test built sdist | `bash scripts/test_dist.sh sdist` |
+| Test built wheel | `bash scripts/test_dist.sh wheel` |
+| Test with numpy version | `bash scripts/test_dist.sh wheel 2.0.2` |
+| Test sdist with system libraw | `bash scripts/build_dist.sh && RAWPY_USE_SYSTEM_LIBRAW=1 bash scripts/test_dist.sh sdist` |
+| Test wheel with system libraw | `RAWPY_USE_SYSTEM_LIBRAW=1 bash scripts/build_dist.sh && RAWPY_USE_SYSTEM_LIBRAW=1 bash scripts/test_dist.sh wheel` |
 | Run single test | `pytest test/test_basic.py::testName -v` |
 | Run all tests | `pytest test/` |
 | Type check | `mypy rawpy` |
 | Switch numpy version | `bash scripts/setup_numpy.sh 2.0.2` |
 
+> **System libraw requires LibRaw ≥ 0.21.** Ubuntu 22.04's `libraw-dev` (0.20.2) is
+> too old. Use Ubuntu 24.04+ or build without `RAWPY_USE_SYSTEM_LIBRAW`.
+>
+> Note: The sdist build command does **not** use `RAWPY_USE_SYSTEM_LIBRAW=1`
+> because sdist just packages source files — it doesn't compile anything. The
+> env var is only needed at install/test time, when pip builds the sdist from
+> source. For wheel, the env var is needed at both build **and** test time.
+
 ## Environment Setup
 
 **First time only:**
 ```bash
-bash scripts/setup_agent_env.sh
+bash scripts/setup_dev_env.sh
 ```
 
 This will:
@@ -50,7 +64,7 @@ This will:
 
 **With a specific Python version (Ubuntu only):**
 ```bash
-bash scripts/setup_agent_env.sh 3.12
+bash scripts/setup_dev_env.sh 3.12
 ```
 
 This installs the requested Python via the deadsnakes PPA, creates a `.venv`
@@ -75,6 +89,7 @@ source .venv/bin/activate
 | `external/LibRaw/libraw/*.h` | LibRaw headers (check these for C++ signatures) |
 | `external/LibRaw-cmake/` | CMake build system for LibRaw (git submodule) |
 | `setup.py` | Build configuration (compiles LibRaw from source, links Cython extension) |
+| `tmp/` | Scratch directory for build logs etc. (git-ignored) |
 | `.github/workflows/ci.yml` | CI workflow (build matrix for Linux/macOS/Windows × Python versions) |
 | `.github/scripts/` | Platform-specific CI build/test scripts |
 
@@ -88,6 +103,50 @@ source .venv/bin/activate
 4. Add type stub in `rawpy/_rawpy.pyi`
 5. Rebuild: `bash scripts/rebuild.sh`
 6. Add a test in `test/`
+
+### Testing sdist and wheel artifacts
+
+The editable install (`pip install -e .`) is convenient for development but
+doesn't catch packaging problems (missing files in `MANIFEST.in`, broken
+build isolation, etc.). To test what end-users will get:
+
+```bash
+# Build sdist and wheel (output in dist/)
+bash scripts/build_dist.sh
+
+# Test the sdist — builds from source in a clean venv, then runs pytest
+bash scripts/test_dist.sh sdist
+
+# Test the wheel
+bash scripts/test_dist.sh wheel
+
+# Test with a specific numpy version
+bash scripts/test_dist.sh sdist 2.0.2
+
+# Test with a specific Python version (Ubuntu, via deadsnakes)
+bash scripts/setup_python.sh 3.12
+bash scripts/build_dist.sh
+bash scripts/test_dist.sh sdist
+```
+
+The test script creates an isolated `.venv-test` (separate from the dev
+`.venv`), installs the artifact, runs the test suite from a temp directory
+(so the source tree's `rawpy/` isn't accidentally imported), and cleans up
+automatically.
+
+**Tip:** Building from source (sdist install, `pip install .`, etc.) compiles
+LibRaw and the Cython extension, which can take several minutes. Use `tee` to
+save output to `tmp/` (git-ignored) while still seeing progress:
+
+```bash
+mkdir -p tmp
+bash scripts/build_dist.sh 2>&1 | tee tmp/build.log
+# Then inspect:
+grep -i error tmp/build.log  # just errors
+tail -30 tmp/build.log       # last 30 lines
+```
+
+> `tee` overwrites by default (like `>`), so re-running always gives a fresh log.
 
 ### Running specific tests
 
@@ -120,16 +179,11 @@ pip install --no-build-isolation -e .
 ```
 
 ### "cmake: command not found"
-Install cmake via your system package manager:
+cmake is installed automatically as a build dependency via `pyproject.toml`.
+If you see this error during an editable install (`--no-build-isolation`),
+install it into your venv:
 ```bash
-# Ubuntu/Debian
-sudo apt install cmake
-
-# macOS
-brew install cmake
-
-# Fedora
-sudo dnf install cmake
+pip install cmake
 ```
 
 ### "fatal error: libraw/libraw.h: No such file or directory"
@@ -151,6 +205,16 @@ xcode-select --install
 ### Mypy errors about missing stubs
 If you added new API, update `rawpy/_rawpy.pyi` to match.
 
+### System libraw build fails with missing struct members
+The system `libraw-dev` is too old. rawpy requires LibRaw ≥ 0.21.
+Ubuntu 22.04 ships LibRaw 0.20.2, which is incompatible. Errors look like:
+```
+error: 'libraw_raw_unpack_params_t' was not declared in this scope
+error: 'struct libraw_image_sizes_t' has no member named 'raw_inset_crops'
+```
+Use Ubuntu 24.04+ (ships 0.22) or build without `RAWPY_USE_SYSTEM_LIBRAW=1`
+(the default), which compiles LibRaw 0.22 from the bundled submodule.
+
 ## CI Architecture
 
 The CI workflow is in `.github/workflows/ci.yml`. It builds wheels across a matrix:
@@ -169,16 +233,20 @@ Build scripts in `.github/scripts/`:
 ### Reproducing CI builds locally
 
 ```bash
-# Build an isolated wheel (what CI does):
+# Build sdist + wheel with build isolation (recommended):
+bash scripts/build_dist.sh
+
+# Low-level alternative (what CI does for wheels):
 pip wheel . --wheel-dir dist --no-deps
 
 # Build without isolation (faster, for local dev):
 pip install --no-build-isolation -e .
 ```
 
-Note: `pip wheel .` uses build isolation and creates a fresh environment from
-`pyproject.toml`'s `build-system.requires`. This is different from the local dev
-workflow (`--no-build-isolation`) which reuses the current venv.
+Note: `python -m build` (used by `build_dist.sh`) and `pip wheel .` both use
+build isolation and create a fresh environment from `pyproject.toml`'s
+`build-system.requires`. This is different from the local dev workflow
+(`--no-build-isolation`) which reuses the current venv.
 
 ### Reproducing CI test failures locally
 
@@ -186,7 +254,15 @@ CI tests run across multiple Python and NumPy versions. Type checking (mypy)
 is particularly sensitive to the NumPy stubs version bundled with each NumPy
 release.
 
-**Test with a specific NumPy version:**
+**Test artifacts against a specific Python + NumPy (closest to CI):**
+```bash
+# Install Python 3.12 via deadsnakes, build artifacts, and test sdist
+bash scripts/setup_python.sh 3.12
+bash scripts/build_dist.sh
+bash scripts/test_dist.sh sdist 2.0.2
+```
+
+**Test with a specific NumPy version (editable install):**
 ```bash
 # Switch to numpy 2.0.x, then use normal commands
 bash scripts/setup_numpy.sh 2.0.2
@@ -197,10 +273,10 @@ pytest test/test_mypy.py -v
 bash scripts/setup_numpy.sh 2.2.6
 ```
 
-**Test with a specific Python version (Ubuntu):**
+**Test with a specific Python version (editable install):**
 ```bash
 # Install Python 3.12 and rebuild everything
-bash scripts/setup_agent_env.sh 3.12
+bash scripts/setup_dev_env.sh 3.12
 
 # Then run tests
 source .venv/bin/activate

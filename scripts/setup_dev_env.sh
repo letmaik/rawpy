@@ -8,7 +8,7 @@ VENV_DIR="$PROJECT_ROOT/.venv"
 # Optional: specify a Python version (e.g. 3.12)
 PYTHON_VERSION="${1:-}"
 
-echo "=== Agent Environment Setup ==="
+echo "=== Development Environment Setup ==="
 echo ""
 
 # If a specific Python version was requested, install it first
@@ -20,16 +20,6 @@ fi
 
 # Check system dependencies first
 echo "Checking system dependencies..."
-
-# Check for cmake
-if ! command -v cmake &> /dev/null; then
-    echo "ERROR: cmake is not installed."
-    echo "  Ubuntu/Debian: sudo apt install cmake"
-    echo "  macOS:         brew install cmake"
-    echo "  Fedora:        sudo dnf install cmake"
-    exit 1
-fi
-echo "  cmake: $(cmake --version | head -1)"
 
 # Check for C++ compiler
 if command -v g++ &> /dev/null; then
@@ -86,7 +76,7 @@ if python -c "import rawpy; print(f'  rawpy {rawpy.__version__} installed succes
     echo "  source .venv/bin/activate"
     echo ""
     echo "Quick verification:"
-    echo "  bash scripts/agent_check.sh"
+    echo "  bash scripts/dev_check.sh"
 else
     echo ""
     echo "ERROR: rawpy import failed after installation."

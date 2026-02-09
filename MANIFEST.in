@@ -14,14 +14,18 @@ include rawpy/py.typed
 include rawpy/_rawpy.pyi
 
 # Include external LibRaw source code (required for building from source)
-recursive-include external/LibRaw *.h *.c *.cpp *.txt *.md
-include external/LibRaw-cmake/CMakeLists.txt
-include external/LibRaw-cmake/README.md
-recursive-include external/LibRaw-cmake/cmake *.cmake *.txt
-
-# Include demosaic packs (optional GPL code)
-recursive-include external/LibRaw-demosaic-pack-GPL2 *
-recursive-include external/LibRaw-demosaic-pack-GPL3 *
+recursive-include external/LibRaw *.h *.cpp
+include external/LibRaw/COPYRIGHT
+include external/LibRaw/LICENSE.CDDL
+include external/LibRaw/LICENSE.LGPL
+include external/LibRaw/Changelog.txt
+recursive-include external/LibRaw-cmake *.cmake *.cmake.in CMakeLists.txt
 
 # Exclude build artifacts
 prune external/LibRaw-cmake/build
+
+# Exclude development-only directories
+prune test
+
+# Exclude generated files (regenerated from .pyx during build)
+exclude rawpy/_rawpy.cpp

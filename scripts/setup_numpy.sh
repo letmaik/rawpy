@@ -18,7 +18,7 @@ VENV_DIR="$PROJECT_ROOT/.venv"
 NUMPY_VERSION="${1:?Usage: $0 <numpy-version>  (e.g. 2.0.2 or '2.0.*')}"
 
 if [ ! -d "$VENV_DIR" ]; then
-    echo "ERROR: .venv not found. Run 'bash scripts/setup_agent_env.sh' first."
+    echo "ERROR: .venv not found. Run 'bash scripts/setup_dev_env.sh' first."
     exit 1
 fi
 source "$VENV_DIR/bin/activate"

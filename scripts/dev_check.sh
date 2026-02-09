@@ -12,12 +12,12 @@ if [ -z "$VIRTUAL_ENV" ]; then
         source "$VENV_DIR/bin/activate"
     else
         echo "ERROR: No virtual environment found at $VENV_DIR"
-        echo "Run 'bash scripts/setup_agent_env.sh' first."
+        echo "Run 'bash scripts/setup_dev_env.sh' first."
         exit 1
     fi
 fi
 
-echo "=== Agent Environment Check ==="
+echo "=== Development Environment Check ==="
 echo ""
 
 # Step 1: Verify rawpy can be imported

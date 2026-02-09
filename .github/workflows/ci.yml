@@ -434,6 +434,116 @@ jobs:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
+  build-sdist:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Build sdist
+      run: |
+        pip install build
+        python -m build --sdist
+
+    - name: Store sdist as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdist
+        path: dist/*.tar.gz
+
+  test-sdist:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - os-image: ubuntu-latest
+          os-name: linux
+          python-version: '3.12'
+        - os-image: macos-15
+          os-name: mac
+          python-version: '3.12'
+        - os-image: windows-2022
+          os-name: windows
+          python-arch: 'x86_64'
+          python-version: '3.12'
+
+    runs-on: ${{ matrix.config.os-image }}
+
+    needs: build-sdist
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download sdist from artifact storage
+      uses: actions/download-artifact@v4
+      with:
+        name: sdist
+        path: dist
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.config.python-version }}
+
+    - name: Test sdist (Linux)
+      if: matrix.config.os-name == 'linux'
+      run: .github/scripts/test-sdist-linux.sh
+      env:
+        PYTHON_VERSION: ${{ matrix.config.python-version }}
+
+    - name: Test sdist (macOS)
+      if: matrix.config.os-name == 'mac'
+      run: .github/scripts/test-sdist-macos.sh
+      env:
+        PYTHON_VERSION: ${{ matrix.config.python-version }}
+
+    - name: Test sdist (Windows)
+      if: matrix.config.os-name == 'windows'
+      run: .github/scripts/test-sdist-windows.ps1
+      shell: pwsh
+      env:
+        PYTHON_VERSION: ${{ matrix.config.python-version }}
+        PYTHON_ARCH: ${{ matrix.config.python-arch }}
+
+  test-system-libraw:
+    runs-on: ubuntu-latest
+
+    needs: build-sdist
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: false  # not needed — using system libraw
+
+    - name: Download sdist from artifact storage
+      uses: actions/download-artifact@v4
+      with:
+        name: sdist
+        path: dist
+
+    - name: Install system libraw
+      run: |
+        sudo apt-get update -q
+        sudo apt-get install -y -q libraw-dev pkg-config
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Test sdist with system libraw
+      run: .github/scripts/test-sdist-linux.sh
+      env:
+        PYTHON_VERSION: '3.12'
+        RAWPY_USE_SYSTEM_LIBRAW: '1'
+
   docs:
     runs-on: ubuntu-latest
 
@@ -470,7 +580,7 @@ jobs:
   publish-wheels:
     runs-on: ubuntu-latest
 
-    needs: [test, docs]
+    needs: [test, test-sdist, test-system-libraw, docs]
 
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 

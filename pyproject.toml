@@ -3,6 +3,7 @@ requires = [
     "setuptools>=69.0.0",
     "wheel",
     "Cython>=0.29.32",
+    "cmake",
     # Build against NumPy 2.x headers. Extensions compiled with NumPy 2.0+
     # are backward-compatible with NumPy >= 1.19 at runtime.
     "numpy>=2.0.0",
@@ -17,7 +18,7 @@ readme = "README.md"
 authors = [
   {name = "Maik Riechert"}
 ]
-license = "MIT"
+license = {text = "MIT"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -44,6 +45,14 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/letmaik/rawpy"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "imageio>=2.21",
+    "mypy",
+    "scikit-image",
+]
 
 [tool.setuptools.packages.find]
 include = ["rawpy*"]

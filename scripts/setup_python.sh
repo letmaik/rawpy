@@ -7,7 +7,7 @@
 #   bash scripts/setup_python.sh 3.9
 #
 # After this, run the normal setup:
-#   bash scripts/setup_agent_env.sh
+#   bash scripts/setup_dev_env.sh
 #
 # The venv at .venv will use the requested Python version.
 
@@ -68,4 +68,4 @@ echo ""
 echo "Done. .venv now uses $("$VENV_DIR/bin/python" --version)."
 echo ""
 echo "Next step — run the full environment setup:"
-echo "  bash scripts/setup_agent_env.sh"
+echo "  bash scripts/setup_dev_env.sh"
