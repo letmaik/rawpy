@@ -3,6 +3,9 @@
 # This validates that the sdist contains everything needed to build on macOS.
 set -e -x
 
+# Install build dependencies
+brew install jasper
+
 # Create a clean venv
 python${PYTHON_VERSION} -m venv sdist-test-env
 source sdist-test-env/bin/activate
