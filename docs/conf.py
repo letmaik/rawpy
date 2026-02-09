@@ -27,6 +27,7 @@ import rawpy
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
 ]
 
@@ -261,3 +262,8 @@ texinfo_documents = [
 # texinfo_no_detailmenu = False
 
 autoclass_content = "both"
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+}

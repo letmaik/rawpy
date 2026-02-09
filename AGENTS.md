@@ -39,6 +39,8 @@ Changes to `rawpy/_rawpy.pyx` or C++ files **will not take effect** until you re
 | Run all tests | `pytest test/` |
 | Type check | `mypy rawpy` |
 | Switch numpy version | `bash scripts/setup_numpy.sh 2.0.2` |
+| Build docs | `cd docs && sphinx-build -b html . _build/html` |
+| Serve & view docs | `cd docs/_build/html && python -m http.server 8765` then open `http://localhost:8765` |
 
 > **System libraw requires LibRaw ≥ 0.21.** Ubuntu 22.04's `libraw-dev` (0.20.2) is
 > too old. Use Ubuntu 24.04+ or build without `RAWPY_USE_SYSTEM_LIBRAW`.
@@ -94,6 +96,22 @@ source .venv/bin/activate
 | `.github/scripts/` | Platform-specific CI build/test scripts |
 
 ## Common Tasks
+
+### Building and viewing documentation
+
+The docs use Sphinx with the Read the Docs theme. Both are already installed
+in the dev venv (via `dev-requirements.txt`).
+
+1. Build: `cd docs && sphinx-build -b html . _build/html`
+2. Serve: `cd docs/_build/html && python -m http.server 8765` (run as background process)
+3. Open `http://localhost:8765` in the Simple Browser
+
+- Source files: `docs/index.rst`, `docs/api/*.rst`
+- Config: `docs/conf.py`
+- Output: `docs/_build/html/` (git-ignored)
+- The docs use `autodoc` to pull docstrings from the built Cython extension,
+  so `rawpy._rawpy` must be importable (i.e., the extension must be compiled).
+  Run `bash scripts/rebuild.sh` first if needed.
 
 ### Adding a new LibRaw method
 
