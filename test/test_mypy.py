@@ -16,8 +16,10 @@ import rawpy
 # These tests type-check the source tree (rawpy/ and test/ at repo root).
 # When rawpy is installed from an artifact (site-packages), skip — the source
 # tree's rawpy/ would shadow or conflict with the installed package.
+# Note: .venv-test is inside the repo root, so we compare against rawpy/ subdir.
 _repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_is_editable = os.path.abspath(rawpy.__file__).startswith(os.path.abspath(_repo_root))
+_rawpy_dir = os.path.join(os.path.abspath(_repo_root), "rawpy")
+_is_editable = os.path.abspath(rawpy.__file__).startswith(_rawpy_dir)
 
 
 @pytest.mark.skipif(not _is_editable, reason="requires editable install")

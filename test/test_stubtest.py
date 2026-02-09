@@ -16,8 +16,10 @@ import rawpy
 # stubtest validates that the .pyi stub matches the runtime module.
 # When rawpy is installed from an artifact (site-packages), skip — the
 # allowlist and stub source are tied to the editable/source-tree workflow.
+# Note: .venv-test is inside the repo root, so we compare against rawpy/ subdir.
 _repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_is_editable = os.path.abspath(rawpy.__file__).startswith(os.path.abspath(_repo_root))
+_rawpy_dir = os.path.join(os.path.abspath(_repo_root), "rawpy")
+_is_editable = os.path.abspath(rawpy.__file__).startswith(_rawpy_dir)
 
 
 @pytest.mark.skipif(not _is_editable, reason="requires editable install")
