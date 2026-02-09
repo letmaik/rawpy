@@ -40,6 +40,11 @@ if isLinux:
     # On Linux, we want the extension to find the bundled libraw_r.so in the same directory
     extra_link_args += ["-Wl,-rpath,$ORIGIN"]
 
+if isMac:
+    # On macOS, @loader_path is the equivalent of $ORIGIN — it resolves to
+    # the directory containing the binary that references the dylib.
+    extra_link_args += ["-Wl,-rpath,@loader_path"]
+
 # --- Helper Functions ---
 
 
@@ -216,7 +221,12 @@ def unix_libraw_compile():
         os.makedirs(cmake_build, exist_ok=True)
     os.chdir(cmake_build)
 
-    install_name_dir = os.path.join(install_dir, "lib")
+    # Use @rpath so the dylib's install name becomes @rpath/libraw_r.<ver>.dylib.
+    # Combined with -rpath @loader_path on the extension, dyld will find the
+    # bundled dylib next to the .so at runtime. delocate (used in CI wheel
+    # builds) rewrites these paths anyway, so this is compatible with both
+    # plain pip installs and CI wheel builds.
+    install_name_dir = "@rpath" if isMac else os.path.join(install_dir, "lib")
 
     # CMake arguments
     cmake_args = [
@@ -253,11 +263,21 @@ def unix_libraw_compile():
 
     os.chdir(cwd)
 
-    if isLinux:
-        # Copy shared libraries to the package directory so they are bundled
+    if isLinux or isMac:
+        # When compiling LibRaw from source (not using system libraw), we
+        # copy the shared libraries into the package directory so they get
+        # bundled with the installed package (via package_data globs).
+        # The extension uses rpath ($ORIGIN on Linux, @loader_path on macOS)
+        # to find them at runtime.
+        #
+        # In CI, auditwheel (Linux) and delocate (macOS) further repair the
+        # wheel, but for editable installs and plain `pip install .` we need
+        # the libraries in-tree.
         lib_dir = os.path.join(install_dir, "lib")
-        # Find all libraw_r.so files (symlinks and real files)
-        libs = glob.glob(os.path.join(lib_dir, "libraw_r.so*"))
+        if isLinux:
+            libs = glob.glob(os.path.join(lib_dir, "libraw_r.so*"))
+        else:  # macOS
+            libs = glob.glob(os.path.join(lib_dir, "libraw_r*.dylib"))
         for lib in libs:
             dest = os.path.join("rawpy", os.path.basename(lib))
             if os.path.islink(lib):
@@ -317,6 +337,8 @@ if needsCompile:
         unix_libraw_compile()
         if isLinux:
             package_data["rawpy"].append("*.so*")
+        elif isMac:
+            package_data["rawpy"].append("*.dylib")
 
 # Clean up egg-info if needed
 if any(s in cmdline for s in ["clean", "sdist"]):

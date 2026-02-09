@@ -17,6 +17,10 @@ import pytest
 import rawpy
 
 
+@pytest.mark.skipif(
+    rawpy.flags is None,
+    reason="libraw_config.h not available (non-CMake LibRaw build)",
+)
 def test_flags_present():
     """rawpy.flags should be a dict (not None) with all known keys."""
     assert rawpy.flags is not None, (
@@ -39,6 +43,10 @@ def test_flags_present():
     )
 
 
+@pytest.mark.skipif(
+    rawpy.flags is None,
+    reason="libraw_config.h not available (non-CMake LibRaw build)",
+)
 def test_flags_are_bool():
     """All flag values should be booleans."""
     assert rawpy.flags is not None
@@ -47,6 +55,10 @@ def test_flags_are_bool():
 
 
 
+@pytest.mark.skipif(
+    rawpy.flags is None,
+    reason="libraw_config.h not available (non-CMake LibRaw build)",
+)
 @pytest.mark.skipif(
     "CI" not in os.environ,
     reason="only enforced in CI where all dependencies are installed",

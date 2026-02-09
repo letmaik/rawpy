@@ -16,6 +16,13 @@ from rawpy.enhance import _repair_bad_pixels_bayer2x2,\
 
 thisDir = os.path.dirname(__file__)
 
+def _open_x3f():
+    """Open X3F test file, skip test if format not supported by this LibRaw build."""
+    try:
+        return rawpy.imread(raw4TestPath)
+    except rawpy.LibRawFileUnsupportedError:
+        pytest.skip("X3F format not supported by this LibRaw build")
+
 # Nikon D3S
 rawTestPath = os.path.join(thisDir, 'iss030e122639.NEF')
 badPixelsTestPath = os.path.join(thisDir, 'bad_pixels.gz')
@@ -73,7 +80,7 @@ def testFileOpenAndPostProcess():
     iio.imwrite('test_16daylight_linear.tiff', rgb)
 
 def testFoveonFileOpenAndPostProcess():
-    raw = rawpy.imread(raw4TestPath)
+    raw = _open_x3f()
     
     assert_array_equal(raw.raw_image.shape, [1531, 2304, 3])
     iio.imwrite('test_foveon_raw.tiff', raw.raw_image)
@@ -145,7 +152,7 @@ def testThumbExtractJPEG():
     assert_array_equal(img.shape, [2832, 4256, 3])
 
 def testThumbExtractBitmap():
-    with rawpy.imread(raw4TestPath) as raw:
+    with _open_x3f() as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.BITMAP
     assert isinstance(thumb.data, np.ndarray)
@@ -283,7 +290,7 @@ def testCropSizeCanon():
         assert_equal(s.crop_height, 3744)
 
 def testCropSizeSigma():
-    with rawpy.imread(raw4TestPath) as raw:
+    with _open_x3f() as raw:
         s = raw.sizes
         assert_equal(s.crop_left_margin, 0)
         assert_equal(s.crop_top_margin, 0)
