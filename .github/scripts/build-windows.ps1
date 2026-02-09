@@ -89,6 +89,6 @@ $env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\x64-windows-static"
 # Build the wheel in a virtual environment
 exec { python -m venv env\build }
 & .\env\build\scripts\activate
-exec { python -m pip install --upgrade pip wheel setuptools }
+exec { python -m pip install --upgrade pip }
 exec { python -m pip wheel . --wheel-dir dist --no-deps }
 deactivate
