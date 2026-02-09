@@ -13,6 +13,7 @@ Usage:
     python examples/bad_pixel_repair.py
 """
 
+import numpy as np
 import rawpy
 import rawpy.enhance
 import imageio.v3 as iio
@@ -38,13 +39,7 @@ def main():
         print("  bad_pixels = rawpy.enhance.find_bad_pixels([...image paths...])")
         return 0
 
-    try:
-        import numpy as np
-
-        bad_pixels = np.loadtxt(BAD_PIXELS_FILE, dtype=int)
-    except ImportError:
-        print("NumPy is required for this example.")
-        return 1
+    bad_pixels = np.loadtxt(BAD_PIXELS_FILE, dtype=int)
 
     print(f"Loaded {len(bad_pixels)} bad pixel coordinates")
     print(f"Processing: {TEST_IMAGE}")

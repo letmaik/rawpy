@@ -16,12 +16,13 @@ from rawpy.enhance import _repair_bad_pixels_bayer2x2,\
 
 thisDir = os.path.dirname(__file__)
 
+_x3f_supported = rawpy.flags is not None and rawpy.flags.get("X3FTOOLS", False)
+
 def _open_x3f():
     """Open X3F test file, skip test if format not supported by this LibRaw build."""
-    try:
-        return rawpy.imread(raw4TestPath)
-    except rawpy.LibRawFileUnsupportedError:
+    if not _x3f_supported:
         pytest.skip("X3F format not supported by this LibRaw build")
+    return rawpy.imread(raw4TestPath)
 
 # Nikon D3S
 rawTestPath = os.path.join(thisDir, 'iss030e122639.NEF')
