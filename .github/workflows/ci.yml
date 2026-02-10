@@ -580,7 +580,7 @@ jobs:
       with:
         path: dist-docs/
 
-  publish-wheels:
+  publish-dist:
     runs-on: ubuntu-latest
 
     needs: [test, test-sdist, test-system-libraw, docs]
@@ -617,7 +617,7 @@ jobs:
   publish-docs:
     runs-on: ubuntu-latest
 
-    needs: [publish-wheels]
+    needs: [publish-dist]
 
     permissions:
       pages: write      # to deploy to Pages

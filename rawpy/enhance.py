@@ -11,7 +11,7 @@ from functools import partial
 import numpy as np
 from numpy.typing import NDArray
 
-from typing import Optional, Callable, Any, TYPE_CHECKING, cast
+from typing import Optional, Callable, Any, cast
 
 try:
     from skimage.filters.rank import median as median_func
@@ -136,7 +136,6 @@ def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
         # There exist O(log(r)) and O(1) algorithms, see https://nomis80.org/ctmf.pdf.
         # Also, we only need the median values for the masked pixels.
         # Currently, they are calculated for all pixels for each color.
-        assert median_func is not None
         med = median_func(rawimg, kernel, mask=mask)
         
         # detect possible bad pixels
@@ -254,7 +253,6 @@ def _repair_bad_pixels_generic(raw, coords, method='median'):
             # bad pixels won't influence the median in most cases and just using
             # the color mask prevents bad pixel clusters from producing
             # bad interpolated values (NaNs)
-            assert median_func is not None
             smooth = median_func(rawimg, kernel, mask=color_mask)
         else:
             raise ValueError

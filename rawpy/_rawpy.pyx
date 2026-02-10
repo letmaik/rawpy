@@ -7,10 +7,9 @@ from __future__ import print_function
 from typing import Optional, Union, Tuple, List, Any, BinaryIO
 from numpy.typing import NDArray
 
-from cpython.ref cimport PyObject, Py_INCREF
+from cpython.ref cimport Py_INCREF
 from cpython.bytes cimport PyBytes_FromStringAndSize
 from cpython.mem cimport PyMem_Free
-from cython.operator cimport dereference as deref
 from libc.stddef cimport wchar_t
 
 import numpy as np
@@ -19,8 +18,6 @@ cimport numpy as np
 np.import_array()
 
 import os
-import sys
-import warnings
 from enum import Enum
 
 cdef extern from "limits.h":
@@ -1324,8 +1321,3 @@ cdef class processed_image_wrapper:
     def __dealloc__(self):
         self.raw.p.dcraw_clear_mem(self.processed_image)        
     
-def _chars(s):
-    if isinstance(s, unicode):
-        # convert unicode to chars
-        s = (<unicode>s).encode('UTF-8')
-    return s

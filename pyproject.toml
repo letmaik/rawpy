@@ -18,7 +18,7 @@ readme = "README.md"
 authors = [
   {name = "Maik Riechert"}
 ]
-license = {text = "MIT"}
+license = "MIT"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -45,6 +45,10 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/letmaik/rawpy"
+Documentation = "https://letmaik.github.io/rawpy/"
+Repository = "https://github.com/letmaik/rawpy.git"
+Issues = "https://github.com/letmaik/rawpy/issues"
+Changelog = "https://github.com/letmaik/rawpy/releases"
 
 [project.optional-dependencies]
 test = [
