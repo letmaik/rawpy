@@ -140,6 +140,7 @@ def testThumbExtractJPEG():
     with rawpy.imread(rawTestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.JPEG
+    assert isinstance(thumb.data, bytes)
     img = iio.imread(thumb.data)
     assert_array_equal(img.shape, [2832, 4256, 3])
 
@@ -147,6 +148,7 @@ def testThumbExtractBitmap():
     with rawpy.imread(raw4TestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.BITMAP
+    assert isinstance(thumb.data, np.ndarray)
     assert_array_equal(thumb.data.shape, [378, 567, 3])
 
 def testProperties():
@@ -214,7 +216,7 @@ def testBadPixelRepair():
         # 5x5 area around coordinate masked by color of coordinate
         raw_colors = raw.raw_colors_visible
         raw_color = raw_colors[y, x]
-        masked = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
+        masked: ma.MaskedArray = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
         return masked[y-2:y+3,x-2:x+3].copy()
     
     bad_pixels = np.loadtxt(badPixelsTestPath, int)

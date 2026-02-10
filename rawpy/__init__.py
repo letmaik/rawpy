@@ -1,4 +1,47 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
+
+from typing import Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import BinaryIO
+    from rawpy._rawpy import (
+        # Module-level attributes
+        flags,
+        libraw_version,
+        # Main classes
+        RawPy,
+        Params,
+        # Named tuples
+        ImageSizes,
+        Thumbnail,
+        # Enums
+        RawType,
+        ThumbFormat,
+        DemosaicAlgorithm,
+        FBDDNoiseReductionMode,
+        ColorSpace,
+        HighlightMode,
+        # Exceptions
+        LibRawError,
+        LibRawFatalError,
+        LibRawNonFatalError,
+        LibRawUnspecifiedError,
+        LibRawFileUnsupportedError,
+        LibRawRequestForNonexistentImageError,
+        LibRawOutOfOrderCallError,
+        LibRawNoThumbnailError,
+        LibRawUnsupportedThumbnailError,
+        LibRawInputClosedError,
+        LibRawNotImplementedError,
+        LibRawUnsufficientMemoryError,
+        LibRawDataError,
+        LibRawIOError,
+        LibRawCancelledByCallbackError,
+        LibRawBadCropError,
+        LibRawTooBigError,
+        LibRawMemPoolOverflowError,
+        NotSupportedError,
+    )
 
 from ._version import __version__
 
@@ -59,21 +102,26 @@ def _check_multiprocessing_fork():
         # multiprocessing not available
         pass
 
-def imread(pathOrFile, shot_select=0):
+def imread(pathOrFile: Union[str, BinaryIO], shot_select: int = 0) -> RawPy:
     """
     Convenience function that creates a :class:`rawpy.RawPy` instance, opens the given file,
     and returns the :class:`rawpy.RawPy` instance for further processing.
     
-    :param str|file pathOrFile: path or file object of RAW image that will be read
-    :param int shot_select: select which image to extract from RAW files that contain multiple images
-                            (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
-    :rtype: :class:`rawpy.RawPy`
+    :param pathOrFile: path or file object of RAW image that will be read
+    :type pathOrFile: str or file-like object
+    :param shot_select: select which image to extract from RAW files that contain multiple images
+                        (e.g., Dual Pixel RAW). Default is 0 for the first/main image.
+    :type shot_select: int
+    :return: RawPy instance with the opened RAW image
+    :rtype: rawpy.RawPy
     """
     _check_multiprocessing_fork()
     d = RawPy()
-    if hasattr(pathOrFile, 'read'):
-        d.open_buffer(pathOrFile)
-    else:
+    if isinstance(pathOrFile, str):
+        # pathOrFile is a string file path
         d.open_file(pathOrFile)
+    else:
+        # pathOrFile is a file-like object with read() method
+        d.open_buffer(pathOrFile)
     d.set_unpack_params(shot_select=shot_select)
     return d

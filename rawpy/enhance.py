@@ -9,22 +9,25 @@ import os
 import warnings
 from functools import partial
 import numpy as np
+from numpy.typing import NDArray
+
+from typing import Optional, Callable, Any, TYPE_CHECKING, cast
 
 try:
-    from skimage.filters.rank import median
+    from skimage.filters.rank import median as median_func
 except ImportError:
     try:
-        from skimage.filter.rank import median
+        from skimage.filter.rank import median as median_func # type: ignore
     except ImportError as e:
         warnings.warn('scikit-image not found, will use OpenCV (error: ' + str(e) + ')')
-        median = None
+        median_func = cast(Optional[Callable[..., Any]], None) # type: ignore
 try:
     import cv2
 except ImportError as e:
     warnings.warn('OpenCV not found, install for faster processing (error: ' + str(e) + ')')
     cv2 = None
 
-if median is None and cv2 is None:
+if median_func is None and cv2 is None:
     raise ImportError('Either scikit-image or OpenCV must be installed to use rawpy.enhance')
 
 import rawpy
@@ -79,17 +82,19 @@ def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
         isCandidate = partial(_is_candidate, find_hot=find_hot, find_dead=find_dead, thresh=thresh)        
         coords.extend(_find_bad_pixel_candidates(raw, isCandidate))
     
-    coords = np.vstack(coords)
+    coords_array: NDArray[np.int_] = np.vstack(coords)
     
     if len(paths) == 1:
-        return coords
+        return coords_array
     
     # select candidates that appear on most input images
     # count how many times a coordinate appears
     
+    assert width is not None, "width must be set from at least one image"
+    
     # first we convert y,x to array offset such that we have an array of integers
-    offset = coords[:,0]*width
-    offset += coords[:,1]
+    offset: NDArray[np.int_] = coords_array[:,0]*width
+    offset += coords_array[:,1]
     
     # now we count how many times each offset occurs
     counts = _groupcount(offset)
@@ -116,7 +121,7 @@ def _find_bad_pixel_candidates(raw, isCandidateFn):
     return coords
 
 def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
-    if median is None:
+    if median_func is None:
         raise RuntimeError('scikit-image is required if the Bayer pattern is not 2x2')
     
     color_masks = _colormasks(raw)   
@@ -131,7 +136,8 @@ def _find_bad_pixel_candidates_generic(raw, isCandidateFn):
         # There exist O(log(r)) and O(1) algorithms, see https://nomis80.org/ctmf.pdf.
         # Also, we only need the median values for the masked pixels.
         # Currently, they are calculated for all pixels for each color.
-        med = median(rawimg, kernel, mask=mask)
+        assert median_func is not None
+        med = median_func(rawimg, kernel, mask=mask)
         
         # detect possible bad pixels
         candidates = isCandidateFn(rawimg, med)
@@ -161,8 +167,9 @@ def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
     if cv2 is not None:
         median_ = partial(cv2.medianBlur, ksize=r)
     else:
+        assert median_func is not None
         kernel = np.ones((r,r))
-        median_ = partial(median, footprint=kernel)
+        median_ = partial(median_func, footprint=kernel)
         
     coords = []
     
@@ -223,7 +230,7 @@ def repair_bad_pixels(raw, coords, method='median'):
     #raw.raw_image_visible[coords[:,0], coords[:,1]] = 0
 
 def _repair_bad_pixels_generic(raw, coords, method='median'):
-    if median is None:
+    if median_func is None:
         raise RuntimeError('scikit-image is required for repair_bad_pixels if the Bayer pattern is not 2x2')
     
     color_masks = _colormasks(raw)
@@ -247,7 +254,8 @@ def _repair_bad_pixels_generic(raw, coords, method='median'):
             # bad pixels won't influence the median in most cases and just using
             # the color mask prevents bad pixel clusters from producing
             # bad interpolated values (NaNs)
-            smooth = median(rawimg, kernel, mask=color_mask)
+            assert median_func is not None
+            smooth = median_func(rawimg, kernel, mask=color_mask)
         else:
             raise ValueError
         
@@ -264,8 +272,9 @@ def _repair_bad_pixels_bayer2x2(raw, coords, method='median'):
     if cv2 is not None:
         median_ = partial(cv2.medianBlur, ksize=r)
     else:
+        assert median_func is not None
         kernel = np.ones((r,r))
-        median_ = partial(median, footprint=kernel)
+        median_ = partial(median_func, footprint=kernel)
             
     # we have 4 colors (two greens are always seen as two colors)
     for offset_y in [0,1]:
