@@ -150,21 +150,17 @@ for libraries by default in some Linux distributions.
 These instructions are experimental and support is not provided for them.
 Typically, there should be no need to build manually since wheels are hosted on PyPI.
 
-You need to have Visual Studio installed to build rawpy.
+You need to have Visual Studio and Python installed to build rawpy.
 
 In a PowerShell window:
 ```sh
-$env:USE_CONDA = '1'
-$env:PYTHON_VERSION = '3.7'
-$env:PYTHON_ARCH = '64'
-$env:NUMPY_VERSION = '1.14.*'
+$env:PYTHON_VERSION = '3.12'
+$env:PYTHON_ARCH = 'x86_64'
 git clone https://github.com/letmaik/rawpy
 cd rawpy
+git submodule update --init
 .github/scripts/build-windows.ps1
 ```
-The above will download all build dependencies (including a Python installation)
-and is fully configured through the four environment variables.
-Set `USE_CONDA = '0'` to build within an existing Python environment.
 
 ## FAQ
 
