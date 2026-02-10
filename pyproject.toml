@@ -1,0 +1,79 @@
+[build-system]
+requires = [
+    "setuptools>=69.0.0",
+    "wheel",
+    "Cython>=0.29.32",
+    "cmake",
+    # Build against NumPy 2.x headers. Extensions compiled with NumPy 2.0+
+    # are backward-compatible with NumPy >= 1.19 at runtime.
+    "numpy>=2.0.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rawpy"
+dynamic = ["version"]
+description = "RAW image processing for Python, a wrapper for libraw"
+readme = "README.md"
+authors = [
+  {name = "Maik Riechert"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Software Development :: Libraries",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.26.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/letmaik/rawpy"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "imageio>=2.21",
+    "mypy",
+    "scikit-image",
+]
+
+[tool.setuptools.packages.find]
+include = ["rawpy*"]
+
+[tool.mypy]
+# Global mypy configuration for rawpy project
+warn_unused_configs = true
+check_untyped_defs = true
+
+# Selectively ignore missing imports for optional dependencies
+[[tool.mypy.overrides]]
+module = [
+    "skimage.*",
+    "cv2",
+    "scipy.*",
+    "imageio",
+    "imageio.*",
+    "imageio.v3"
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["test"]
