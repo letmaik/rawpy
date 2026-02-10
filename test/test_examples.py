@@ -19,6 +19,13 @@ needs_test_image = pytest.mark.skipif(
     reason="test image not available",
 )
 
+skip_examples = pytest.mark.skipif(
+    os.environ.get("RAWPY_SKIP_EXAMPLES", "") == "1",
+    reason="RAWPY_SKIP_EXAMPLES is set (e.g., slow QEMU emulation)",
+)
+
+pytestmark = skip_examples
+
 
 def run_example(script_name: str) -> subprocess.CompletedProcess:
     """Run an example script and return the result."""

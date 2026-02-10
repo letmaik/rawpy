@@ -399,11 +399,12 @@ jobs:
 
     - name: Test wheel (Linux)
       if: matrix.config.os-name == 'linux'
-      run: docker run --rm -e PYTHON_ARCH -e PYTHON_VERSION -e NUMPY_VERSION -v `pwd`:/io ${{ matrix.config.docker-image }} /io/.github/scripts/test-linux.sh
+      run: docker run --rm -e PYTHON_ARCH -e PYTHON_VERSION -e NUMPY_VERSION -e RAWPY_SKIP_EXAMPLES -v `pwd`:/io ${{ matrix.config.docker-image }} /io/.github/scripts/test-linux.sh
       env:
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
+        RAWPY_SKIP_EXAMPLES: ${{ matrix.config.python-arch == 'aarch64' && '1' || '' }}
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
