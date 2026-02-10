@@ -349,6 +349,31 @@ class build_ext(_build_ext):
             elif isMac or isLinux:
                 unix_libraw_compile()
         super().run()
+        # Copy bundled shared libraries into the build output directory.
+        # build_py (which collects package_data) runs *before* build_ext,
+        # so the libraries compiled above aren't in build_lib yet.
+        if not useSystemLibraw:
+            self._copy_bundled_libs()
+
+    def _copy_bundled_libs(self):
+        dest_dir = os.path.join(self.build_lib, "rawpy")
+        os.makedirs(dest_dir, exist_ok=True)
+        if isWindows:
+            libs = glob.glob("rawpy/*.dll")
+        elif isLinux:
+            libs = glob.glob("rawpy/libraw_r.so*")
+        elif isMac:
+            libs = glob.glob("rawpy/libraw_r*.dylib")
+        else:
+            return
+        for lib in libs:
+            dest = os.path.join(dest_dir, os.path.basename(lib))
+            if os.path.islink(lib):
+                if os.path.lexists(dest):
+                    os.remove(dest)
+                os.symlink(os.readlink(lib), dest)
+            else:
+                shutil.copyfile(lib, dest)
 
 # Extensions
 extensions = cythonize(
