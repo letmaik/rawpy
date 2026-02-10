@@ -268,31 +268,30 @@ def unix_libraw_compile():
 
     os.chdir(cwd)
 
-    if isLinux or isMac:
-        # When compiling LibRaw from source (not using system libraw), we
-        # copy the shared libraries into the package directory so they get
-        # bundled with the installed package (via package_data globs).
-        # The extension uses rpath ($ORIGIN on Linux, @loader_path on macOS)
-        # to find them at runtime.
-        #
-        # In CI, auditwheel (Linux) and delocate (macOS) further repair the
-        # wheel, but for editable installs and plain `pip install .` we need
-        # the libraries in-tree.
-        lib_dir = os.path.join(install_dir, "lib")
-        if isLinux:
-            libs = glob.glob(os.path.join(lib_dir, "libraw_r.so*"))
-        else:  # macOS
-            libs = glob.glob(os.path.join(lib_dir, "libraw_r*.dylib"))
-        for lib in libs:
-            dest = os.path.join("rawpy", os.path.basename(lib))
-            if os.path.islink(lib):
-                if os.path.lexists(dest):
-                    os.remove(dest)
-                linkto = os.readlink(lib)
-                os.symlink(linkto, dest)
-            else:
-                shutil.copyfile(lib, dest)
-            print(f"Bundling {lib} -> {dest}")
+    # When compiling LibRaw from source (not using system libraw), we
+    # copy the shared libraries into the package directory so they get
+    # bundled with the installed package (via package_data globs).
+    # The extension uses rpath ($ORIGIN on Linux, @loader_path on macOS)
+    # to find them at runtime.
+    #
+    # In CI, auditwheel (Linux) and delocate (macOS) further repair the
+    # wheel, but for editable installs and plain `pip install .` we need
+    # the libraries in-tree.
+    lib_dir = os.path.join(install_dir, "lib")
+    if isLinux:
+        libs = glob.glob(os.path.join(lib_dir, "libraw_r.so*"))
+    else:  # macOS
+        libs = glob.glob(os.path.join(lib_dir, "libraw_r*.dylib"))
+    for lib in libs:
+        dest = os.path.join("rawpy", os.path.basename(lib))
+        if os.path.islink(lib):
+            if os.path.lexists(dest):
+                os.remove(dest)
+            linkto = os.readlink(lib)
+            os.symlink(linkto, dest)
+        else:
+            shutil.copyfile(lib, dest)
+        print(f"Bundling {lib} -> {dest}")
 
 
 # --- Main Logic ---
