@@ -602,6 +602,12 @@ jobs:
         merge-multiple: true
         path: dist
 
+    - name: Download sdist from artifact storage
+      uses: actions/download-artifact@v4
+      with:
+        name: sdist
+        path: dist
+
     - name: Setup Python
       uses: actions/setup-python@v5
 
