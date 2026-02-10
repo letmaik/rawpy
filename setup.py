@@ -258,7 +258,7 @@ def unix_libraw_compile():
             ]
         )
 
-    cmds = [" ".join(cmake_args), "cmake --build . --target install"]
+    cmds = [" ".join(cmake_args), "cmake --build . --target install -j"]
 
     for cmd in cmds:
         print(f"Running: {cmd}")
