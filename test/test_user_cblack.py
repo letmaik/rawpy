@@ -7,6 +7,24 @@ import rawpy
 
 thisDir = os.path.dirname(__file__)
 rawTestPath = os.path.join(thisDir, 'iss030e122639.NEF')
+raw3TestPath = os.path.join(thisDir, 'RAW_CANON_5DMARK2_PREPROD.CR2')
+
+
+def test_default_postprocess_color_balance():
+    """Default postprocess must produce expected per-channel means.
+
+    Uses the Canon 5D Mark II image which has non-zero per-channel black
+    levels (cblack=[1027, 1026, 1026, 1027]).  If user_cblack is
+    accidentally set to zeros instead of left unset, the black level
+    override shifts the output and this test fails.
+    """
+    with rawpy.imread(raw3TestPath) as raw:
+        rgb = raw.postprocess()
+
+    mean = rgb.mean(axis=(0, 1))
+    np.testing.assert_allclose(mean, [18.551, 19.079, 47.292], atol=0.01,
+        err_msg="Default postprocess color balance changed"
+    )
 
 
 def test_user_cblack_parameter_acceptance():
