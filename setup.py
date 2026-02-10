@@ -228,6 +228,10 @@ def unix_libraw_compile():
     # plain pip installs and CI wheel builds.
     install_name_dir = "@rpath" if isMac else os.path.join(install_dir, "lib")
 
+    # OpenMP: enable on Linux (GCC supports it), disable on macOS
+    # (Apple Clang lacks OpenMP support out of the box).
+    enable_openmp = "ON" if isLinux else "OFF"
+
     # CMake arguments
     cmake_args = [
         "cmake",
@@ -236,7 +240,7 @@ def unix_libraw_compile():
         "-DLIBRAW_PATH=" + libraw_dir,
         "-DENABLE_X3FTOOLS=ON",
         "-DENABLE_6BY9RPI=ON",
-        "-DENABLE_OPENMP=OFF",
+        "-DENABLE_OPENMP=" + enable_openmp,
         "-DENABLE_EXAMPLES=OFF",
         "-DENABLE_RAWSPEED=OFF",
         "-DCMAKE_INSTALL_PREFIX=install",

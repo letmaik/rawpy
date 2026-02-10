@@ -89,8 +89,16 @@ def test_wheel_feature_flags():
         "DEMOSAIC_PACK_GPL3",  # GPL, not bundled in MIT wheels
     }
 
-    # OpenMP: enabled on Windows (when VC runtime DLL found), disabled on
-    # Unix. We don't assert it here since it varies by platform.
+    # OpenMP: enabled on Linux (GCC) and Windows (when VC runtime DLL found),
+    # disabled on macOS (Apple Clang lacks OpenMP support).
+    import sys
+
+    if sys.platform.startswith("linux"):
+        required_true.add("OPENMP")
+    elif sys.platform == "darwin":
+        required_false.add("OPENMP")
+    # On Windows, OpenMP depends on the VC runtime DLL being found, so we
+    # don't assert it either way.
 
     errors = []
     for flag in required_true:
