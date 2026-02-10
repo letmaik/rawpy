@@ -1,4 +1,5 @@
 from setuptools import setup, Extension, find_packages
+from setuptools.command.build_ext import build_ext as _build_ext
 import subprocess
 import errno
 import os
@@ -323,33 +324,31 @@ if numpy.get_include() not in include_dirs:
 define_macros.append(("_HAS_LIBRAW_CONFIG_H", "1" if libraw_config_found else "0"))
 
 # Package Data
+# Always include platform-specific library globs — they harmlessly match
+# nothing when libraries are not bundled (e.g. system libraw or sdist).
 package_data = {"rawpy": ["py.typed", "*.pyi"]}
+if isWindows:
+    package_data["rawpy"].append("*.dll")
+elif isLinux:
+    package_data["rawpy"].append("*.so*")
+elif isMac:
+    package_data["rawpy"].append("*.dylib")
 
-# Evil hack to detect if we are building/installing
-# (We don't want to compile libraw just for 'python setup.py --version')
-cmdline = "".join(sys.argv[1:])
-needsCompile = (
-    any(s in cmdline for s in ["install", "bdist", "build_ext", "wheel", "develop"])
-    and not useSystemLibraw
-)
 
-if needsCompile:
-    if isWindows:
-        windows_libraw_compile()
-        package_data["rawpy"].append("*.dll")
-    elif isMac or isLinux:
-        unix_libraw_compile()
-        if isLinux:
-            package_data["rawpy"].append("*.so*")
-        elif isMac:
-            package_data["rawpy"].append("*.dylib")
+# --- Custom build_ext ---
+# Compile LibRaw from source before building the Cython extension.
+# By putting this in build_ext.run(), it only runs when setuptools actually
+# needs to build extensions — never during metadata-only commands like
+# egg_info, sdist, or --version.  This replaces the old sys.argv sniffing hack.
 
-# Clean up egg-info if needed
-if any(s in cmdline for s in ["clean", "sdist"]):
-    egg_info = "rawpy.egg-info"
-    if os.path.exists(egg_info):
-        print("removing", egg_info)
-        shutil.rmtree(egg_info, ignore_errors=True)
+class build_ext(_build_ext):
+    def run(self):
+        if not useSystemLibraw:
+            if isWindows:
+                windows_libraw_compile()
+            elif isMac or isLinux:
+                unix_libraw_compile()
+        super().run()
 
 # Extensions
 extensions = cythonize(
@@ -375,4 +374,5 @@ setup(
     packages=find_packages(),
     ext_modules=extensions,
     package_data=package_data,
+    cmdclass={"build_ext": build_ext},
 )
