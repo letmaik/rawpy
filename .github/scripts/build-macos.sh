@@ -34,8 +34,8 @@ popd
 python -m pip install --upgrade pip
 export PIP_PREFER_BINARY=1
 
-# Install dependencies
-pip install numpy==$NUMPY_VERSION cython wheel delocate setuptools
+# Install delocate for bundling shared libraries into the wheel
+pip install delocate
 
 # List installed packages
 pip freeze
@@ -110,7 +110,7 @@ export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
 
 # Build wheel
-python setup.py bdist_wheel
+pip wheel . --wheel-dir dist --no-deps
 
 DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-listdeps --all --depending dist/*.whl # lists library dependencies
 DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel

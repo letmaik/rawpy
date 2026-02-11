@@ -16,6 +16,14 @@ from rawpy.enhance import _repair_bad_pixels_bayer2x2,\
 
 thisDir = os.path.dirname(__file__)
 
+_x3f_supported = rawpy.flags is not None and rawpy.flags.get("X3FTOOLS", False)
+
+def _open_x3f():
+    """Open X3F test file, skip test if format not supported by this LibRaw build."""
+    if not _x3f_supported:
+        pytest.skip("X3F format not supported by this LibRaw build")
+    return rawpy.imread(raw4TestPath)
+
 # Nikon D3S
 rawTestPath = os.path.join(thisDir, 'iss030e122639.NEF')
 badPixelsTestPath = os.path.join(thisDir, 'bad_pixels.gz')
@@ -73,7 +81,7 @@ def testFileOpenAndPostProcess():
     iio.imwrite('test_16daylight_linear.tiff', rgb)
 
 def testFoveonFileOpenAndPostProcess():
-    raw = rawpy.imread(raw4TestPath)
+    raw = _open_x3f()
     
     assert_array_equal(raw.raw_image.shape, [1531, 2304, 3])
     iio.imwrite('test_foveon_raw.tiff', raw.raw_image)
@@ -140,13 +148,15 @@ def testThumbExtractJPEG():
     with rawpy.imread(rawTestPath) as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.JPEG
+    assert isinstance(thumb.data, bytes)
     img = iio.imread(thumb.data)
     assert_array_equal(img.shape, [2832, 4256, 3])
 
 def testThumbExtractBitmap():
-    with rawpy.imread(raw4TestPath) as raw:
+    with _open_x3f() as raw:
         thumb = raw.extract_thumb()
     assert thumb.format == rawpy.ThumbFormat.BITMAP
+    assert isinstance(thumb.data, np.ndarray)
     assert_array_equal(thumb.data.shape, [378, 567, 3])
 
 def testProperties():
@@ -169,11 +179,13 @@ def testBayerPattern():
     for path in [rawTestPath, raw2TestPath]:
         raw = rawpy.imread(path)
         assert_equal(raw.color_desc, expected_desc)
-        assert_array_equal(raw.raw_pattern, [[0,1],[3,2]])
+        assert raw.raw_pattern is not None
+        assert_array_equal(raw.raw_pattern, np.array([[0,1],[3,2]], dtype=np.uint8))
 
     raw = rawpy.imread(raw3TestPath)
     assert_equal(raw.color_desc, expected_desc)
-    assert_array_equal(raw.raw_pattern, [[3,2],[0,1]])
+    assert raw.raw_pattern is not None
+    assert_array_equal(raw.raw_pattern, np.array([[3,2],[0,1]], dtype=np.uint8))
 
 def testAutoWhiteBalance():
     # Test that auto_whitebalance returns None before postprocessing
@@ -214,7 +226,7 @@ def testBadPixelRepair():
         # 5x5 area around coordinate masked by color of coordinate
         raw_colors = raw.raw_colors_visible
         raw_color = raw_colors[y, x]
-        masked = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
+        masked: ma.MaskedArray = ma.masked_array(raw.raw_image_visible, raw_colors!=raw_color)
         return masked[y-2:y+3,x-2:x+3].copy()
     
     bad_pixels = np.loadtxt(badPixelsTestPath, int)
@@ -279,7 +291,7 @@ def testCropSizeCanon():
         assert_equal(s.crop_height, 3744)
 
 def testCropSizeSigma():
-    with rawpy.imread(raw4TestPath) as raw:
+    with _open_x3f() as raw:
         s = raw.sizes
         assert_equal(s.crop_left_margin, 0)
         assert_equal(s.crop_top_margin, 0)

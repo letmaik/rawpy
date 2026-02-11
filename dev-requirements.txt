@@ -1,5 +1,7 @@
 # build dependencies
 wheel>=0.31.0
+setuptools>=69
+build
 delocate;sys.platform == 'darwin'
 cython
 
@@ -12,7 +14,7 @@ scikit-image
 # test dependencies
 pytest
 imageio>=2.21  # for imageio.v3 / iio support
-setuptools
+mypy
 
 # documentation dependencies
 sphinx_rtd_theme
