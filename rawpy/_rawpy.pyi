@@ -391,7 +391,21 @@ class RawPy:
         Only usable for flat RAW images (see :attr:`~rawpy.RawPy.raw_type` property).        
         """
         ...
-    
+
+    @property
+    def lens(self) -> dict:
+        """
+        Return a dict with information about the lens used during the shot.
+        """
+        ...
+
+    @property
+    def other(self) -> dict:
+        """
+        Returns a dict with information about the shot like ISO, Aperture, shutter speed.
+        """
+        ...
+
     @property
     def sizes(self) -> ImageSizes:
         """
