@@ -842,6 +842,7 @@ cdef class RawPy:
 
     @property
     def lens(self):
+        self.ensure_unpack()
         cdef libraw_lensinfo_t *l = &self.p.imgdata.lens
 
         return {

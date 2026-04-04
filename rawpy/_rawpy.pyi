@@ -402,7 +402,7 @@ class RawPy:
     @property
     def other(self) -> dict:
         """
-        Returns a dict with information about the shot like ISO, Aperture, shutter speed.
+        Return a dict with information about the shot like ISO, Aperture, shutter speed.
         """
         ...
 
