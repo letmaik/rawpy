@@ -188,26 +188,52 @@ cdef extern from "libraw.h":
         unsigned    filters
         char        xtrans[6][6]
         char        cdesc[5]
-        
+
+    ctypedef struct libraw_imgother_t:
+        float iso_speed
+        float shutter
+        float aperture
+        float focal_len
+        long timestamp
+        unsigned shot_order
+        unsigned gpsdata[32]
+        char desc[512]
+        char artist[64]
+        float FlashEC
+
+    ctypedef struct libraw_lensinfo_t:
+        float MinFocal
+        float MaxFocal
+        float MaxAp4MinFocal
+        float MaxAp4MaxFocal
+        char LensMake[128]
+        char Lens[128]
+        float FocalLengthIn35mmFormat
+        float EXIF_MaxAp
+
     ctypedef struct libraw_data_t:
 #         ushort                      (*image)[4]
         libraw_image_sizes_t        sizes
         libraw_iparams_t            idata
-        libraw_output_params_t        params
+        libraw_output_params_t      params
         libraw_raw_unpack_params_t  rawparams
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
         libraw_colordata_t          color
-#         libraw_imgother_t           other
+        libraw_imgother_t           other
 #         libraw_thumbnail_t          thumbnail
         libraw_rawdata_t            rawdata
+        libraw_lensinfo_t           lens
 #         void                *parent_class
+
 
     ctypedef struct libraw_processed_image_t:
         LibRaw_image_formats type
         ushort height, width, colors, bits
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
+
+
 
 # The open_file method is overloaded on Windows and unfortunately
 # there is no better way to deal with this in Cython.
@@ -813,6 +839,37 @@ cdef class RawPy:
             return levels
         else:
             return None
+
+    @property
+    def lens(self):
+        cdef libraw_lensinfo_t *l = &self.p.imgdata.lens
+
+        return {
+            "min_focal": l.MinFocal,
+            "max_focal": l.MaxFocal,
+            "max_ap_min_focal": l.MaxAp4MinFocal,
+            "max_ap_max_focal": l.MaxAp4MaxFocal,
+            "lens_make": l.LensMake.decode('utf-8', 'ignore'),
+            "lens": l.Lens.decode('utf-8', 'ignore'),
+            "focal_35mm": l.FocalLengthIn35mmFormat,
+            "exif_max_ap": l.EXIF_MaxAp,
+        }
+
+    @property
+    def other(self):
+        self.ensure_unpack()
+
+        cdef libraw_imgother_t* o = &self.p.imgdata.other
+
+        return {
+            "iso_speed": o.iso_speed,
+            "shutter": o.shutter,
+            "aperture": o.aperture,
+            "focal_len": o.focal_len,
+            "timestamp": o.timestamp,
+            "shot_order": o.shot_order,
+            "artist": o.artist.decode('utf-8', 'ignore'),
+        }
 
     @property
     def color_matrix(self) -> NDArray[np.float32]:
