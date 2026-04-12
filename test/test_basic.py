@@ -361,6 +361,16 @@ def testOpenNonExistentFile():
         with rawpy.imread("nonexistent.nef") as f:
             pass
 
+def testOtherProperties():
+    raw = rawpy.imread(raw3TestPath)
+    other = raw.other
+    assert other is not None
+
+def testLensProperties():
+    raw = rawpy.imread(raw3TestPath)
+    lens = raw.lens
+    assert lens is not None
+
 def print_stats(rgb):
     print(rgb.dtype, 
           np.min(rgb, axis=(0,1)), np.max(rgb, axis=(0,1)), # range for each channel
