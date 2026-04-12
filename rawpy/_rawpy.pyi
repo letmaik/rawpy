@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Any, Optional, Tuple, List, Union, NamedTuple, BinaryIO
 import numpy as np
 from numpy.typing import NDArray
+from datetime import datetime
 
 # Module-level version
 libraw_version: Tuple[int, int, int]
@@ -30,6 +31,21 @@ class ImageSizes(NamedTuple):
 class Thumbnail(NamedTuple):
     format: ThumbFormat
     data: Union[bytes, NDArray[np.uint8]]
+
+class Lens(NamedTuple):
+    model: str
+    maker: str
+    min_focal: float
+    max_focal: float
+
+class Other(NamedTuple):
+    iso_speed: float
+    shutter_speed: float
+    aperture: float
+    focal_length: float
+    timestamp: datetime
+    shot_order: int
+    artist: str
 
 # Enums
 class RawType(Enum):
@@ -393,14 +409,14 @@ class RawPy:
         ...
 
     @property
-    def lens(self) -> dict:
+    def lens(self) -> Lens:
         """
         Return a dict with information about the lens used during the shot.
         """
         ...
 
     @property
-    def other(self) -> dict:
+    def other(self) -> Other:
         """
         Return a dict with information about the shot like ISO, Aperture, shutter speed.
         """

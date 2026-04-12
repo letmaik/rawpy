@@ -6,6 +6,7 @@ from __future__ import print_function
 
 from typing import Optional, Union, Tuple, List, Any, BinaryIO
 from numpy.typing import NDArray
+from datetime import datetime, timezone
 
 from cpython.ref cimport Py_INCREF
 from cpython.bytes cimport PyBytes_FromStringAndSize
@@ -298,6 +299,24 @@ ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width',
                                        'pixel_aspect', 'flip',
                                        'crop_left_margin', 'crop_top_margin', 'crop_width', 'crop_height'
                                        ])
+
+Lens = namedtuple('Lens', [
+    'model',
+    'maker',
+    'min_focal',
+    'max_focal',
+])
+
+
+Other = namedtuple('Other', [
+    'iso_speed',
+    'shutter_speed',
+    'aperture',
+    'focal_length',
+    'timestamp',
+    'shot_order',
+    'artist',
+])
 
 class RawType(Enum):
     """
@@ -841,36 +860,32 @@ cdef class RawPy:
             return None
 
     @property
-    def lens(self):
+    def lens(self) -> Lens:
         self.ensure_unpack()
         cdef libraw_lensinfo_t *l = &self.p.imgdata.lens
 
-        return {
-            "min_focal": l.MinFocal,
-            "max_focal": l.MaxFocal,
-            "max_ap_min_focal": l.MaxAp4MinFocal,
-            "max_ap_max_focal": l.MaxAp4MaxFocal,
-            "lens_make": l.LensMake.decode('utf-8', 'ignore'),
-            "lens": l.Lens.decode('utf-8', 'ignore'),
-            "focal_35mm": l.FocalLengthIn35mmFormat,
-            "exif_max_ap": l.EXIF_MaxAp,
-        }
+        return Lens(
+            model=l.Lens.decode('utf-8', 'ignore'),
+            maker=l.LensMake.decode('utf-8', 'ignore'),
+            min_focal=l.MinFocal,
+            max_focal=l.MaxFocal,
+        )
+
 
     @property
-    def other(self):
+    def other(self) -> Other:
         self.ensure_unpack()
+        cdef libraw_imgother_t * o = &self.p.imgdata.other
 
-        cdef libraw_imgother_t* o = &self.p.imgdata.other
-
-        return {
-            "iso_speed": o.iso_speed,
-            "shutter": o.shutter,
-            "aperture": o.aperture,
-            "focal_len": o.focal_len,
-            "timestamp": o.timestamp,
-            "shot_order": o.shot_order,
-            "artist": o.artist.decode('utf-8', 'ignore'),
-        }
+        return Other(
+            iso_speed=o.iso_speed,
+            shutter_speed=o.shutter,
+            aperture=o.aperture,
+            focal_length=o.focal_len,
+            timestamp=datetime.fromtimestamp(o.timestamp),
+            shot_order=o.shot_order,
+            artist=o.artist.decode('utf-8', 'ignore'),
+        )
 
     @property
     def color_matrix(self) -> NDArray[np.float32]:
