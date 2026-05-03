@@ -33,6 +33,8 @@ def main():
     with rawpy.imread(TEST_IMAGE) as raw:
         print(f"  Raw type: {raw.raw_type}")
         print(f"  Image size: {raw.sizes.width}x{raw.sizes.height}")
+        print(f"  Image metadata: {raw.other}")
+        print(f"  Image lens metadata: {raw.lens}")
 
         # Convert RAW to RGB using default parameters
         rgb = raw.postprocess()

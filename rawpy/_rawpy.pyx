@@ -6,6 +6,7 @@ from __future__ import print_function
 
 from typing import Optional, Union, Tuple, List, Any, BinaryIO
 from numpy.typing import NDArray
+from datetime import datetime, timezone
 
 from cpython.ref cimport Py_INCREF
 from cpython.bytes cimport PyBytes_FromStringAndSize
@@ -188,26 +189,52 @@ cdef extern from "libraw.h":
         unsigned    filters
         char        xtrans[6][6]
         char        cdesc[5]
-        
+
+    ctypedef struct libraw_imgother_t:
+        float iso_speed
+        float shutter
+        float aperture
+        float focal_len
+        long timestamp
+        unsigned shot_order
+        unsigned gpsdata[32]
+        char desc[512]
+        char artist[64]
+        float FlashEC
+
+    ctypedef struct libraw_lensinfo_t:
+        float MinFocal
+        float MaxFocal
+        float MaxAp4MinFocal
+        float MaxAp4MaxFocal
+        char LensMake[128]
+        char Lens[128]
+        float FocalLengthIn35mmFormat
+        float EXIF_MaxAp
+
     ctypedef struct libraw_data_t:
 #         ushort                      (*image)[4]
         libraw_image_sizes_t        sizes
         libraw_iparams_t            idata
-        libraw_output_params_t        params
+        libraw_output_params_t      params
         libraw_raw_unpack_params_t  rawparams
 #         unsigned int                progress_flags
 #         unsigned int                process_warnings
         libraw_colordata_t          color
-#         libraw_imgother_t           other
+        libraw_imgother_t           other
 #         libraw_thumbnail_t          thumbnail
         libraw_rawdata_t            rawdata
+        libraw_lensinfo_t           lens
 #         void                *parent_class
+
 
     ctypedef struct libraw_processed_image_t:
         LibRaw_image_formats type
         ushort height, width, colors, bits
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
+
+
 
 # The open_file method is overloaded on Windows and unfortunately
 # there is no better way to deal with this in Cython.
@@ -272,6 +299,24 @@ ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width',
                                        'pixel_aspect', 'flip',
                                        'crop_left_margin', 'crop_top_margin', 'crop_width', 'crop_height'
                                        ])
+
+Lens = namedtuple('Lens', [
+    'model',
+    'make',
+    'min_focal',
+    'max_focal',
+])
+
+
+Other = namedtuple('Other', [
+    'iso_speed',
+    'shutter_speed',
+    'aperture',
+    'focal_length',
+    'timestamp',
+    'shot_order',
+    'artist',
+])
 
 class RawType(Enum):
     """
@@ -813,6 +858,34 @@ cdef class RawPy:
             return levels
         else:
             return None
+
+    @property
+    def lens(self) -> Lens:
+        self.ensure_unpack()
+        cdef libraw_lensinfo_t *l = &self.p.imgdata.lens
+
+        return Lens(
+            model=l.Lens.decode('utf-8', 'ignore'),
+            make=l.LensMake.decode('utf-8', 'ignore'),
+            min_focal=l.MinFocal,
+            max_focal=l.MaxFocal,
+        )
+
+
+    @property
+    def other(self) -> Other:
+        self.ensure_unpack()
+        cdef libraw_imgother_t * o = &self.p.imgdata.other
+
+        return Other(
+            iso_speed=o.iso_speed,
+            shutter_speed=o.shutter,
+            aperture=o.aperture,
+            focal_length=o.focal_len,
+            timestamp=datetime.fromtimestamp(o.timestamp),
+            shot_order=o.shot_order,
+            artist=o.artist.decode('utf-8', 'ignore'),
+        )
 
     @property
     def color_matrix(self) -> NDArray[np.float32]:
