@@ -34,7 +34,7 @@ class Thumbnail(NamedTuple):
 
 class Lens(NamedTuple):
     model: str
-    maker: str
+    make: str
     min_focal: float
     max_focal: float
 

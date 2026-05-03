@@ -302,7 +302,7 @@ ImageSizes = namedtuple('ImageSizes', ['raw_height', 'raw_width',
 
 Lens = namedtuple('Lens', [
     'model',
-    'maker',
+    'make',
     'min_focal',
     'max_focal',
 ])
@@ -866,7 +866,7 @@ cdef class RawPy:
 
         return Lens(
             model=l.Lens.decode('utf-8', 'ignore'),
-            maker=l.LensMake.decode('utf-8', 'ignore'),
+            make=l.LensMake.decode('utf-8', 'ignore'),
             min_focal=l.MinFocal,
             max_focal=l.MaxFocal,
         )
