@@ -13,6 +13,8 @@ function exec {
 }
 
 function Initialize-VS {
+    param([Parameter(Mandatory=$true)][string]$Architecture)
+
     $VS_ROOTS = @(
         "C:\Program Files\Microsoft Visual Studio",
         "C:\Program Files (x86)\Microsoft Visual Studio"
@@ -21,8 +23,7 @@ function Initialize-VS {
     $VS_EDITIONS = @("Enterprise", "Professional", "Community")
     $VS_INIT_CMD_SUFFIX = "Common7\Tools\vsdevcmd.bat"
 
-    $VS_ARCH = if ($env:PYTHON_ARCH -eq 'x86') { 'x86' } else { 'x64' }
-    $VS_INIT_ARGS = "-arch=$VS_ARCH -no_logo"
+    $VS_INIT_ARGS = "-arch=$Architecture -no_logo"
 
     $found = $false
     :outer foreach ($VS_ROOT in $VS_ROOTS) {
@@ -55,22 +56,39 @@ function Initialize-VS {
 if (!$env:PYTHON_VERSION) {
     throw "PYTHON_VERSION env var missing, must be x.y"
 }
-if ($env:PYTHON_ARCH -ne 'x86' -and $env:PYTHON_ARCH -ne 'x86_64') {
-    throw "PYTHON_ARCH env var must be x86 or x86_64"
+switch ($env:PYTHON_ARCH) {
+    'x86' {
+        $VS_ARCH = 'x86'
+        $VCPKG_TRIPLET = 'x86-windows-static'
+        $PYTHON_PLATFORM = 'win32'
+    }
+    'x86_64' {
+        $VS_ARCH = 'x64'
+        $VCPKG_TRIPLET = 'x64-windows-static'
+        $PYTHON_PLATFORM = 'win-amd64'
+    }
+    'arm64' {
+        $VS_ARCH = 'arm64'
+        $VCPKG_TRIPLET = 'arm64-windows-static'
+        $PYTHON_PLATFORM = 'win-arm64'
+    }
+    default {
+        throw "PYTHON_ARCH env var must be x86, x86_64, or arm64"
+    }
 }
 
-Initialize-VS
+Initialize-VS -Architecture $VS_ARCH
 
-# Check Python version
-exec { python -c "import platform; assert platform.python_version().startswith('$env:PYTHON_VERSION')" }
+# Check Python version and architecture
+exec { python -c "import platform, sysconfig; assert platform.python_version().startswith('$env:PYTHON_VERSION'); assert sysconfig.get_platform() == '$PYTHON_PLATFORM', sysconfig.get_platform()" }
 
 # Install vcpkg dependencies (needed for building from source)
 if (!(Test-Path ./vcpkg)) {
-    exec { git clone https://github.com/microsoft/vcpkg -b 2025.01.13 --depth 1 }
+    exec { git clone https://github.com/microsoft/vcpkg -b 2026.07.29 --depth 1 }
     exec { ./vcpkg/bootstrap-vcpkg }
 }
-exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=x64-windows-static --recurse }
-$env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\x64-windows-static"
+exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=$VCPKG_TRIPLET --recurse }
+$env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\$VCPKG_TRIPLET"
 
 # Create a clean venv and install the sdist
 exec { python -m venv sdist-test-env }
