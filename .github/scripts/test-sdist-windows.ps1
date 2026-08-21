@@ -89,6 +89,8 @@ if (!(Test-Path ./vcpkg)) {
 }
 exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=$VCPKG_TRIPLET --recurse }
 $env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\$VCPKG_TRIPLET"
+$env:CMAKE_TOOLCHAIN_FILE = $pwd.Path + "\vcpkg\scripts\buildsystems\vcpkg.cmake"
+$env:VCPKG_TARGET_TRIPLET = $VCPKG_TRIPLET
 
 # Create a clean venv and install the sdist
 exec { python -m venv sdist-test-env }

@@ -103,6 +103,8 @@ if (!(Test-Path ./vcpkg)) {
 }
 exec { ./vcpkg/vcpkg install zlib libjpeg-turbo[jpeg8] jasper lcms --triplet=$VCPKG_TRIPLET --recurse }
 $env:CMAKE_PREFIX_PATH = $pwd.Path + "\vcpkg\installed\$VCPKG_TRIPLET"
+$env:CMAKE_TOOLCHAIN_FILE = $pwd.Path + "\vcpkg\scripts\buildsystems\vcpkg.cmake"
+$env:VCPKG_TARGET_TRIPLET = $VCPKG_TRIPLET
 
 # Build the wheel in a virtual environment
 exec { python -m venv env\build }
