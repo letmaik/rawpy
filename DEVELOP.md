@@ -260,7 +260,7 @@ The `.github/workflows/ci.yml` workflow handles:
 1. **Build Job**: Builds wheels for:
    - Linux (x86_64 and aarch64)
    - macOS (Apple Silicon)
-   - Windows (x86_64)
+   - Windows (x86_64 and ARM64; ARM64 requires Python 3.11+)
    - Python versions: 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14 (when available)
 
 2. **Test Job**: Tests all built wheels across platforms

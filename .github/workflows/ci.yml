@@ -159,6 +159,23 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.14'
 
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.11'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.12'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.13'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.14'
+
     runs-on: ${{ matrix.config.os-image }}
 
     steps:
@@ -377,6 +394,27 @@ jobs:
           python-version: '3.14'
           numpy-version: '2.4.*'
 
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.11'
+          numpy-version: '2.4.*'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.12'
+          numpy-version: '2.4.*'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.13'
+          numpy-version: '2.4.*'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.14'
+          numpy-version: '2.4.*'
+
     runs-on: ${{ matrix.config.os-image }}
 
     needs: build
@@ -473,6 +511,10 @@ jobs:
         - os-image: windows-2022
           os-name: windows
           python-arch: 'x86_64'
+          python-version: '3.12'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
           python-version: '3.12'
 
     runs-on: ${{ matrix.config.os-image }}

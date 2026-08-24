@@ -16,8 +16,22 @@ function exec {
 if (!$env:PYTHON_VERSION) {
     throw "PYTHON_VERSION env var missing, must be x.y"
 }
-if ($env:PYTHON_ARCH -ne 'x86' -and $env:PYTHON_ARCH -ne 'x86_64') {
-    throw "PYTHON_ARCH env var must be x86 or x86_64"
+switch ($env:PYTHON_ARCH) {
+    'x86' {
+        $PYTHON_PLATFORM = 'win32'
+        $WHEEL_PLATFORM = 'win32'
+    }
+    'x86_64' {
+        $PYTHON_PLATFORM = 'win-amd64'
+        $WHEEL_PLATFORM = 'win_amd64'
+    }
+    'arm64' {
+        $PYTHON_PLATFORM = 'win-arm64'
+        $WHEEL_PLATFORM = 'win_arm64'
+    }
+    default {
+        throw "PYTHON_ARCH env var must be x86, x86_64, or arm64"
+    }
 }
 if (!$env:NUMPY_VERSION) {
     throw "NUMPY_VERSION env var missing"
@@ -25,8 +39,14 @@ if (!$env:NUMPY_VERSION) {
 
 $PYVER = ($env:PYTHON_VERSION).Replace('.', '')
 
-# Check Python version/arch
-exec { python -c "import platform; assert platform.python_version().startswith('$env:PYTHON_VERSION')" }
+# Check Python version and architecture
+exec { python -c "import platform, sysconfig; assert platform.python_version().startswith('$env:PYTHON_VERSION'); assert sysconfig.get_platform() == '$PYTHON_PLATFORM', sysconfig.get_platform()" }
+
+$wheels = @(Get-ChildItem "dist\*cp${PYVER}*${WHEEL_PLATFORM}.whl")
+if ($wheels.Count -ne 1) {
+    throw "Expected exactly one CPython $env:PYTHON_VERSION $WHEEL_PLATFORM wheel, found $($wheels.Count)"
+}
+$wheel = $wheels[0].FullName
 
 # Upgrade pip and prefer binary packages
 exec { python -m pip install --upgrade pip }
@@ -39,7 +59,7 @@ Get-ChildItem env:
 exec { python -m venv env\import-test }
 & .\env\import-test\scripts\activate
 python -m pip uninstall -y rawpy
-ls dist\*cp${PYVER}*win*.whl | % { exec { python -m pip install $_ } }
+exec { python -m pip install $wheel }
 
 # Avoid using in-source package during tests
 mkdir -f tmp_for_test | out-null
@@ -53,7 +73,7 @@ deactivate
 exec { python -m venv env\testsuite }
 & .\env\testsuite\scripts\activate
 python -m pip uninstall -y rawpy
-ls dist\*cp${PYVER}*win*.whl | % { exec { python -m pip install $_ } }
+exec { python -m pip install $wheel }
 exec { python -m pip install -r dev-requirements.txt numpy==$env:NUMPY_VERSION }
 
 # Avoid using in-source package during tests

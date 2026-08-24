@@ -153,6 +153,12 @@ def windows_libraw_compile():
     # Important: always use Release build type, otherwise the library will depend on a
     #            debug version of OpenMP which is not what we bundle it with, and then it would fail
     enable_openmp_flag = "ON" if has_openmp_dll else "OFF"
+    vcpkg_cmake_args = ""
+    for name in ("CMAKE_TOOLCHAIN_FILE", "VCPKG_TARGET_TRIPLET"):
+        value = os.getenv(name)
+        if value:
+            value = value.replace("\\", "/")
+            vcpkg_cmake_args += f'-D{name}="{value}" '
     cmds = [
         cmake
         + ' .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release '
@@ -163,6 +169,7 @@ def windows_libraw_compile():
         + libraw_dir.replace("\\", "/")
         + " "
         + "-DENABLE_X3FTOOLS=ON -DENABLE_6BY9RPI=ON "
+        + vcpkg_cmake_args
         + "-DENABLE_EXAMPLES=OFF -DENABLE_OPENMP="
         + enable_openmp_flag
         + " -DENABLE_RAWSPEED=OFF "
