@@ -111,9 +111,13 @@ def test_wheel_feature_flags():
     assert not errors, "Feature flag mismatches:\n" + "\n".join(f"  - {e}" for e in errors)
 
 
-def test_libraw_version():
-    """rawpy.libraw_version should be a tuple of three ints >= 0.21."""
-    ver = rawpy.libraw_version
+@pytest.mark.parametrize(
+    "attribute",
+    ["libraw_version", "libraw_version_compiled"],
+)
+def test_libraw_version(attribute):
+    """LibRaw versions should be tuples of three ints >= 0.21."""
+    ver = getattr(rawpy, attribute)
     assert isinstance(ver, tuple), f"Expected tuple, got {type(ver)}"
     assert len(ver) == 3, f"Expected 3 elements, got {len(ver)}"
     assert all(isinstance(v, int) for v in ver), f"Expected ints, got {ver}"

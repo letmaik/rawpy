@@ -58,6 +58,7 @@ cdef extern from "libraw.h":
     cdef int LIBRAW_MAJOR_VERSION
     cdef int LIBRAW_MINOR_VERSION
     cdef int LIBRAW_PATCH_VERSION
+    cdef int libraw_versionNumber()
     
     cdef float LIBRAW_DEFAULT_AUTO_BRIGHTNESS_THRESHOLD
         
@@ -275,7 +276,17 @@ ELSE:
             const char* strerror(int p) nogil
             void recycle() nogil
 
-libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
+cdef int _libraw_runtime_version = libraw_versionNumber()
+libraw_version = (
+    (_libraw_runtime_version >> 16) & 0xff,
+    (_libraw_runtime_version >> 8) & 0xff,
+    _libraw_runtime_version & 0xff,
+)
+libraw_version_compiled = (
+    LIBRAW_MAJOR_VERSION,
+    LIBRAW_MINOR_VERSION,
+    LIBRAW_PATCH_VERSION,
+)
 
 if _LIBRAW_HAS_FLAGS:
     flags = {'DNGLOSSYCODEC': bool(_LIBRAW_USE_DNGLOSSYCODEC),

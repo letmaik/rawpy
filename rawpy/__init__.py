@@ -8,6 +8,7 @@ if TYPE_CHECKING:
         # Module-level attributes
         flags,
         libraw_version,
+        libraw_version_compiled,
         # Main classes
         RawPy,
         Params,

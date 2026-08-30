@@ -7,8 +7,9 @@ import numpy as np
 from numpy.typing import NDArray
 from datetime import datetime
 
-# Module-level version
+# Module-level versions
 libraw_version: Tuple[int, int, int]
+libraw_version_compiled: Tuple[int, int, int]
 flags: Optional[dict[str, bool]]
 
 # Named tuples

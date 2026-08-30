@@ -74,7 +74,9 @@ pip install rawpy
 ### Stable vs. pre-release
 
 All stable rawpy releases are always built against a stable LibRaw library release.
-You can output the LibRaw version with `print(rawpy.libraw_version)`.
+You can output the dynamically loaded LibRaw version with
+`print(rawpy.libraw_version)`. The version of the LibRaw headers used to
+compile rawpy is available as `rawpy.libraw_version_compiled`.
 
 rawpy pre-releases have version numbers like `0.15.0a1` and are built against
 a recent LibRaw snapshot. To install a pre-release, run:
