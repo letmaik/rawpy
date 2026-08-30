@@ -222,6 +222,23 @@ jobs:
         name: wheel-${{ matrix.config.os-name }}-${{ matrix.config.python-arch }}-${{ matrix.config.python-version }}
         path: dist
 
+  test-macos-bundled-libraw-linking:
+    runs-on: macos-15
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Verify bundled LibRaw wins over Homebrew
+      run: .github/scripts/test-macos-libraw-linking.sh
+
   test:
     strategy:
       fail-fast: false
