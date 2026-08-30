@@ -30,6 +30,7 @@ is64Bit = sys.maxsize > 2**32
 libraries = ["libraw_r"]
 include_dirs = [numpy.get_include()]  # Always include numpy headers
 library_dirs = []
+extra_objects = []
 extra_compile_args = []
 extra_link_args = []
 define_macros = []
@@ -311,8 +312,15 @@ if (isWindows or isMac or isLinux) and not useSystemLibraw:
     # Build from source
     install_dir = get_install_dir()
     include_dirs += [os.path.join(install_dir, "include", "libraw")]
-    library_dirs += [os.path.join(install_dir, "lib")]
-    libraries = ["raw_r"]
+    if isMac or isLinux:
+        # Link the bundled library explicitly so an earlier -L from the Python
+        # configuration or environment cannot select a system LibRaw instead.
+        suffix = ".dylib" if isMac else ".so"
+        libraries = []
+        extra_objects = [os.path.join(install_dir, "lib", "libraw_r" + suffix)]
+    else:
+        library_dirs += [os.path.join(install_dir, "lib")]
+        libraries = ["raw_r"]
     # If building from source, we know we have the config header
     libraw_config_found = True
 else:
@@ -390,6 +398,7 @@ extensions = cythonize(
             sources=[os.path.join("rawpy", "_rawpy.pyx")],
             libraries=libraries,
             library_dirs=library_dirs,
+            extra_objects=extra_objects,
             define_macros=define_macros,
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
