@@ -14,6 +14,9 @@ if [ ! -d "$PYBIN" ]; then
     echo "Python version $PYTHON_VERSION not found at $PYBIN"
     exit 1
 fi
+# Source-built test dependencies invoke `python` through /usr/bin/env.
+# Keep them on the selected manylinux interpreter, including Python 3.15.
+export PATH="$PYBIN:$PATH"
 PYVER=${PYTHON_VERSION//.}
 
 # Upgrade pip and prefer binary packages
