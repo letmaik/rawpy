@@ -21,16 +21,19 @@ if (!$env:PYTHON_VERSION) {
 switch ($env:PYTHON_ARCH) {
     'x86' {
         $VS_ARCH = 'x86'
+        $CLANG_TARGET = 'i686-pc-windows-msvc'
         $PYTHON_PLATFORM = 'win32'
         $WHEEL_PLATFORM = 'win32'
     }
     'x86_64' {
         $VS_ARCH = 'x64'
+        $CLANG_TARGET = 'x86_64-pc-windows-msvc'
         $PYTHON_PLATFORM = 'win-amd64'
         $WHEEL_PLATFORM = 'win_amd64'
     }
     'arm64' {
         $VS_ARCH = 'arm64'
+        $CLANG_TARGET = 'aarch64-pc-windows-msvc'
         $PYTHON_PLATFORM = 'win-arm64'
         $WHEEL_PLATFORM = 'win_arm64'
     }
@@ -77,6 +80,12 @@ deactivate
 # Source-built optional dependencies need the target MSVC toolchain. Initialize
 # it after the clean import check so it cannot hide missing wheel DLLs.
 Initialize-VS -Architecture $VS_ARCH
+if ($env:PYTHON_VERSION -eq '3.15') {
+    # scikit-image has no cp315 wheels yet. Its Pythran code fails under MSVC,
+    # and an explicit target keeps LLVM from defaulting to x64 on ARM64 hosts.
+    $env:CC = "clang-cl --target=$CLANG_TARGET"
+    $env:CXX = $env:CC
+}
 
 # Run test suite with all required and optional dependencies
 exec { python -m venv env\testsuite }
