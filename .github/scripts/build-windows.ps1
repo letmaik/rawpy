@@ -13,54 +13,7 @@ function exec {
     }
 }
 
-function Initialize-VS {
-    param([Parameter(Mandatory=$true)][string]$Architecture)
-
-    # https://wiki.python.org/moin/WindowsCompilers
-    # setuptools automatically selects the right compiler for building
-    # the extension module. The following is mostly for building any
-    # native dependencies, here via CMake.
-    # https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line
-    # https://docs.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
-
-    $VS_ROOTS = @(
-        "C:\Program Files\Microsoft Visual Studio",
-        "C:\Program Files (x86)\Microsoft Visual Studio"
-    )
-    $VS_VERSIONS = @("2017", "2019", "2022")
-    $VS_EDITIONS = @("Enterprise", "Professional", "Community")
-    $VS_INIT_CMD_SUFFIX = "Common7\Tools\vsdevcmd.bat"
-
-    $VS_INIT_ARGS = "-arch=$Architecture -no_logo"
-
-    $found = $false
-    :outer foreach ($VS_ROOT in $VS_ROOTS) {
-        foreach ($version in $VS_VERSIONS) {
-            foreach ($edition in $VS_EDITIONS) {
-                $VS_INIT_CMD = "$VS_ROOT\$version\$edition\$VS_INIT_CMD_SUFFIX"
-                if (Test-Path $VS_INIT_CMD) {
-                    $found = $true
-                    break outer
-                }
-            }
-        }
-    }
-
-    if (!$found) {
-        throw ("No suitable Visual Studio installation found")
-    }
-
-    Write-Host "Executing: $VS_INIT_CMD $VS_INIT_ARGS"
-
-    # https://github.com/Microsoft/vswhere/wiki/Start-Developer-Command-Prompt
-    & "${env:COMSPEC}" /s /c "`"$VS_INIT_CMD`" $VS_INIT_ARGS && set" | foreach-object {
-        $name, $value = $_ -split '=', 2
-        try {
-            set-content env:\"$name" $value
-        } catch {
-        }
-    }
-}
+. "$PSScriptRoot/initialize-vs.ps1"
 
 if (!$env:PYTHON_VERSION) {
     throw "PYTHON_VERSION env var missing, must be x.y"

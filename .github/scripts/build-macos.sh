@@ -25,7 +25,12 @@ git clone https://github.com/multi-build/multibuild.git
 pushd multibuild
 set +x # reduce noise
 source osx_utils.sh
-get_macpython_environment $PYTHON_VERSION venv $PYTHON_INSTALLER_MACOS_VERSION
+# multibuild's minor-version lookup currently stops at 3.14.
+PYTHON_INSTALL_VERSION=$PYTHON_VERSION
+if [ "$PYTHON_VERSION" = "3.15" ]; then
+    PYTHON_INSTALL_VERSION=3.15.0
+fi
+get_macpython_environment $PYTHON_INSTALL_VERSION venv $PYTHON_INSTALLER_MACOS_VERSION
 source venv/bin/activate
 set -x
 popd
