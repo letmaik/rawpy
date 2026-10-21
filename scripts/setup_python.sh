@@ -4,7 +4,7 @@
 #
 # Usage:
 #   bash scripts/setup_python.sh 3.12
-#   bash scripts/setup_python.sh 3.9
+#   bash scripts/setup_python.sh 3.11
 #
 # After this, run the normal setup:
 #   bash scripts/setup_dev_env.sh

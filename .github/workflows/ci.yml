@@ -45,16 +45,6 @@ jobs:
           os-name: linux
           docker-image: quay.io/pypa/manylinux_2_28_x86_64
           python-arch: 'x86_64'
-          python-version: '3.9'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_x86_64
-          python-arch: 'x86_64'
-          python-version: '3.10'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_x86_64
-          python-arch: 'x86_64'
           python-version: '3.11'
         - os-image: ubuntu-latest
           os-name: linux
@@ -72,16 +62,6 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.14'
 
-        - os-image: ubuntu-24.04-arm
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_aarch64
-          python-arch: 'aarch64'
-          python-version: '3.9'
-        - os-image: ubuntu-24.04-arm
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_aarch64
-          python-arch: 'aarch64'
-          python-version: '3.10'
         - os-image: ubuntu-24.04-arm
           os-name: linux
           docker-image: quay.io/pypa/manylinux_2_28_aarch64
@@ -107,16 +87,6 @@ jobs:
           os-name: mac
           macos-min-version: '11.0'
           python-arch: 'arm64'
-          python-version: '3.9'
-        - os-image: macos-15 # Apple Silicon
-          os-name: mac
-          macos-min-version: '11.0'
-          python-arch: 'arm64'
-          python-version: '3.10'
-        - os-image: macos-15 # Apple Silicon
-          os-name: mac
-          macos-min-version: '11.0'
-          python-arch: 'arm64'
           python-version: '3.11'
         - os-image: macos-15 # Apple Silicon
           os-name: mac
@@ -134,14 +104,6 @@ jobs:
           python-arch: 'arm64'
           python-version: '3.14'
 
-        - os-image: windows-2022
-          os-name: windows
-          python-arch: 'x86_64'
-          python-version: '3.9'
-        - os-image: windows-2022
-          os-name: windows
-          python-arch: 'x86_64'
-          python-version: '3.10'
         - os-image: windows-2022
           os-name: windows
           python-arch: 'x86_64'
@@ -246,18 +208,6 @@ jobs:
           os-name: linux
           docker-image: quay.io/pypa/manylinux_2_28_x86_64
           python-arch: 'x86_64'
-          python-version: '3.9'
-          numpy-version: '2.0.*'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_x86_64
-          python-arch: 'x86_64'
-          python-version: '3.10'
-          numpy-version: '2.0.*'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_x86_64
-          python-arch: 'x86_64'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: ubuntu-latest
@@ -285,18 +235,6 @@ jobs:
           python-version: '3.14'
           numpy-version: '2.4.*'
 
-        - os-image: ubuntu-24.04-arm
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_aarch64
-          python-arch: 'aarch64'
-          python-version: '3.9'
-          numpy-version: '2.0.*'
-        - os-image: ubuntu-24.04-arm
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux_2_28_aarch64
-          python-arch: 'aarch64'
-          python-version: '3.10'
-          numpy-version: '2.0.*'
         - os-image: ubuntu-24.04-arm
           os-name: linux
           docker-image: quay.io/pypa/manylinux_2_28_aarch64
@@ -332,18 +270,6 @@ jobs:
           os-name: mac
           macos-min-version: '11.0'
           python-arch: 'arm64'
-          python-version: '3.9'
-          numpy-version: '2.0.*'
-        - os-image: macos-15 # Apple Silicon
-          os-name: mac
-          macos-min-version: '11.0'
-          python-arch: 'arm64'
-          python-version: '3.10'
-          numpy-version: '2.0.*'
-        - os-image: macos-15 # Apple Silicon
-          os-name: mac
-          macos-min-version: '11.0'
-          python-arch: 'arm64'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: macos-15 # Apple Silicon
@@ -371,16 +297,6 @@ jobs:
           python-version: '3.14'
           numpy-version: '2.4.*'
 
-        - os-image: windows-2022
-          os-name: windows
-          python-arch: 'x86_64'
-          python-version: '3.9'
-          numpy-version: '2.0.*'
-        - os-image: windows-2022
-          os-name: windows
-          python-arch: 'x86_64'
-          python-version: '3.10'
-          numpy-version: '2.0.*'
         - os-image: windows-2022
           os-name: windows
           python-arch: 'x86_64'
@@ -608,7 +524,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        python-version: '3.11'
 
     - name: Download wheels from artifact storage
       uses: actions/download-artifact@v4
@@ -640,7 +556,7 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/p/rawpy
-    
+
     permissions:
       id-token: write
 
