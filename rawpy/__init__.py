@@ -4,6 +4,10 @@ from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import BinaryIO
+    
+    # These seemingly redundant `x as x` aliases ensure that type-checkers treat these
+    # as public re-exports. Without them, type-checkers treat these names as private.
+    # https://typing.python.org/en/latest/spec/distributing.html#import-conventions
     from rawpy._rawpy import (
         # Module-level attributes
         flags as flags,
