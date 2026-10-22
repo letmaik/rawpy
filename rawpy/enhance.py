@@ -1,5 +1,3 @@
-from __future__ import division, print_function, absolute_import
-
 """
 This module contains additional functionality not part of LibRaw.
 """

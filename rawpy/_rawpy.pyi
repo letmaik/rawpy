@@ -1,6 +1,4 @@
 """Type stubs for rawpy._rawpy Cython module"""
-from __future__ import annotations
-
 from enum import Enum
 from typing import Any, Optional, Tuple, List, Union, NamedTuple, BinaryIO
 import numpy as np
