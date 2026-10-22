@@ -5,7 +5,7 @@ This repository wraps the C++ `LibRaw` library using Cython.
 ## Prerequisites
 
 Before starting, ensure you have:
-- **Python 3.9+**
+- **Python 3.11+**
 - **C++ compiler** - `apt install g++` (Ubuntu) / Xcode Command Line Tools (macOS)
 
 ## Critical: Compilation Required
@@ -305,7 +305,7 @@ pytest test/ -v
 
 | Python | NumPy |
 |--------|-------|
-| 3.9–3.12 | 2.0.* |
+| 3.11–3.12 | 2.0.* |
 | 3.13 | 2.1.* |
 | 3.14 | 2.4.* |
 
