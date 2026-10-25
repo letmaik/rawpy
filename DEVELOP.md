@@ -6,9 +6,9 @@ This document provides guidance on how to get started with rawpy development and
 
 ### System Requirements
 
-- **Python**: 3.9 or higher
+- **Python**: 3.11 or higher
 - **Git**: For cloning the repository and submodules
-- **C/C++ Compiler**: 
+- **C/C++ Compiler**:
   - Linux: GCC
   - macOS: Xcode Command Line Tools
   - Windows: Visual Studio 2017 or higher
@@ -182,14 +182,14 @@ Then open http://localhost:8000 in your browser.
 ### Creating a Stable Release
 
 1. **Update Version Number**
-   
+
    Edit `rawpy/_version.py`:
    ```python
    __version__ = "X.Y.Z"  # e.g., "0.26.0"
    ```
 
 2. **Update LibRaw Submodule** (if needed)
-   
+
    ```bash
    cd external/LibRaw
    git fetch --tags
@@ -199,21 +199,21 @@ Then open http://localhost:8000 in your browser.
    ```
 
 3. **Commit Changes**
-   
+
    ```bash
    git add rawpy/_version.py
    git commit -m "Release vX.Y.Z"
    ```
 
 4. **Create and Push Tag**
-   
+
    ```bash
    git tag vX.Y.Z  # e.g., v0.26.0
    git push origin main --tags
    ```
 
 5. **Automated Build and Release**
-   
+
    GitHub Actions will automatically:
    - Build wheels for all supported platforms (Linux, macOS, Windows)
    - Run tests on all platforms
@@ -226,7 +226,7 @@ Then open http://localhost:8000 in your browser.
 Pre-releases follow the same process but use a pre-release version number:
 
 1. **Update Version Number**
-   
+
    Edit `rawpy/_version.py`:
    ```python
    __version__ = "X.Y.Za1"  # Alpha pre-release (e.g., "0.26.0a1")
@@ -235,7 +235,7 @@ Pre-releases follow the same process but use a pre-release version number:
    ```
 
 2. **Update LibRaw to Snapshot** (if desired)
-   
+
    ```bash
    cd external/LibRaw
    git fetch
@@ -260,14 +260,14 @@ The `.github/workflows/ci.yml` workflow handles:
 1. **Build Job**: Builds wheels for:
    - Linux (x86_64 and aarch64)
    - macOS (Apple Silicon)
-   - Windows (x86_64 and ARM64; ARM64 requires Python 3.11+)
-   - Python versions: 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14 (when available)
+   - Windows (x86_64 and ARM64)
+   - Python versions: 3.11, 3.12, 3.13, and 3.14 (when available)
 
 2. **Test Job**: Tests all built wheels across platforms
 
 3. **Docs Job**: Builds Sphinx documentation
 
-4. **Publish Jobs**: 
+4. **Publish Jobs**:
    - Only triggered on tag push (`refs/tags/v*`)
    - Publishes wheels to PyPI
    - Deploys documentation to GitHub Pages
