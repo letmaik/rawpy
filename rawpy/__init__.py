@@ -4,44 +4,48 @@ from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import BinaryIO
+    
+    # These seemingly redundant `x as x` aliases ensure that type-checkers treat these
+    # as public re-exports. Without them, type-checkers treat these names as private.
+    # https://typing.python.org/en/latest/spec/distributing.html#import-conventions
     from rawpy._rawpy import (
         # Module-level attributes
-        flags,
-        libraw_version,
-        libraw_version_compiled,
+        flags as flags,
+        libraw_version as libraw_version,
+        libraw_version_compiled as libraw_version_compiled,
         # Main classes
-        RawPy,
-        Params,
+        RawPy as RawPy,
+        Params as Params,
         # Named tuples
-        ImageSizes,
-        Thumbnail,
+        ImageSizes as ImageSizes,
+        Thumbnail as Thumbnail,
         # Enums
-        RawType,
-        ThumbFormat,
-        DemosaicAlgorithm,
-        FBDDNoiseReductionMode,
-        ColorSpace,
-        HighlightMode,
+        RawType as RawType,
+        ThumbFormat as ThumbFormat,
+        DemosaicAlgorithm as DemosaicAlgorithm,
+        FBDDNoiseReductionMode as FBDDNoiseReductionMode,
+        ColorSpace as ColorSpace,
+        HighlightMode as HighlightMode,
         # Exceptions
-        LibRawError,
-        LibRawFatalError,
-        LibRawNonFatalError,
-        LibRawUnspecifiedError,
-        LibRawFileUnsupportedError,
-        LibRawRequestForNonexistentImageError,
-        LibRawOutOfOrderCallError,
-        LibRawNoThumbnailError,
-        LibRawUnsupportedThumbnailError,
-        LibRawInputClosedError,
-        LibRawNotImplementedError,
-        LibRawUnsufficientMemoryError,
-        LibRawDataError,
-        LibRawIOError,
-        LibRawCancelledByCallbackError,
-        LibRawBadCropError,
-        LibRawTooBigError,
-        LibRawMemPoolOverflowError,
-        NotSupportedError,
+        LibRawError as LibRawError,
+        LibRawFatalError as LibRawFatalError,
+        LibRawNonFatalError as LibRawNonFatalError,
+        LibRawUnspecifiedError as LibRawUnspecifiedError,
+        LibRawFileUnsupportedError as LibRawFileUnsupportedError,
+        LibRawRequestForNonexistentImageError as LibRawRequestForNonexistentImageError,
+        LibRawOutOfOrderCallError as LibRawOutOfOrderCallError,
+        LibRawNoThumbnailError as LibRawNoThumbnailError,
+        LibRawUnsupportedThumbnailError as LibRawUnsupportedThumbnailError,
+        LibRawInputClosedError as LibRawInputClosedError,
+        LibRawNotImplementedError as LibRawNotImplementedError,
+        LibRawUnsufficientMemoryError as LibRawUnsufficientMemoryError,
+        LibRawDataError as LibRawDataError,
+        LibRawIOError as LibRawIOError,
+        LibRawCancelledByCallbackError as LibRawCancelledByCallbackError,
+        LibRawBadCropError as LibRawBadCropError,
+        LibRawTooBigError as LibRawTooBigError,
+        LibRawMemPoolOverflowError as LibRawMemPoolOverflowError,
+        NotSupportedError as NotSupportedError,
     )
 
 from ._version import __version__
