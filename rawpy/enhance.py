@@ -2,14 +2,19 @@
 This module contains additional functionality not part of LibRaw.
 """
 
+from collections.abc import Iterable
 import time
 import os
 import warnings
 from functools import partial
 import numpy as np
-from numpy.typing import NDArray
+from numpy.typing import ArrayLike, NDArray
 
-from typing import Optional, Callable, Any, cast
+from typing import TYPE_CHECKING, Literal, Optional, Callable, Any, cast
+
+if TYPE_CHECKING:
+    # _typeshed is always available to type-checkers, but doesn't exist at runtime
+    from _typeshed import SupportsWrite, StrPath
 
 try:
     from skimage.filters.rank import median as median_func
@@ -43,7 +48,12 @@ def _is_candidate(rawarr, med, find_hot, find_dead, thresh):
         candidates = rawarr < med
     return candidates
 
-def find_bad_pixels(paths, find_hot=True, find_dead=True, confirm_ratio=0.9):
+def find_bad_pixels(
+    paths: Iterable[str],
+    find_hot: bool = True,
+    find_dead: bool = True,
+    confirm_ratio: float = 0.9,
+) -> np.ndarray[tuple[int, int], np.dtype[np.intp]]:
     """
     Find and return coordinates of hot/dead pixels in the given RAW images.
     
@@ -199,7 +209,11 @@ def _find_bad_pixel_candidates_bayer2x2(raw, isCandidateFn):
             
     return coords
 
-def repair_bad_pixels(raw, coords, method='median'):
+def repair_bad_pixels(
+    raw: rawpy.RawPy,
+    coords: ArrayLike,
+    method: Literal["median"] = 'median',
+) -> None:
     """
     Repair bad pixels in the given RAW image.
     
@@ -211,14 +225,13 @@ def repair_bad_pixels(raw, coords, method='median'):
                            array of shape (n,2) with y,x coordinates relative to visible RAW size
     :param str method: currently only 'median' is supported
     """
+    coords = np.asarray(coords)
     print('repairing', len(coords), 'bad pixels')
     
     # For small numbers of bad pixels this could be done more efficiently
     # by only interpolating the bad pixels instead of the whole image.
     
-    coords = np.asarray(coords)
-   
-    if raw.raw_pattern.shape[0] == 2:
+    if raw.raw_pattern is not None and raw.raw_pattern.shape[0] == 2:
         _repair_bad_pixels_bayer2x2(raw, coords, method)
     else:
         _repair_bad_pixels_generic(raw, coords, method)
@@ -330,7 +343,7 @@ def _groupcount(values):
     res[:,1] = cnt
     return res
 
-def save_dcraw_bad_pixels(path, bad_pixels):
+def save_dcraw_bad_pixels(path: "StrPath | SupportsWrite[Any]", bad_pixels: ArrayLike) -> None:
     """
     Save the given bad pixel coordinates in 
     `dcraw file format <http://www.cybercom.net/~dcoffin/dcraw/.badpixels>`_.
