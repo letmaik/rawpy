@@ -546,6 +546,17 @@ jobs:
       with:
         path: dist-docs/
 
+  type-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - uses: astral-sh/setup-uv@v10.3.2
+
+    - name: Enforce 100% type coverage
+      run: uvx pyrefly@1.4.0 coverage check ./rawpy
+
   publish-dist:
     runs-on: ubuntu-latest
 
