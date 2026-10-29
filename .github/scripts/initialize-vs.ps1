@@ -1,5 +1,4 @@
 # Discover the installed toolchain rather than assuming a VS version or edition.
-# The Windows ARM runner uses VS 2026 under an "18" directory.
 function Initialize-VS {
     param([Parameter(Mandatory=$true)][string]$Architecture)
 
