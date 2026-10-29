@@ -13,19 +13,24 @@ function exec {
     }
 }
 
+. "$PSScriptRoot/initialize-vs.ps1"
+
 if (!$env:PYTHON_VERSION) {
     throw "PYTHON_VERSION env var missing, must be x.y"
 }
 switch ($env:PYTHON_ARCH) {
     'x86' {
+        $VS_ARCH = 'x86'
         $PYTHON_PLATFORM = 'win32'
         $WHEEL_PLATFORM = 'win32'
     }
     'x86_64' {
+        $VS_ARCH = 'x64'
         $PYTHON_PLATFORM = 'win-amd64'
         $WHEEL_PLATFORM = 'win_amd64'
     }
     'arm64' {
+        $VS_ARCH = 'arm64'
         $PYTHON_PLATFORM = 'win-arm64'
         $WHEEL_PLATFORM = 'win_arm64'
     }
@@ -68,6 +73,10 @@ exec { python -c "import rawpy" }
 popd
 
 deactivate
+
+# Source-built optional dependencies need the target MSVC toolchain. Initialize
+# it after the clean import check so it cannot hide missing wheel DLLs.
+Initialize-VS -Architecture $VS_ARCH
 
 # Run test suite with all required and optional dependencies
 exec { python -m venv env\testsuite }
