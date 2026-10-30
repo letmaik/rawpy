@@ -9,7 +9,8 @@ cython
 numpy
 
 # optional runtime dependencies
-scikit-image
+scikit-image; python_version < '3.15'
+scikit-image==0.27.0rc1; python_version >= '3.15'
 
 # test dependencies
 pytest
