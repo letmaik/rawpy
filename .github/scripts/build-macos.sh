@@ -122,21 +122,73 @@ DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-listdeps --all --depending di
 DYLD_LIBRARY_PATH=$LIB_INSTALL_PREFIX/lib delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
-# Dump target versions of dependend libraries.
-# Currently, delocate does not support checking those.
-# See https://github.com/matthew-brett/delocate/issues/56.
+# Verify the minimum macOS version of every Mach-O binary in the wheel.
 set +x # reduce noise
-echo "Dumping LC_VERSION_MIN_MACOSX (pre-10.14) & LC_BUILD_VERSION"
+echo "Checking Mach-O deployment targets (requested: $MACOS_MIN_VERSION)"
 mkdir tmp_wheel
 pushd tmp_wheel
 unzip ../dist/*.whl
-echo rawpy/*.so
-otool -l rawpy/*.so | grep -A 3 LC_VERSION_MIN_MACOSX || true
-otool -l rawpy/*.so | grep -A 4 LC_BUILD_VERSION || true
-for file in rawpy/.dylibs/*.dylib; do
-    echo $file
-    otool -l $file | grep -A 3 LC_VERSION_MIN_MACOSX || true
-    otool -l $file | grep -A 4 LC_BUILD_VERSION || true
+
+check_minos() {
+    local file=$1
+    local load_commands
+    load_commands=$(otool -l "$file")
+    printf '%s\n' "$load_commands" | awk -v file="$file" -v expected="$MACOS_MIN_VERSION" '
+        function normalize(version, parts, count) {
+            count = split(version, parts, /\./)
+            if (count == 3 && parts[3] == 0) {
+                return parts[1] "." parts[2]
+            }
+            return version
+        }
+        function finish_command() {
+            if (command != "") {
+                command_count++
+                if (!found_version) {
+                    printf "ERROR: %s has no deployment target in %s\n", file, command > "/dev/stderr"
+                    failed = 1
+                }
+            }
+        }
+        $1 == "cmd" {
+            finish_command()
+            command = ""
+            found_version = 0
+            if ($2 == "LC_BUILD_VERSION") {
+                command = "minos"
+            } else if ($2 == "LC_VERSION_MIN_MACOSX") {
+                command = "version"
+            }
+            next
+        }
+        command == "minos" && $1 == "minos" ||
+        command == "version" && $1 == "version" {
+            found_version = 1
+            printf "%s: %s %s\n", file, $1, $2
+            if (normalize($2) != normalize(expected)) {
+                printf "ERROR: %s targets macOS %s, expected %s\n", file, $2, expected > "/dev/stderr"
+                failed = 1
+            }
+        }
+        END {
+            finish_command()
+            if (command_count == 0) {
+                printf "ERROR: %s has no macOS deployment target load command\n", file > "/dev/stderr"
+                failed = 1
+            }
+            exit failed
+        }
+    '
+}
+
+shopt -s nullglob
+binaries=(rawpy/*.so rawpy/*.dylib rawpy/.dylibs/*.dylib)
+if ((${#binaries[@]} == 0)); then
+    echo "ERROR: no Mach-O binaries found in wheel" >&2
+    exit 1
+fi
+for file in "${binaries[@]}"; do
+    check_minos "$file"
 done
 popd
 set -x
