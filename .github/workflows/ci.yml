@@ -175,6 +175,13 @@ jobs:
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
 
+    - name: Setup Python (macOS)
+      if: matrix.config.os-name == 'mac' && matrix.config.python-version == '3.15'
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.config.python-version }}
+        architecture: ${{ matrix.config.python-arch }}
+
     - name: Build wheels (macOS)
       if: matrix.config.os-name == 'mac'
       run: .github/scripts/build-macos.sh

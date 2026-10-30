@@ -15,20 +15,26 @@ export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 export PYTHON_INSTALLER_MACOS_VERSION=$MACOS_MIN_VERSION
 
 # Install Python
-# Note: The GitHub Actions supplied Python versions are not used
-# as they are built without MACOSX_DEPLOYMENT_TARGET/-mmacosx-version-min
-# being set to an older target for widest wheel compatibility.
-# Instead we install python.org binaries which are built with 10.6/10.9 target
-# and hence provide wider compatibility for the wheels we create.
-# See https://github.com/actions/setup-python/issues/26.
-git clone https://github.com/multi-build/multibuild.git
-pushd multibuild
-set +x # reduce noise
-source osx_utils.sh
-get_macpython_environment $PYTHON_VERSION venv $PYTHON_INSTALLER_MACOS_VERSION
-source venv/bin/activate
-set -x
-popd
+if [[ "$PYTHON_VERSION" == "3.15" ]]; then
+    # multibuild does not yet support installing Python 3.15 on macOS.
+    python -m venv venv
+    source venv/bin/activate
+else
+    # The GitHub Actions supplied Python versions are not used
+    # as they are built without MACOSX_DEPLOYMENT_TARGET/-mmacosx-version-min
+    # being set to an older target for widest wheel compatibility.
+    # Instead we install python.org binaries which are built with 10.6/10.9 target
+    # and hence provide wider compatibility for the wheels we create.
+    # See https://github.com/actions/setup-python/issues/26.
+    git clone https://github.com/multi-build/multibuild.git
+    pushd multibuild
+    set +x # reduce noise
+    source osx_utils.sh
+    get_macpython_environment $PYTHON_VERSION venv $PYTHON_INSTALLER_MACOS_VERSION
+    source venv/bin/activate
+    set -x
+    popd
+fi
 
 # Upgrade pip and prefer binary packages
 python -m pip install --upgrade pip
