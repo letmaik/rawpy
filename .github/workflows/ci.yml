@@ -61,6 +61,11 @@ jobs:
           docker-image: quay.io/pypa/manylinux_2_28_x86_64
           python-arch: 'x86_64'
           python-version: '3.14'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux_2_28_x86_64
+          python-arch: 'x86_64'
+          python-version: '3.15'
 
         - os-image: ubuntu-24.04-arm
           os-name: linux
@@ -82,6 +87,11 @@ jobs:
           docker-image: quay.io/pypa/manylinux_2_28_aarch64
           python-arch: 'aarch64'
           python-version: '3.14'
+        - os-image: ubuntu-24.04-arm
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux_2_28_aarch64
+          python-arch: 'aarch64'
+          python-version: '3.15'
 
         - os-image: macos-15 # Apple Silicon
           os-name: mac
@@ -103,6 +113,11 @@ jobs:
           macos-min-version: '11.0'
           python-arch: 'arm64'
           python-version: '3.14'
+        - os-image: macos-15 # Apple Silicon
+          os-name: mac
+          macos-min-version: '11.0'
+          python-arch: 'arm64'
+          python-version: '3.15'
 
         - os-image: windows-2022
           os-name: windows
@@ -120,6 +135,10 @@ jobs:
           os-name: windows
           python-arch: 'x86_64'
           python-version: '3.14'
+        - os-image: windows-2022
+          os-name: windows
+          python-arch: 'x86_64'
+          python-version: '3.15'
 
         - os-image: windows-11-arm
           os-name: windows
@@ -137,6 +156,10 @@ jobs:
           os-name: windows
           python-arch: 'arm64'
           python-version: '3.14'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.15'
 
     runs-on: ${{ matrix.config.os-image }}
 
@@ -151,6 +174,13 @@ jobs:
       env:
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
+
+    - name: Setup Python (macOS)
+      if: matrix.config.os-name == 'mac'
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.config.python-version }}
+        architecture: ${{ matrix.config.python-arch }}
 
     - name: Build wheels (macOS)
       if: matrix.config.os-name == 'mac'
@@ -234,6 +264,12 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.14'
           numpy-version: '2.4.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux_2_28_x86_64
+          python-arch: 'x86_64'
+          python-version: '3.15'
+          numpy-version: '2.5.*'
 
         - os-image: ubuntu-24.04-arm
           os-name: linux
@@ -265,6 +301,12 @@ jobs:
           python-arch: 'aarch64'
           python-version: '3.14'
           numpy-version: '2.4.*'
+        - os-image: ubuntu-24.04-arm
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux_2_28_aarch64
+          python-arch: 'aarch64'
+          python-version: '3.15'
+          numpy-version: '2.5.*'
 
         - os-image: macos-15 # Apple Silicon
           os-name: mac
@@ -296,6 +338,12 @@ jobs:
           python-arch: 'arm64'
           python-version: '3.14'
           numpy-version: '2.4.*'
+        - os-image: macos-15 # Apple Silicon
+          os-name: mac
+          macos-min-version: '11.0'
+          python-arch: 'arm64'
+          python-version: '3.15'
+          numpy-version: '2.5.*'
 
         - os-image: windows-2022
           os-name: windows
@@ -322,6 +370,11 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.14'
           numpy-version: '2.4.*'
+        - os-image: windows-2022
+          os-name: windows
+          python-arch: 'x86_64'
+          python-version: '3.15'
+          numpy-version: '2.5.*'
 
         - os-image: windows-11-arm
           os-name: windows
@@ -343,6 +396,11 @@ jobs:
           python-arch: 'arm64'
           python-version: '3.14'
           numpy-version: '2.4.*'
+        - os-image: windows-11-arm
+          os-name: windows
+          python-arch: 'arm64'
+          python-version: '3.15'
+          numpy-version: '2.5.*'
 
     runs-on: ${{ matrix.config.os-image }}
 
