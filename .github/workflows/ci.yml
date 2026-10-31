@@ -176,7 +176,7 @@ jobs:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
 
     - name: Setup Python (macOS)
-      if: matrix.config.os-name == 'mac' && matrix.config.python-version == '3.15'
+      if: matrix.config.os-name == 'mac'
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.config.python-version }}
