@@ -2,13 +2,11 @@
 requires = [
     "setuptools>=69.0.0",
     "wheel",
-    "Cython>=0.29.32; python_version < '3.15'",
-    "Cython>=3.3.0; python_version >= '3.15'",
+    "Cython",
     "cmake",
     # Build against NumPy 2.x headers. Extensions compiled with NumPy 2.0+
     # are backward-compatible with NumPy >= 1.19 at runtime.
-    "numpy>=2.0.0; python_version < '3.15'",
-    "numpy>=2.5.0; python_version >= '3.15'",
+    "numpy>=2.0.0",
 ]
 build-backend = "setuptools.build_meta"
 
